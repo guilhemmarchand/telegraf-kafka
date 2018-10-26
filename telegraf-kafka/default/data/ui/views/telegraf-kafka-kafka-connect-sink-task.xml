@@ -1,0 +1,559 @@
+<form stylesheet="telegraf-kafka:common.css" hideEdit="True" isVisible="True">
+    <label>Kafka Connect Sink task - Entity health view</label>
+
+    <search id="sink_task_state_summary">
+        <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" $connector$ by metric_name, task
+| eval {metric_name}=value
+| stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*"
+| eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2)</query>
+        <earliest>-90s</earliest>
+        <latest>now</latest>
+        <refresh>30s</refresh>
+        <refreshType>delay</refreshType>
+    </search>
+
+    <fieldset autoRun="false" submitButton="false">
+        <input type="time" searchWhenChanged="true">
+            <label></label>
+            <default>
+                <earliestTime>-4h</earliestTime>
+                <latestTime>now</latestTime>
+            </default>
+        </input>
+        <input type="dropdown" token="connector" searchWhenChanged="true">
+            <label>Kafka monitor(s):</label>
+            <!-- Populating Data Model Search -->
+            <search>
+                <query>| savedsearch telegraf-kafka-kafka-connect-tasks | where role="kafka_sink_task"</query>
+                <earliest>$earliest$</earliest>
+                <latest>$latest$</latest>
+            </search>
+            <prefix>connector="</prefix>
+            <suffix>"</suffix>
+            <delimiter> OR </delimiter>
+            <choice value="*">ANY</choice>
+            <fieldForLabel>kafka_task</fieldForLabel>
+            <fieldForValue>kafka_task</fieldForValue>
+        </input>
+    </fieldset>
+
+    <row>
+        <panel>
+            <single>
+                <search>
+                    <query>| mcatalog values(task) as task where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.running-ratio" $connector$
+| mvexpand task
+| stats dc(task) as dcount</query>
+                    <earliest>-90s</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">NUMBER OF CURRENT TASK(S)</option>
+                <option name="unit">TASK(S)</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="sink_task_state_summary">
+                    <query>fields connector-task.status | rename connector-task.status as integer_status
+| eval status=case(integer_status=0, "paused", integer_status=1, "running", integer_status=2, "unassigned", integer_status=3, "failed", integer_status=4, "destroyed")
+| rangemap field=integer_status low=1-1 high=2-4 default=severe | fields status, range</query>
+                </search>
+                <option name="colorBy">value</option>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0</option>
+                <option name="useColors">0</option>
+                <option name="underLabel">AGGREGATED STATE</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="sink_task_state_summary">
+                    <query>fields connector-task.running-ratio</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0xf1813f","0x53a051"]</option>
+                <option name="rangeValues">[99.9]</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">SINK TASK RUNNING RATIO</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="sink_task_state_summary">
+                    <query>fields error-task.total-errors-logged</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">SINK TASK TOTAL ERRORS</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="sink_task_state_summary">
+                    <query>fields error-task.total-retries</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xffae42"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">SINK TASK TOTAL RETRIES</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+    </row>
+
+    <row>
+        <panel>
+            <input type="link" token="top_linkinput">
+                <label></label>
+                <choice value="chart1">CONNECTOR OVERVIEW</choice>
+                <choice value="chart2">SINK TASK OVERVIEW</choice>
+                <choice value="chart3">ERRORS TASK OVERVIEW</choice>
+                <default>chart1</default>
+                <change>
+                    <condition value="chart1">
+                        <set token="chart1">true</set>
+                        <unset token="chart2"></unset>
+                        <unset token="chart3"></unset>
+                        <unset token="chart4"></unset>
+                        <unset token="chart5"></unset>
+                    </condition>
+                    <condition value="chart2">
+                        <set token="chart2">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart3"></unset>
+                        <unset token="chart4"></unset>
+                        <unset token="chart5"></unset>
+                    </condition>
+                    <condition value="chart3">
+                        <set token="chart3">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart2"></unset>
+                        <unset token="chart4"></unset>
+                        <unset token="chart5"></unset>
+                    </condition>
+                    <condition value="chart4">
+                        <set token="chart4">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart2"></unset>
+                        <unset token="chart3"></unset>
+                        <unset token="chart5"></unset>
+                    </condition>
+                    <condition value="chart5">
+                        <set token="chart5">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart2"></unset>
+                        <unset token="chart3"></unset>
+                        <unset token="chart4"></unset>
+                    </condition>
+                </change>
+            </input>
+        </panel>
+    </row>
+
+    <row depends="$chart1$">
+        <panel>
+            <title>The fraction of time this task has spent in the running state</title>
+            <chart>
+                <search depends="$chart1$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.running-ratio" $connector$ by task span=10s
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>The average size of the batches processed by the connector</title>
+            <chart>
+                <search depends="$chart1$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.batch-size-avg" $connector$ by task span=10s
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>The maximum size of the batches processed by the connector</title>
+            <chart>
+                <search depends="$chart1$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.batch-size-max" $connector$ by task span=10s
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+
+    <row depends="$chart1$">
+        <panel>
+            <title>The average percentage of this task's offset commit attempts that failed</title>
+            <chart>
+                <search depends="$chart1$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.offset-commit-success-percentage" $connector$ by task span=10s
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>The average time in milliseconds taken by this task to commit offsets</title>
+            <chart>
+                <search depends="$chart1$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.offset-commit-avg-time-ms" $connector$ by task span=10s
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>The maximum time in milliseconds taken by this task to commit offsets</title>
+            <chart>
+                <search depends="$chart1$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.offset-commit-max-time-ms" $connector$ by task span=10s
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+
+    <row depends="$chart2$">
+        <panel>
+            <title>Number of topic partitions assigned to this task</title>
+            <chart>
+                <search depends="$chart2$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.sink-task.partition-count" $connector$ by task span=10s
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">column</option>
+                <option name="charting.chart.stackMode">stacked</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>Avg/sec records read from Kafka, before transformations are applied</title>
+            <chart>
+                <search depends="$chart2$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.sink-task.sink-record-read-rate" $connector$ by task span=10s
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>Avg/sec records output from transformations and sent/put, after transformations are applied</title>
+            <chart>
+                <search depends="$chart2$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.sink-task.sink-record-send-rate" $connector$ by task span=10s
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+
+    <row depends="$chart2$">
+        <panel>
+            <title>Average time taken by this task to put a batch of sinks records</title>
+            <chart>
+                <search depends="$chart2$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.sink-task.put-batch-avg-time-ms" $connector$ by task span=10s
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>Avg/sec number of offset commit completions completed successfully</title>
+            <chart>
+                <search depends="$chart2$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.sink-task.offset-commit-completion-rate" $connector$ by task span=10s
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>Avg/sec number of offset commit completions received too late and skipped/ignored</title>
+            <chart>
+                <search depends="$chart2$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.sink-task.offset-commit-skip-rate" $connector$ by task span=10s
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+
+    <row depends="$chart3$">
+        <panel>
+            <title>The number of errors that were logged</title>
+            <chart>
+                <search depends="$chart3$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.error-task.total-errors-logged" $connector$ by task span=10s
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>The number of operations retried</title>
+            <chart>
+                <search depends="$chart3$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.error-task.total-retries" $connector$ by task span=10s
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>The number of records skipped due to errors</title>
+            <chart>
+                <search depends="$chart3$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.error-task.total-records-skipped" $connector$ by task span=10s
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+
+    <row depends="$chart3$">
+        <panel>
+            <title>The number of record processing failures in this task</title>
+            <chart>
+                <search depends="$chart3$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.error-task.total-record-failures" $connector$ by task span=10s
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>The number of record processing errors in this task</title>
+            <chart>
+                <search depends="$chart3$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.error-task.total-record-errors" $connector$ by task span=10s
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>The number of attempted writes to the dead letter queue</title>
+            <chart>
+                <search depends="$chart3$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.error-task.deadletterqueue-produce-requests" $connector$ by task span=10s
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+
+    <row depends="$chart3$">
+        <panel>
+            <title>The number of failed writes to the dead letter queue</title>
+            <chart>
+                <search depends="$chart3$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.error-task.deadletterqueue-produce-failures" $connector$ by task span=10s
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+        </panel>
+        <panel>
+        </panel>
+    </row>
+
+</form>

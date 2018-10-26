@@ -1,0 +1,462 @@
+<dashboard stylesheet="common.css,hover.css">
+    <label>Overview</label>
+
+    <search id="broker_activity_summary">
+        <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topics.MessagesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesOutPerSec.OneMinuteRate" by metric_name
+| eval {metric_name}=value
+| stats first(kafka_topics.*.OneMinuteRate) as "*"
+| eval KBytesInPerSec=round(BytesInPerSec/1024, 2), KBytesOutPerSec=round(BytesOutPerSec/1024, 2), MessagesInPerSec=round(MessagesInPerSec, 2)
+| fields KBytesInPerSec, KBytesOutPerSec, MessagesInPerSec</query>
+        <earliest>-90s</earliest>
+        <latest>now</latest>
+        <refresh>90s</refresh>
+        <refreshType>delay</refreshType>
+    </search>
+
+    <search id="server_activity_summary">
+        <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.avg_latency" OR metric_name="zookeeper.outstanding_requests" OR metric_name="zookeeper.pending_syncs" by metric_name span=1s
+| eval {metric_name}=value
+| stats first(zookeeper.*) as "*" by _time
+| stats avg(*) as "*"
+| eval pending_syncs=if(isnull(pending_syncs), 0, pending_syncs)</query>
+        <earliest>-90s</earliest>
+        <latest>now</latest>
+        <refresh>90s</refresh>
+        <refreshType>delay</refreshType>
+    </search>
+
+    <search id="connect_state_summary">
+        <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.worker.task-startup-failure-total" OR metric_name="kafka_connect.worker.connector-startup-failure-total" OR metric_name="kafka_connect.worker.time-since-last-rebalance-ms" OR metric_name="kafka_connect.worker.task-count" by metric_name, jolokia_agent_url
+| eval {metric_name}=value
+| stats first(kafka_connect.*) as "*" by jolokia_agent_url
+| stats min(worker.time-since-last-rebalance-ms) as worker.time-since-last-rebalance-ms, sum(*) as "*"
+| eval duration=tostring(round('worker.time-since-last-rebalance-ms'/1000, 0), "duration")
+| fields worker.connector-startup-failure-total, worker.task-startup-failure-total, worker.task-count, duration</query>
+        <earliest>-90s</earliest>
+        <latest>now</latest>
+        <refresh>90s</refresh>
+        <refreshType>delay</refreshType>
+    </search>
+
+    <search id="connect_tasks_summary">
+        <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" by metric_name, task, connector
+| eval {metric_name}=value
+| stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*" by connector
+| eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2) | fields connector connector-task.status | rename connector-task.status as integer_status
+| eval status=case(integer_status=0, "paused", integer_status=1, "running", integer_status=2, "unassigned", integer_status=3, "failed", integer_status=4, "destroyed")
+| join connector [ | savedsearch telegraf-kafka-kafka-connect-tasks | rename kafka_task as connector ]</query>
+        <earliest>-90s</earliest>
+        <latest>now</latest>
+        <refresh>90s</refresh>
+        <refreshType>delay</refreshType>
+    </search>
+
+    <row>
+        <panel>
+            <html>
+                <div class="dashseparator">
+                    <h1>ZOOKEEPER</h1>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+    <row>
+        <panel>
+            <single>
+                <search>
+                    <query>| savedsearch telegraf-kafka-zookeeper-servers | stats dc(server) as dcount</query>
+                    <earliest>-15m</earliest>
+                    <latest>now</latest>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">ZOOKEEPER SERVER</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="server_activity_summary">
+                    <query>fields avg_latency</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[10]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">AVERAGE LATENCY</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="server_activity_summary">
+                    <query>fields outstanding_requests</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[10]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">OUTSTANDING REQUESTS</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="server_activity_summary">
+                    <query>fields pending_syncs</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[10]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">PENDING SYNCS</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+    </row>
+
+    <row>
+        <panel>
+            <html>
+                <div class="mainbutton_container_nomargin">
+                    <div class="mainbutton_highmargin">
+                        <a class="button2_lowpadding glow" href="telegraf-kafka-zookeeper">  OPEN ENTITY DASHBOARD VIEW  </a>
+                    </div>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+    <row>
+        <panel>
+            <html>
+                <div class="dashseparator">
+                    <h1>KAFKA BROKERS</h1>
+                </div>
+            </html>
+        </panel>
+    </row>
+    <row>
+        <panel>
+            <single>
+                <search>
+                    <query>| savedsearch telegraf-kafka-kafka-brokers | stats dc(jolokia_agent_url) as dcount</query>
+                    <earliest>-15m</earliest>
+                    <latest>now</latest>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">KAFKA BROKERS</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search>
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_controller.OfflinePartitionsCount.Value" by jolokia_agent_url
+| stats sum(value) as value</query>
+                    <earliest>-90s</earliest>
+                    <latest>now</latest>
+                    <refresh>90s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">OFFLINE PARTITIONS</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search>
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_replica_manager.UnderReplicatedPartitions.Value" by jolokia_agent_url
+| stats sum(value) as value</query>
+                    <earliest>-90s</earliest>
+                    <latest>now</latest>
+                    <refresh>90s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">UNDER-REPLICATED PARTITIONS</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="broker_activity_summary">
+                    <query>fields MessagesInPerSec</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">REALTIME AVG MESSAGES/IN SEC</option>
+                <option name="unit">msg/sec</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="broker_activity_summary">
+                    <query>fields KBytesInPerSec</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">REALTIME AVG TRAFFIC IN</option>
+                <option name="unit">Kbps in</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="broker_activity_summary">
+                    <query>fields KBytesInPerSec</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">REALTIME AVG TRAFFIC OUT</option>
+                <option name="unit">Kbps out</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+    </row>
+
+    <row>
+        <panel>
+            <html>
+                <div class="mainbutton_container_nomargin">
+                    <div class="mainbutton_highmargin">
+                        <a class="button2_lowpadding glow" href="telegraf-kafka-kafka-brokers">  OPEN ENTITY DASHBOARD VIEW  </a>
+                    </div>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+    <row>
+        <panel>
+            <html>
+                <div class="dashseparator">
+                    <h1>KAFKA CONNECT WORKERS</h1>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+    <row>
+        <panel>
+            <single>
+                <search>
+                    <query>| savedsearch telegraf-kafka-kafka-connect-workers | stats dc(jolokia_agent_url) as dcount</query>
+                    <earliest>-15m</earliest>
+                    <latest>now</latest>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">KAFKA CONNECT WORKERS</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="connect_state_summary">
+                    <query>fields worker.connector-startup-failure-total</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">FAILED WORKER STARTUP</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="connect_state_summary">
+                    <query>fields worker.task-startup-failure-total</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">FAILED TASKS STARTUP</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="connect_state_summary">
+                    <query>fields duration</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">DURATION SINCE LAST REBALANCE</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="connect_state_summary">
+                    <query>fields worker.task-count</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">WORKER TASKS COUNT</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+    </row>
+
+    <row>
+        <panel>
+            <html>
+                <div class="mainbutton_container_nomargin">
+                    <div class="mainbutton_highmargin">
+                        <a class="button2_lowpadding glow" href="telegraf-kafka-kafka-connect">  OPEN ENTITY DASHBOARD VIEW  </a>
+                    </div>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+    <row>
+        <panel>
+            <html>
+                <div class="dashseparator">
+                    <h1>KAFKA CONNECT SOURCE TASKS</h1>
+                </div>
+            </html>
+        </panel>
+        <panel>
+            <html>
+                <div class="dashseparator">
+                    <h1>KAFKA CONNECT SINK TASKS</h1>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+    <row>
+        <panel>
+            <single>
+                <search base="connect_tasks_summary">
+                    <query>where role="kafka_sink_task" | stats dc(connector) as dcount</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">SOURCE CONNECTORS</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="connect_tasks_summary">
+                    <query>where role="kafka_source_task" | rangemap field=integer_status low=1-1 high=2-4 default=severe | fields status, range</query>
+                </search>
+                <option name="colorBy">value</option>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0</option>
+                <option name="useColors">0</option>
+                <option name="underLabel">AGGREGATED STATE</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="connect_tasks_summary">
+                    <query>where role="kafka_source_task" | stats dc(connector) as dcount</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">SINK CONNECTORS</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="connect_tasks_summary">
+                    <query>where role="kafka_sink_task" | rangemap field=integer_status low=1-1 high=2-4 default=severe | fields status, range</query>
+                </search>
+                <option name="colorBy">value</option>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0</option>
+                <option name="useColors">0</option>
+                <option name="underLabel">AGGREGATED STATE</option>
+            </single>
+        </panel>
+    </row>
+
+    <row>
+        <panel>
+            <html>
+                <div class="mainbutton_container_nomargin">
+                    <div class="mainbutton_highmargin">
+                        <a class="button2_lowpadding glow" href="telegraf-kafka-kafka-connect-source-task">  SOURCE TASK DASHBOARD VIEW  </a>
+                    </div>
+                </div>
+            </html>
+        </panel>
+        <panel>
+            <html>
+                <div class="mainbutton_container_nomargin">
+                    <div class="mainbutton_highmargin">
+                        <a class="button2_lowpadding glow" href="telegraf-kafka-kafka-connect-sink-task">  SINK TASK DASHBOARD VIEW  </a>
+                    </div>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+</dashboard>

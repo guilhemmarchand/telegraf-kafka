@@ -1,0 +1,251 @@
+<form stylesheet="telegraf-kafka-zookeeper:common.css" hideEdit="true" isVisible="true">
+    <label>Zookeeper - Entity health view</label>
+
+    <search id="server_activity_summary">
+        <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.avg_latency" OR metric_name="zookeeper.outstanding_requests" OR metric_name="zookeeper.pending_syncs" $server$ by metric_name span=1s
+| eval {metric_name}=value
+| stats first(zookeeper.*) as "*" by _time
+| stats avg(*) as "*"
+| eval pending_syncs=if(isnull(pending_syncs), 0, pending_syncs)</query>
+        <earliest>-90s</earliest>
+        <latest>now</latest>
+        <refresh>30s</refresh>
+        <refreshType>delay</refreshType>
+    </search>
+
+    <fieldset autoRun="false" submitButton="false">
+        <input type="time" searchWhenChanged="true">
+            <label></label>
+            <default>
+                <earliestTime>-4h</earliestTime>
+                <latestTime>now</latestTime>
+            </default>
+        </input>
+        <input type="multiselect" token="server" searchWhenChanged="true">
+            <label>Zookeeper server(s):</label>
+            <!-- Populating Data Model Search -->
+            <search>
+                <query>| savedsearch telegraf-kafka-zookeeper-servers</query>
+                <earliest>$earliest$</earliest>
+                <latest>$latest$</latest>
+            </search>
+            <valuePrefix>server="</valuePrefix>
+            <valueSuffix>"</valueSuffix>
+            <delimiter> OR </delimiter>
+            <choice value="*">ANY</choice>
+            <fieldForLabel>server</fieldForLabel>
+            <fieldForValue>server</fieldForValue>
+        </input>
+    </fieldset>
+
+    <row>
+        <panel>
+            <single>
+                <search base="server_activity_summary">
+                    <query>fields avg_latency</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[10]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">AVERAGE LATENCY</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="server_activity_summary">
+                    <query>fields outstanding_requests</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[10]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">OUTSTANDING REQUESTS</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="server_activity_summary">
+                    <query>fields pending_syncs</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[10]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">PENDING SYNCS</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search>
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.max_file_descriptor_count" OR metric_name="zookeeper.open_file_descriptor_count" $server$ by metric_name, server
+| eval {metric_name}=value
+| stats first(zookeeper.*) as "*" by server
+| eval percent_file_descriptor_used=round((open_file_descriptor_count/max_file_descriptor_count)*100, 3)
+| stats avg(percent_file_descriptor_used) as percent_file_descriptor_used
+| fields percent_file_descriptor_used</query>
+                    <earliest>-90s</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[10]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">FILE-DESCRIPTOR USED</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+    </row>
+
+    <row>
+        <panel>
+            <chart>
+                <title>Average latency</title>
+                <search>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="zookeeper.avg_latency" $server$ by server span=1s
+| timechart `telegraf_kafka_span` avg(_value) as "Avg" by server</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <chart>
+                <title>Outstanding requests</title>
+                <search>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="zookeeper.outstanding_requests" $server$ by server span=1s
+| timechart `telegraf_kafka_span` avg(_value) as "Avg" by server</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <chart rejects="$show_null_pendingsync$">
+                <title>Pending Sync</title>
+                <search>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="zookeeper.pending_syncs" $server$ by server span=1s
+| timechart `telegraf_kafka_span` avg(_value) as "Avg" by server</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <done>
+                        <condition match="$job.resultCount$ == 0">
+                            <set token="show_null_pendingsync">true</set>
+                        </condition>
+                        <condition>
+                            <unset token="show_null_pendingsync"></unset>
+                        </condition>
+                    </done>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+            <html depends="$show_null_pendingsync$">
+                <div style="text-align: center;">
+                    <img src="../../static/app/DA-ITSI-TELEGRAF-KAFKA/icons/ok_green.png" alt="ok"/>
+                    <p style="color:blue;font-size:14px;"><br/>NO PENDING SYNC OPERATIONS DETECTED</p>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+    <row>
+        <panel>
+            <chart>
+                <title>File descriptor percentage used</title>
+                <search>
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.max_file_descriptor_count" OR metric_name="zookeeper.open_file_descriptor_count" $server$ by metric_name, server span=1s
+| eval {metric_name}=value
+| stats first(zookeeper.*) as "*" by _time, server
+| eval percent_file_descriptor_used=round((open_file_descriptor_count/max_file_descriptor_count)*100, 3)
+| timechart `telegraf_kafka_span` avg(percent_file_descriptor_used) as percent_file_descriptor_used by server</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <chart>
+                <title>Packets received</title>
+                <search>
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.packets_received" $server$ by metric_name, server span=1s
+| eval {metric_name}=value
+| stats first(zookeeper.*) as "*_counter" by _time, server
+| streamstats current=f last(*_counter) as "*_prev" by server
+| eval packets_received=(packets_received_counter-packets_received_prev)
+| fields _time, server, packets_received
+| where packets_received&gt;=0
+| timechart `telegraf_kafka_span` avg(packets_received) as packets_received by server</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <chart>
+                <title>Packets sent</title>
+                <search>
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.packets_sent" $server$ by metric_name, server span=1s
+| eval {metric_name}=value
+| stats first(zookeeper.*) as "*_counter" by _time, server
+| streamstats current=f last(*_counter) as "*_prev" by server
+| eval packets_sent=(packets_sent_counter-packets_sent_prev)
+| fields _time, server, packets_sent
+| where packets_sent&gt;=0
+| timechart `telegraf_kafka_span` avg(packets_sent) as packets_sent by server</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+</form>

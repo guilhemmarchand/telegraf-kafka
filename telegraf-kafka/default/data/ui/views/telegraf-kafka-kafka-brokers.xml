@@ -1,0 +1,1015 @@
+<form stylesheet="telegraf-kafka:common.css" hideEdit="true" isVisible="True">
+    <label>Kafka Broker - Entity health view</label>
+
+    <search id="broker_activity_summary">
+        <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topics.MessagesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesOutPerSec.OneMinuteRate" $jolokia_agent_url$ by metric_name
+| eval {metric_name}=value
+| stats first(kafka_topics.*.OneMinuteRate) as "*"
+| eval KBytesInPerSec=round(BytesInPerSec/1024, 2), KBytesOutPerSec=round(BytesOutPerSec/1024, 2), MessagesInPerSec=round(MessagesInPerSec, 2)
+| fields KBytesInPerSec, KBytesOutPerSec, MessagesInPerSec</query>
+        <earliest>-90s</earliest>
+        <latest>now</latest>
+        <refresh>30s</refresh>
+        <refreshType>delay</refreshType>
+    </search>
+
+    <search id="topics_list">
+        <query>| mcatalog values(topic) as topic where `telegraf_kafka_index` metric_name="kafka_topic.MessagesInPerSec.OneMinuteRate" OR metric_name="kafka_topic.BytesInPerSec.OneMinuteRate" OR metric_name="kafka_topic.BytesOutPerSec.OneMinuteRate" $jolokia_agent_url$ by metric_name</query>
+        <earliest>$earliest$</earliest>
+        <latest>$latest$</latest>
+    </search>
+
+    <search id="topics_partitions_list">
+        <query>| mcatalog values(partition) as partition where `telegraf_kafka_index` metric_name="kafka_partition.Size" $jolokia_agent_url$ by topic, jolokia_agent_url</query>
+        <earliest>$earliest$</earliest>
+        <latest>$latest$</latest>
+    </search>
+
+    <fieldset autoRun="false" submitButton="false">
+        <input type="time" searchWhenChanged="true">
+            <label></label>
+            <default>
+                <earliestTime>-4h</earliestTime>
+                <latestTime>now</latestTime>
+            </default>
+        </input>
+        <input type="multiselect" token="jolokia_agent_url" searchWhenChanged="true">
+            <label>Kafka broker(s):</label>
+            <!-- Populating Data Model Search -->
+            <search>
+                <query>| savedsearch telegraf-kafka-kafka-brokers</query>
+                <earliest>$earliest$</earliest>
+                <latest>$latest$</latest>
+            </search>
+            <valuePrefix>jolokia_agent_url="</valuePrefix>
+            <valueSuffix>"</valueSuffix>
+            <delimiter> OR </delimiter>
+            <choice value="*">ANY</choice>
+            <fieldForLabel>jolokia_agent_url</fieldForLabel>
+            <fieldForValue>jolokia_agent_url</fieldForValue>
+        </input>
+    </fieldset>
+
+    <row rejects="$show_null_realtime$">
+        <panel>
+            <single>
+                <search>
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_controller.OfflinePartitionsCount.Value" $jolokia_agent_url$ by jolokia_agent_url
+| stats sum(value) as value</query>
+                    <earliest>-90s</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                    <done>
+                        <condition match="$job.resultCount$ == 0">
+                            <set token="show_null_realtime">true</set>
+                        </condition>
+                        <condition>
+                            <unset token="show_null_realtime"></unset>
+                        </condition>
+                    </done>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">OFFLINE PARTITIONS</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search>
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_replica_manager.UnderReplicatedPartitions.Value" $jolokia_agent_url$ by jolokia_agent_url
+| stats sum(value) as value</query>
+                    <earliest>-90s</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">UNDER-REPLICATED PARTITIONS</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="broker_activity_summary">
+                    <query>fields MessagesInPerSec</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">REALTIME AVG MESSAGES/IN SEC</option>
+                <option name="unit">msg/sec</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="broker_activity_summary">
+                    <query>fields KBytesInPerSec</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">REALTIME AVG TRAFFIC IN</option>
+                <option name="unit">Kbps in</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="broker_activity_summary">
+                    <query>fields KBytesInPerSec</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">REALTIME AVG TRAFFIC OUT</option>
+                <option name="unit">Kbps out</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+    </row>
+
+    <row depends="$show_null_realtime$">
+      <panel>
+            <html>
+                <div style="text-align: center;">
+                    <img src="../../static/app/DA-ITSI-TELEGRAF-KAFKA/icons/warning_amber.png" alt="warning"/>
+                    <p style="color:red;font-size:18px;font-weight:bold;"><br/>REALTIME DATA NOT AVAILABLE - BROKER IS OFFLINE !</p>
+                </div>
+            </html>
+      </panel>
+    </row>
+
+    <row>
+        <panel>
+            <input type="link" token="top_linkinput">
+                <label></label>
+                <choice value="chart1">BROKER ACTIVITY OVERVIEW</choice>
+                <choice value="chart2">BROKER HEALTH OVERVIEW</choice>
+                <choice value="chart3">ALL TOPICS REQUEST/SEC</choice>
+                <choice value="chart4">REQUESTS LATENCY</choice>
+                <choice value="chart5">BY TOPIC MESSAGES/IN</choice>
+                <choice value="chart6">BY TOPIC TRAFFIC IN/OUT</choice>
+                <choice value="chart7">LEADER PARTITIONS</choice>
+                <choice value="chart8">JVM GARBAGE COLLECTION</choice>
+                <choice value="chart9">TABLE TOPICS/PARTITIONS</choice>
+                <default>chart1</default>
+                <change>
+                    <condition value="chart1">
+                        <set token="chart1">true</set>
+                        <unset token="chart2"></unset>
+                        <unset token="chart3"></unset>
+                        <unset token="chart4"></unset>
+                        <unset token="chart5"></unset>
+                        <unset token="chart6"></unset>
+                        <unset token="chart7"></unset>
+                        <unset token="chart8"></unset>
+                        <unset token="chart9"></unset>
+                        <unset token="chart10"></unset>
+                    </condition>
+                    <condition value="chart2">
+                        <set token="chart2">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart3"></unset>
+                        <unset token="chart4"></unset>
+                        <unset token="chart5"></unset>
+                        <unset token="chart6"></unset>
+                        <unset token="chart7"></unset>
+                        <unset token="chart8"></unset>
+                        <unset token="chart9"></unset>
+                        <unset token="chart10"></unset>
+                    </condition>
+                    <condition value="chart3">
+                        <set token="chart3">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart2"></unset>
+                        <unset token="chart4"></unset>
+                        <unset token="chart5"></unset>
+                        <unset token="chart6"></unset>
+                        <unset token="chart7"></unset>
+                        <unset token="chart8"></unset>
+                        <unset token="chart9"></unset>
+                        <unset token="chart10"></unset>
+                    </condition>
+                    <condition value="chart4">
+                        <set token="chart4">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart2"></unset>
+                        <unset token="chart3"></unset>
+                        <unset token="chart5"></unset>
+                        <unset token="chart6"></unset>
+                        <unset token="chart7"></unset>
+                        <unset token="chart8"></unset>
+                        <unset token="chart9"></unset>
+                        <unset token="chart10"></unset>
+                    </condition>
+                    <condition value="chart5">
+                        <set token="chart5">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart2"></unset>
+                        <unset token="chart3"></unset>
+                        <unset token="chart4"></unset>
+                        <unset token="chart6"></unset>
+                        <unset token="chart7"></unset>
+                        <unset token="chart8"></unset>
+                        <unset token="chart9"></unset>
+                        <unset token="chart10"></unset>
+                    </condition>
+                    <condition value="chart6">
+                        <set token="chart6">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart2"></unset>
+                        <unset token="chart3"></unset>
+                        <unset token="chart4"></unset>
+                        <unset token="chart5"></unset>
+                        <unset token="chart7"></unset>
+                        <unset token="chart8"></unset>
+                        <unset token="chart9"></unset>
+                        <unset token="chart10"></unset>
+                    </condition>
+                    <condition value="chart7">
+                        <set token="chart7">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart2"></unset>
+                        <unset token="chart3"></unset>
+                        <unset token="chart4"></unset>
+                        <unset token="chart5"></unset>
+                        <unset token="chart6"></unset>
+                        <unset token="chart8"></unset>
+                        <unset token="chart9"></unset>
+                        <unset token="chart10"></unset>
+                    </condition>
+                    <condition value="chart8">
+                        <set token="chart8">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart2"></unset>
+                        <unset token="chart3"></unset>
+                        <unset token="chart4"></unset>
+                        <unset token="chart5"></unset>
+                        <unset token="chart6"></unset>
+                        <unset token="chart7"></unset>
+                        <unset token="chart9"></unset>
+                        <unset token="chart10"></unset>
+                    </condition>
+                    <condition value="chart9">
+                        <set token="chart9">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart2"></unset>
+                        <unset token="chart3"></unset>
+                        <unset token="chart4"></unset>
+                        <unset token="chart5"></unset>
+                        <unset token="chart6"></unset>
+                        <unset token="chart7"></unset>
+                        <unset token="chart8"></unset>
+                        <unset token="chart10"></unset>
+                    </condition>
+                    <condition value="chart10">
+                        <set token="chart10">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart2"></unset>
+                        <unset token="chart3"></unset>
+                        <unset token="chart4"></unset>
+                        <unset token="chart5"></unset>
+                        <unset token="chart6"></unset>
+                        <unset token="chart7"></unset>
+                        <unset token="chart8"></unset>
+                        <unset token="chart9"></unset>
+                    </condition>
+                </change>
+            </input>
+        </panel>
+    </row>
+    <row depends="$chart1$">
+        <panel>
+            <title>All topics messages per sec</title>
+            <chart>
+                <search depends="$chart1$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topics.MessagesInPerSec.OneMinuteRate" $jolokia_agent_url$ span=10s by jolokia_agent_url
+| timechart limit=20 useother=f `telegraf_kafka_span` avg(_value) as MessagesInPerSec by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+    <row depends="$chart1$">
+        <panel>
+            <title>All topics KBytesInPerSec</title>
+            <chart>
+                <search depends="$chart1$">
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topics.BytesInPerSec.OneMinuteRate" $jolokia_agent_url$ span=10s by jolokia_agent_url
+| eval value=value/1024
+| timechart limit=20 useother=f `telegraf_kafka_span` avg(value) as KBytesInPerSec by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>All topics KBytesOutPerSec</title>
+            <chart>
+                <search depends="$chart1$">
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topics.BytesOutPerSec.OneMinuteRate" $jolokia_agent_url$ span=10s by jolokia_agent_url
+| eval value=value/1024
+| timechart limit=20 useother=f `telegraf_kafka_span` avg(value) as KBytesOutPerSec by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+    <row depends="$chart2$">
+        <panel>
+            <title>OfflinePartitions</title>
+            <chart>
+                <search depends="$chart2$">
+                    <query>| mstats max(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_controller.OfflinePartitionsCount.Value" $jolokia_agent_url$ span=10s by jolokia_agent_url
+| timechart limit=20 useother=f `telegraf_kafka_span` max(_value) as OfflinePartitions by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>UnderReplicatedPartitions</title>
+            <chart>
+                <search depends="$chart2$">
+                    <query>| mstats max(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_replica_manager.UnderReplicatedPartitions.Value" $jolokia_agent_url$ span=10s by jolokia_agent_url
+| timechart limit=20 useother=f `telegraf_kafka_span` max(_value) as UnderReplicatedPartitions by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+    <row depends="$chart2$">
+        <panel>
+            <title>ISR Shrinking per sec</title>
+            <chart>
+                <search depends="$chart2$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_replica_manager.IsrShrinksPerSec.OneMinuteRate" span=10s by jolokia_agent_url
+| timechart limit=20 useother=f `telegraf_kafka_span` avg(_value) as IsrShrinksPerSec by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>UnderReplicatedPartitions by topic</title>
+            <table>
+                <search depends="$chart2$">
+                    <query>| mstats latest(_value) as UnderReplicatedPartitions where `telegraf_kafka_index` metric_name="kafka_partition.UnderReplicatedPartitions" $jolokia_agent_url$ by jolokia_agent_url, topic | sort 0 topic, jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="count">8</option>
+            </table>
+        </panel>
+    </row>
+    <row depends="$chart3$">
+        <panel>
+            <title>Produce requests/sec</title>
+            <chart>
+                <search depends="$chart3$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.TotalProduceRequestsPerSec.OneMinuteRate" $jolokia_agent_url$ span=10s by jolokia_agent_url
+| timechart `telegraf_kafka_span` avg(_value) as TotalProduceRequestsPerSec by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>Fetch requests/sec</title>
+            <chart>
+                <search depends="$chart3$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.TotalFetchRequestsPerSec.OneMinuteRate" $jolokia_agent_url$ span=10s by jolokia_agent_url
+| timechart `telegraf_kafka_span` avg(_value) as TotalFetchRequestsPerSec by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+    <row depends="$chart3$">
+        <panel>
+            <title>Produce failed requests/sec</title>
+            <chart>
+                <search depends="$chart3$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.FailedProduceRequestsPerSec.OneMinuteRate" $jolokia_agent_url$ span=10s by jolokia_agent_url
+| timechart `telegraf_kafka_span` avg(_value) as FailedProduceRequestsPerSec by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>Fetch failed requests/sec</title>
+            <chart>
+                <search depends="$chart3$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.FailedFetchRequestsPerSec.OneMinuteRate" $jolokia_agent_url$ span=10s by jolokia_agent_url
+| timechart `telegraf_kafka_span` avg(_value) as FailedFetchRequestsPerSec by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+
+    <row depends="$chart4$">
+        <panel>
+            <title>TotalTimeMs</title>
+            <chart>
+                <search depends="$chart4$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_network.TotalTimeMs.Mean" (request="Produce" OR request="FetchConsumer" OR request="FetchFollower") $jolokia_agent_url$ span=10s by request
+| timechart `telegraf_kafka_span` avg(_value) as "Avg" by request</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>RequestQueueTimeMs</title>
+            <chart>
+                <search depends="$chart4$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_network.RequestQueueTimeMs.Mean" (request="Produce" OR request="FetchConsumer" OR request="FetchFollower") $jolokia_agent_url$ span=10s by request
+| timechart `telegraf_kafka_span` avg(_value) as "Avg" by request</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>LocalTimeMs</title>
+            <chart>
+                <search depends="$chart4$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_network.LocalTimeMs.Mean" (request="Produce" OR request="FetchConsumer" OR request="FetchFollower") $jolokia_agent_url$ span=10s by request
+| timechart `telegraf_kafka_span` avg(_value) as "Avg" by request</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+
+    <row depends="$chart4$">
+        <panel>
+            <title>RemoteTimeMs</title>
+            <chart>
+                <search depends="$chart4$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_network.RemoteTimeMs.Mean" (request="Produce" OR request="FetchConsumer" OR request="FetchFollower") $jolokia_agent_url$ span=10s by request
+| timechart `telegraf_kafka_span` avg(_value) as "Avg" by request</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>ResponseQueueTimeMs</title>
+            <chart>
+                <search depends="$chart4$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_network.ResponseQueueTimeMs.Mean" (request="Produce" OR request="FetchConsumer" OR request="FetchFollower") $jolokia_agent_url$ span=10s by request
+| timechart `telegraf_kafka_span` avg(_value) as "Avg" by request</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>ResponseSendTimeMs</title>
+            <chart>
+                <search depends="$chart4$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_network.ResponseSendTimeMs.Mean" (request="Produce" OR request="FetchConsumer" OR request="FetchFollower") $jolokia_agent_url$ span=10s by request
+| timechart `telegraf_kafka_span` avg(_value) as "Avg" by request</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+
+    <row depends="$chart4$">
+        <panel>
+            <title>ResponseSendTimeMs</title>
+            <chart>
+                <search depends="$chart4$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_network.ResponseSendTimeMs.Mean" (request="Produce" OR request="FetchConsumer" OR request="FetchFollower") $jolokia_agent_url$ span=10s by request
+| timechart `telegraf_kafka_span` avg(_value) as "Avg" by request</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+        </panel>
+        <panel>
+        </panel>
+    </row>
+
+    <row depends="$chart5$">
+        <panel>
+            <input type="multiselect" token="topic" searchWhenChanged="true">
+                <label>TOPIC:</label>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <valuePrefix>topic="</valuePrefix>
+                <valueSuffix>"</valueSuffix>
+                <delimiter> OR </delimiter>
+                <fieldForLabel>topic</fieldForLabel>
+                <fieldForValue>topic</fieldForValue>
+                <search base="topics_list">
+                    <query>where metric_name="kafka_topic.MessagesInPerSec.OneMinuteRate" | mvexpand topic | sort 0 topic</query>
+                </search>
+            </input>
+            <table>
+                <search depends="$chart5$">
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.MessagesInPerSec.OneMinuteRate" $jolokia_agent_url$ $topic$ span=10s by jolokia_agent_url, topic
+| stats avg(value) as "avg msg in/sec", max(value) as "max msg in/sec", sparkline(avg(value),) As sparkline by topic, jolokia_agent_url
+| eval "avg msg in/sec"=round('avg msg in/sec', 2), "max msg in/sec"=round('max msg in/sec', 2) | sort 0 topic, jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="count">10</option>
+                <option name="dataOverlayMode">none</option>
+                <option name="drilldown">none</option>
+                <option name="percentagesRow">false</option>
+                <option name="rowNumbers">false</option>
+                <option name="totalsRow">false</option>
+                <option name="wrap">true</option>
+                <format type="sparkline" field="sparkline">
+                    <option name="lineColor">#5379af</option>
+                    <option name="fillColor">#CCDDFF</option>
+                    <option name="lineWidth">1</option>
+                    <option name="height">25</option>
+                </format>
+            </table>
+        </panel>
+    </row>
+    <row depends="$chart5$">
+        <panel>
+            <chart>
+                <search depends="$chart5$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.MessagesInPerSec.OneMinuteRate" $jolokia_agent_url$ $topic$ span=10s by topic
+| eval value=round(value, 3)
+| timechart `telegraf_kafka_span` avg(_value) as "Avg" limit=20 useother=false by topic</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+
+    <row depends="$chart6$">
+        <panel>
+            <input type="multiselect" token="topic_kbps_in" searchWhenChanged="true">
+                <label>TOPIC:</label>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <valuePrefix>topic="</valuePrefix>
+                <valueSuffix>"</valueSuffix>
+                <delimiter> OR </delimiter>
+                <fieldForLabel>topic</fieldForLabel>
+                <fieldForValue>topic</fieldForValue>
+                <search base="topics_list">
+                    <query>where metric_name="kafka_topic.BytesInPerSec.OneMinuteRate" | mvexpand topic | sort 0 topic</query>
+                </search>
+            </input>
+            <table>
+                <search depends="$chart6$">
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesInPerSec.OneMinuteRate" $jolokia_agent_url$ $topic_kbps_in$ span=10s by topic, jolokia_agent_url
+| eval value=value/1024
+| stats avg(value) as "avg Kbps in/sec", max(value) as "max Kbps in/sec", sparkline(avg(value),) As sparkline by topic, jolokia_agent_url
+| eval "avg Kbps in/sec"=round('avg Kbps in/sec', 2), "max Kbps in/sec"=round('max Kbps in/sec', 2) | sort 0 topic, jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="count">10</option>
+                <option name="dataOverlayMode">none</option>
+                <option name="drilldown">none</option>
+                <option name="percentagesRow">false</option>
+                <option name="rowNumbers">false</option>
+                <option name="totalsRow">false</option>
+                <option name="wrap">true</option>
+                <format type="sparkline" field="sparkline">
+                    <option name="lineColor">#5379af</option>
+                    <option name="fillColor">#CCDDFF</option>
+                    <option name="lineWidth">1</option>
+                    <option name="height">25</option>
+                </format>
+            </table>
+        </panel>
+        <panel>
+            <input type="multiselect" token="topic_kbps_out" searchWhenChanged="true">
+                <label>TOPIC:</label>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <valuePrefix>topic="</valuePrefix>
+                <valueSuffix>"</valueSuffix>
+                <delimiter> OR </delimiter>
+                <fieldForLabel>topic</fieldForLabel>
+                <fieldForValue>topic</fieldForValue>
+                <search base="topics_list">
+                    <query>where metric_name="kafka_topic.BytesOutPerSec.OneMinuteRate" | mvexpand topic | sort 0 topic</query>
+                </search>
+            </input>
+            <table>
+                <search depends="$chart6$">
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesOutPerSec.OneMinuteRate" $jolokia_agent_url$ $topic_kbps_out$ span=10s by topic, jolokia_agent_url
+| eval value=value/1024
+| stats avg(value) as "avg Kbps out/sec", max(value) as "max Kbps out/sec", sparkline(avg(value),) As sparkline by topic, jolokia_agent_url
+| eval "avg Kbps out/sec"=round('avg Kbps out/sec', 2), "max Kbps out/sec"=round('max Kbps out/sec', 2) | sort 0 topic, jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="count">10</option>
+                <option name="dataOverlayMode">none</option>
+                <option name="drilldown">none</option>
+                <option name="percentagesRow">false</option>
+                <option name="rowNumbers">false</option>
+                <option name="totalsRow">false</option>
+                <option name="wrap">true</option>
+                <format type="sparkline" field="sparkline">
+                    <option name="lineColor">#5379af</option>
+                    <option name="fillColor">#CCDDFF</option>
+                    <option name="lineWidth">1</option>
+                    <option name="height">25</option>
+                </format>
+            </table>
+        </panel>
+    </row>
+    <row depends="$chart6$">
+        <panel>
+            <title>Traffic Kbps/In</title>
+            <chart>
+                <search depends="$chart6$">
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesInPerSec.OneMinuteRate" $jolokia_agent_url$ $topic_kbps_in$ span=10s by topic
+| eval value=round(value/1024, 3)
+| timechart `telegraf_kafka_span` avg(value) as "Avg" useother=false by topic</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">none</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>Traffic Kbps/Out</title>
+            <chart>
+                <search depends="$chart6$">
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesOutPerSec.OneMinuteRate" $jolokia_agent_url$ $topic_kbps_out$ span=10s by topic
+| eval value=round(value/1024, 3)
+| timechart `telegraf_kafka_span` avg(value) as "Avg" useother=false by topic</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">none</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+
+    <row depends="$chart7$">
+        <panel>
+            <title>Ratio leader %</title>
+            <chart>
+                <search depends="$chart7$">
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_replica_manager.LeaderCount.Value" OR metric_name="kafka_replica_manager.PartitionCount.Value" $jolokia_agent_url$ span=10s by metric_name, jolokia_agent_url
+| eval {metric_name}=value
+| stats first(kafka_replica_manager.*.Value) as "*" by _time, jolokia_agent_url
+| eval ratio=round((LeaderCount/PartitionCount)*100, 2)
+| timechart limit=20 useother=f `telegraf_kafka_span` max(ratio) as ratio_leader by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.axisY.minimumNumber">0</option>
+                <option name="charting.axisY.maximumNumber">100</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+    <row depends="$chart7$">
+        <panel>
+            <title>Partitions count #</title>
+            <chart>
+                <search depends="$chart7$">
+                    <query>| mstats max(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_replica_manager.PartitionCount.Value" $jolokia_agent_url$ by jolokia_agent_url span=10s
+| timechart limit=20 useother=f `telegraf_kafka_span` max(_value) as PartitionCount by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>Leader count #</title>
+            <chart>
+                <search depends="$chart7$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_replica_manager.LeaderCount.Value" $jolokia_agent_url$ by jolokia_agent_url span=10s
+| timechart limit=20 useother=f `telegraf_kafka_span` avg(_value) as LeaderCount by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+
+    <row depends="$chart8$">
+        <panel>
+            <title>JVM garbage collector LastGcInfo duration (how long, in milliseconds, the last GC cycle took)</title>
+            <chart>
+                <search depends="$chart8$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name=kafka_jvm_garbage_collector.LastGcInfo.duration $jolokia_agent_url$ span=1s by name, jolokia_agent_url
+| eval key = name . ":" . jolokia_agent_url
+| timechart limit=20 useother=f `telegraf_kafka_span` avg(_value) as LastGcInfo_duration by key</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+
+    <row depends="$chart8$">
+        <panel>
+            <title>JVM garbage collector CollectionCount (number of GC cycles of that type)</title>
+            <chart>
+                <search depends="$chart8$">
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_jvm_garbage_collector.CollectionCount" $jolokia_agent_url$ span=1s by name, jolokia_agent_url
+| stats first(value) as Collection by _time, name, jolokia_agent_url
+| streamstats current=f last(Collection) as "prev" by name, jolokia_agent_url
+| eval garbage_collection=(Collection-prev)
+| fields _time,name,jolokia_agent_url,garbage_collection
+| where garbage_collection>=0
+| eval key = name . ":" . jolokia_agent_url
+| timechart limit=20 useother=f `telegraf_kafka_span` sum(garbage_collection) as garbage_collection by key</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">area</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">none</option>
+                <option name="charting.chart.stackMode">stacked</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+
+    <row depends="$chart9$">
+        <panel>
+            <single>
+                <search base="topics_partitions_list">
+                    <query>stats dc(topic) as dcount_topic</query>
+                </search>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+                <option name="underLabel">TOTAL TOPICS</option>
+                <option name="unit">- Topics</option>
+                <option name="numberPrecision">0</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="topics_partitions_list">
+                    <query>stats dc(partition) as dcount_partition by topic, jolokia_agent_url
+| stats sum(dcount_partition) as dcount_partition</query>
+                </search>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+                <option name="underLabel">TOTAL PARTITIONS</option>
+                <option name="unit">- Partitions</option>
+                <option name="numberPrecision">0</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+    </row>
+    <row depends="$chart9$">
+        <panel>
+            <title>Table Topics/Partitions details</title>
+            <input type="multiselect" token="topic_partition" searchWhenChanged="true">
+                <label>TOPIC:</label>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>topic</fieldForLabel>
+                <fieldForValue>topic</fieldForValue>
+                <search base="topics_partitions_list">
+                    <query>stats count by topic | sort 0 topic</query>
+                </search>
+                <valuePrefix>topic="</valuePrefix>
+                <valueSuffix>"</valueSuffix>
+                <delimiter>  OR </delimiter>
+            </input>
+            <table>
+                <search depends="$chart9$">
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name=kafka_partition.LogEndOffset OR metric_name=kafka_partition.LogStartOffset OR metric_name=kafka_partition.NumLogSegments OR metric_name=kafka_partition.Size OR metric_name=kafka_partition.UnderReplicatedPartitions $topic_partition$ $jolokia_agent_url$ by jolokia_agent_url, topic, partition, metric_name
+| eval {metric_name}=value
+| stats first(kafka_partition.*) as "*" by jolokia_agent_url, topic, partition
+| fields jolokia_agent_url, topic, partition, LogStartOffset, LogEndOffset, NumLogSegments, Size, UnderReplicatedPartitions</query>
+                    <earliest>-1h</earliest>
+                    <latest>now</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="count">15</option>
+                <option name="dataOverlayMode">none</option>
+            </table>
+        </panel>
+    </row>
+
+</form>

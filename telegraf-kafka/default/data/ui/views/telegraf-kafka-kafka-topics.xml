@@ -1,0 +1,345 @@
+<form stylesheet="telegraf-kafka:common.css" hideEdit="true" isVisible="true">
+    <label>Kafka Topic - Entity health view</label>
+
+    <search id="topic_activity_summary">
+        <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.MessagesInPerSec.OneMinuteRate" OR metric_name="kafka_topic.BytesInPerSec.OneMinuteRate" OR metric_name="kafka_topic.BytesOutPerSec.OneMinuteRate" OR metric_name="kafka_topic.BytesRejectedPerSec.OneMinuteRate" OR metric_name="kafka_topic.FailedFetchRequestsPerSec.OneMinuteRate" OR metric_name="kafka_topic.FailedProduceRequestsPerSec.OneMinuteRate" OR metric_name="kafka_topic.TotalFetchRequestsPerSec.OneMinuteRate" OR metric_name="kafka_topic.TotalProduceRequestsPerSec.OneMinuteRate" $kafka_topic$ span=10s by metric_name, topic
+| eval {metric_name}=value
+| stats first(kafka_topic.*.OneMinuteRate) as "*" by _time, topic
+| eval KbytesInPerSec=round(BytesInPerSec/1024, 3), KbytesOutPerSec=round(BytesOutPerSec/1024, 3), MessagesInPerSec=round(MessagesInPerSec, 3), TotalFetchRequestsPerSec=round(TotalFetchRequestsPerSec, 3), TotalProduceRequestsPerSec=round(TotalProduceRequestsPerSec, 3)
+| rename topic as kafka_topic | fields _time, kafka_topic, KbytesInPerSec, KbytesOutPerSec, MessagesInPerSec, BytesRejectedPerSec, FailedFetchRequestsPerSec, FailedProduceRequestsPerSec, TotalFetchRequestsPerSec, TotalProduceRequestsPerSec
+| stats avg(*) as "*"</query>
+        <earliest>-90s</earliest>
+        <latest>now</latest>
+        <refresh>30s</refresh>
+        <refreshType>delay</refreshType>
+    </search>
+
+    <search id="summary_table_partitions">
+        <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name=kafka_partition.LogEndOffset OR metric_name=kafka_partition.LogStartOffset OR metric_name=kafka_partition.NumLogSegments OR metric_name=kafka_partition.Size OR metric_name=kafka_partition.UnderReplicatedPartitions $kafka_topic$ by jolokia_agent_url, topic, partition, metric_name
+| eval {metric_name}=value
+| stats first(kafka_partition.*) as "*" by jolokia_agent_url, topic, partition</query>
+        <earliest>-1h</earliest>
+        <latest>now</latest>
+        <sampleRatio>1</sampleRatio>
+    </search>
+
+    <fieldset autoRun="false" submitButton="false">
+        <input type="time" searchWhenChanged="true">
+            <label></label>
+            <default>
+                <earliestTime>-4h</earliestTime>
+                <latestTime>now</latestTime>
+            </default>
+        </input>
+        <input type="multiselect" token="kafka_topic" searchWhenChanged="true">
+            <label>Kafka topic(s):</label>
+            <!-- Populating Data Model Search -->
+            <search>
+                <query>| savedsearch telegraf-kafka-kafka-topics</query>
+                <earliest>$earliest$</earliest>
+                <latest>$latest$</latest>
+            </search>
+            <valuePrefix>topic="</valuePrefix>
+            <valueSuffix>"</valueSuffix>
+            <delimiter> OR </delimiter>
+            <choice value="*">ANY</choice>
+            <fieldForLabel>kafka_topic</fieldForLabel>
+            <fieldForValue>kafka_topic</fieldForValue>
+        </input>
+    </fieldset>
+
+    <row>
+        <panel>
+            <single>
+                <search>
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name=kafka_partition.UnderReplicatedPartitions $kafka_topic$ by jolokia_agent_url, partition
+| stats sum(value) as value</query>
+                    <earliest>-90s</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">UNDER-REPLICATED PARITTIONS</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="topic_activity_summary">
+                    <query>fields FailedProduceRequestsPerSec</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">FAILED PRODUCE REQUESTS/SEC</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="topic_activity_summary">
+                    <query>fields FailedFetchRequestsPerSec</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">FAILED FETCHED REQUESTS/SEC</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="topic_activity_summary">
+                    <query>fields MessagesInPerSec</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">REALTIME AVG MESSAGES/IN SEC</option>
+                <option name="unit">msg/sec</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="topic_activity_summary">
+                    <query>fields KbytesInPerSec</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">REALTIME AVG TRAFFIC IN</option>
+                <option name="unit">Kbps in</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="topic_activity_summary">
+                    <query>fields KbytesOutPerSec</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">REALTIME AVG TRAFFIC OUT</option>
+                <option name="unit">Kbps out</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+    </row>
+
+    <row>
+        <panel>
+            <input type="link" token="top_linkinput">
+                <label></label>
+                <choice value="chart1">TOPIC TRAFFIC OVERVIEW</choice>
+                <choice value="chart2">TOPIC FAILURES OVERVIEW</choice>
+                <choice value="chart3">TABLE BROKERS/TOPICS/PARTITIONS</choice>
+                <default>chart1</default>
+                <change>
+                    <condition value="chart1">
+                        <set token="chart1">true</set>
+                        <unset token="chart2"></unset>
+                        <unset token="chart3"></unset>
+                    </condition>
+                    <condition value="chart2">
+                        <set token="chart2">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart3"></unset>
+                    </condition>
+                    <condition value="chart3">
+                        <set token="chart3">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart2"></unset>
+                    </condition>
+                </change>
+            </input>
+        </panel>
+    </row>
+
+    <row depends="$chart1$">
+        <panel>
+            <title>Messages/sec</title>
+            <chart>
+                <search depends="$chart1$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.MessagesInPerSec.OneMinuteRate" $kafka_topic$ span=10s by jolokia_agent_url
+| eval value=round(value, 3)
+| timechart `telegraf_kafka_span` avg(_value) as "Avg" limit=20 useother=false by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+
+    <row depends="$chart1$">
+        <panel>
+            <title>Traffic Kbps/In</title>
+            <chart>
+                <search depends="$chart1$">
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesInPerSec.OneMinuteRate" $kafka_topic$ span=10s by jolokia_agent_url
+| eval value=round(value/1024, 3)
+| timechart `telegraf_kafka_span` avg(value) as "Avg" useother=false by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>Traffic Kbps/Out</title>
+            <chart>
+                <search depends="$chart1$">
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesOutPerSec.OneMinuteRate" $kafka_topic$ span=10s by jolokia_agent_url
+| eval value=round(value/1024, 3)
+| timechart `telegraf_kafka_span` avg(value) as "Avg" useother=false by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+
+    <row depends="$chart2$">
+        <panel>
+            <title>FailedProduceRequestsPerSec</title>
+            <chart>
+                <search depends="$chart2$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.FailedProduceRequestsPerSec.OneMinuteRate" $kafka_topic$ span=10s by jolokia_agent_url
+| eval value=round(value, 3)
+| timechart `telegraf_kafka_span` avg(_value) as "Avg" limit=20 useother=false by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+
+    <row depends="$chart2$">
+        <panel>
+            <title>FailedFetchRequestsPerSec</title>
+            <chart>
+                <search depends="$chart2$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.FailedFetchRequestsPerSec.OneMinuteRate" $kafka_topic$ span=10s by jolokia_agent_url
+| eval value=round(value, 3)
+| timechart `telegraf_kafka_span` avg(_value) as "Avg" limit=20 useother=false by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+
+    <row depends="$chart3$">
+        <panel>
+            <single>
+                <search>
+                    <query>| mcatalog values(partition) as partition where `telegraf_kafka_index` metric_name="kafka_partition.Size" $kafka_topic$ by jolokia_agent_url
+| stats dc(jolokia_agent_url) as dcount</query>
+                </search>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+                <option name="underLabel">TOTAL BROKERS</option>
+                <option name="unit">- Brokers</option>
+                <option name="numberPrecision">0</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="useColors">1</option>
+            </single>
+            <single>
+                <search>
+                    <query>| mcatalog values(partition) as partition where `telegraf_kafka_index` metric_name="kafka_partition.Size" $kafka_topic$ by jolokia_agent_url, topic
+| stats dc(partition) as dcount_partition by jolokia_agent_url, topic
+| stats sum(dcount_partition) as dcount_partition</query>
+                </search>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+                <option name="underLabel">TOTAL PARTITIONS</option>
+                <option name="unit">- Partitions</option>
+                <option name="numberPrecision">0</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="useColors">1</option>
+            </single>
+            <single>
+                <search base="summary_table_partitions">
+                    <query>stats sum(Size) as volume | eval volume=volume/1024/1024</query>
+                </search>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+                <option name="underLabel">TOTAL VOLUME USED</option>
+                <option name="unit"> MB</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+    </row>
+
+    <row depends="$chart3$">
+        <panel>
+            <title>Table Brokers/Topics/Partitions details</title>
+            <table>
+                <search base="summary_table_partitions">
+                    <query>fields jolokia_agent_url, topic, partition, LogStartOffset, LogEndOffset, NumLogSegments, Size, UnderReplicatedPartitions</query>
+                </search>
+                <option name="count">15</option>
+                <option name="dataOverlayMode">none</option>
+            </table>
+        </panel>
+    </row>
+
+</form>

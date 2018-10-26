@@ -1,0 +1,52 @@
+/* Fix link input object align */
+.input-linklist {
+  display: inline !important;
+}
+
+/* Fix link input object align for Splunk 6.5 */
+.input-link {
+  display: inline !important;
+}
+
+/* reduce size of the token input panel */
+.input-link label{
+  display: none !important;
+}
+
+.splunk-choice-input-message{
+  display: none !important;
+}
+
+/* Increase the default max-width for links */
+.btn-pill {
+  max-width: 600px !important;
+}
+
+/* Home page */
+.dashseparator {
+	text-align: center;
+	border: 3px dashed #ccc;
+}
+
+.dashseparator h1 {
+	font-size: 22px;
+	font-weight: bold;
+	color: #999999;
+	text-align: center;
+}
+
+.mainbutton_container_nomargin {
+    text-align: center;
+}
+
+.mainbutton {
+    display: inline-block;
+    margin-left: 30px;
+    margin-right: 30px;
+}
+
+.mainbutton_highmargin {
+    display: inline-block;
+    margin-left: 90px;
+    margin-right: 90px;
+}
