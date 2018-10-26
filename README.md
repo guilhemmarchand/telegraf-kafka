@@ -26,7 +26,7 @@ https://github.com/guilhemmarchand/DA-ITSI-TELEGRAF-KAFKA
 
 **Please consult the online documentation of the ITSI module which exposes the implementation process:** https://da-itsi-telegraf-kafka.readthedocs.io
 
-**The ITSI module and the Splunk core application for Apache Kafka end to end monitoring leverages the best components to provide a key layer monitoring for your Kafka infrastructure :**
+**The ITSI module and the Splunk core application for Apache Kafka end to end monitoring leverage the best components to provide a key layer monitoring for your Kafka infrastructure :**
 
 - Telegraf from Influxdata (https://github.com/influxdata/telegraf)
 - Jolokia for the remote JMX collection over http (https://jolokia.org)
