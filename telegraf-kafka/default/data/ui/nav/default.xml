@@ -38,6 +38,10 @@
             <view name="telegraf-kafka-kafka-brokers" />
         </collection>
 
+        <collection label="Kafka Topics">
+            <view name="telegraf-kafka-kafka-topics" />
+        </collection>
+
         <collection label="Kafka Connect">
             <view name="telegraf-kafka-kafka-connect" />
         </collection>

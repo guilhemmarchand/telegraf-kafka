@@ -130,6 +130,9 @@
                     <div class="mainbutton_highmargin">
                         <a class="button2_lowpadding glow" href="telegraf-kafka-zookeeper">  OPEN ENTITY DASHBOARD VIEW  </a>
                     </div>
+                    <div class="mainbutton_highmargin">
+                        <a class="button2_lowpadding glow" href="telegraf-kafka-kafka-topics">  OPEN TOPIC DASHBOARD VIEW  </a>
+                    </div>
                 </div>
             </html>
         </panel>

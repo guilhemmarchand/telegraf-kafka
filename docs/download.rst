@@ -9,7 +9,7 @@ Splunk Application for Kafka monitoring with Telegraf
 Splunk base
 -----------
 
-- https://splunkbase.splunk.com/app/<AWAITING>
+- https://splunkbase.splunk.com/app/4268
 
 GitHub
 ------
