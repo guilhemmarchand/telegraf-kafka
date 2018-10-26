@@ -1,6 +1,11 @@
 Release notes
 #############
 
+Version 1.0.2
+=============
+
+- various: logo update
+
 Version 1.0.1
 =============
 
