@@ -45,3 +45,9 @@ Metrics ingestion
 **Please following the ITSI module documentation:**
 
 https://da-itsi-telegraf-kafka.readthedocs.io/en/latest/kafka_monitoring.html
+
+**It not required but strongly recommended, ensure to have the Splunk Metrics Workspace application installed to get the best experience:**
+
+https://splunkbase.splunk.com/app/4192/
+
+If the application is installed, the Metrics link will show up automatically in the Splunk application menu.
