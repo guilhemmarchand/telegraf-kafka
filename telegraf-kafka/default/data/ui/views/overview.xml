@@ -398,7 +398,7 @@
         <panel>
             <single>
                 <search base="connect_tasks_summary">
-                    <query>where role="kafka_source_task" | rangemap field=integer_status low=1-1 high=2-4 default=severe | fields status, range</query>
+                    <query>where role="kafka_source_task" | rangemap field=integer_status low=1-1 high=2-4 default=severe | fields status, range | append [ makeresults ] | fillnull value="unknown" status | fillnull value="elevated" range | fields - _time</query>
                 </search>
                 <option name="colorBy">value</option>
                 <option name="colorMode">block</option>
@@ -426,7 +426,7 @@
         <panel>
             <single>
                 <search base="connect_tasks_summary">
-                    <query>where role="kafka_sink_task" | rangemap field=integer_status low=1-1 high=2-4 default=severe | fields status, range</query>
+                    <query>where role="kafka_sink_task" | rangemap field=integer_status low=1-1 high=2-4 default=severe | fields status, range | append [ makeresults ] | fillnull value="unknown" status | fillnull value="elevated" range | fields - _time</query>
                 </search>
                 <option name="colorBy">value</option>
                 <option name="colorMode">block</option>
