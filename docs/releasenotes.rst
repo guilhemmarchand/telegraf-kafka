@@ -1,6 +1,10 @@
 Release notes
 #############
 
+Version 1.0.3
+=============
+- fix: Overview page, link for topic management should be under brokers category
+
 Version 1.0.2
 =============
 
