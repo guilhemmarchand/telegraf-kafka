@@ -386,7 +386,7 @@
         <panel>
             <single>
                 <search base="connect_tasks_summary">
-                    <query>where role="kafka_sink_task" | stats dc(connector) as dcount</query>
+                    <query>where role="kafka_source_task" | stats dc(connector) as dcount</query>
                 </search>
                 <option name="colorMode">block</option>
                 <option name="drilldown">all</option>
@@ -394,7 +394,7 @@
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
-                <option name="underLabel">SOURCE CONNECTORS</option>
+                <option name="underLabel">SOURCE TASKS (ACTIVE)</option>
                 <option name="useColors">1</option>
             </single>
         </panel>
@@ -414,7 +414,7 @@
         <panel>
             <single>
                 <search base="connect_tasks_summary">
-                    <query>where role="kafka_source_task" | stats dc(connector) as dcount</query>
+                    <query>where role="kafka_sink_task" | stats dc(connector) as dcount</query>
                 </search>
                 <option name="colorMode">block</option>
                 <option name="drilldown">all</option>
@@ -422,7 +422,7 @@
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
-                <option name="underLabel">SINK CONNECTORS</option>
+                <option name="underLabel">SINK TASKS (ACTIVE)</option>
                 <option name="useColors">1</option>
             </single>
         </panel>

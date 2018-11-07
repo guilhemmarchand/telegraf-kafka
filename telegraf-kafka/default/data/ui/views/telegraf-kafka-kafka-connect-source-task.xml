@@ -20,7 +20,7 @@
                 <latestTime>now</latestTime>
             </default>
         </input>
-        <input type="dropdown" token="connector" searchWhenChanged="true">
+        <input type="multiselect" token="connector" searchWhenChanged="true">
             <label>Kafka monitor(s):</label>
             <!-- Populating Data Model Search -->
             <search>
@@ -28,10 +28,9 @@
                 <earliest>$earliest$</earliest>
                 <latest>$latest$</latest>
             </search>
-            <prefix>connector="</prefix>
-            <suffix>"</suffix>
+            <valuePrefix>connector="</valuePrefix>
+            <valueSuffix>"</valueSuffix>
             <delimiter> OR </delimiter>
-            <choice value="*">ANY</choice>
             <fieldForLabel>kafka_task</fieldForLabel>
             <fieldForValue>kafka_task</fieldForValue>
         </input>
@@ -41,9 +40,9 @@
         <panel>
             <single>
                 <search>
-                    <query>| mcatalog values(task) as task where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.running-ratio" $connector$
+                    <query>| mcatalog values(task) as task where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.running-ratio" $connector$ by connector
 | mvexpand task
-| stats dc(task) as dcount</query>
+| stats count</query>
                     <earliest>-90s</earliest>
                     <latest>now</latest>
                     <refresh>30s</refresh>
@@ -174,8 +173,9 @@
             <title>The fraction of time this task has spent in the running state</title>
             <chart>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.running-ratio" $connector$ by task span=10s
-| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.running-ratio" $connector$ by connector, task span=10s
+| eval key=connector . ":" . task
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by key</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
@@ -193,8 +193,9 @@
             <title>The average size of the batches processed by the connector</title>
             <chart>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.batch-size-avg" $connector$ by task span=10s
-| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.batch-size-avg" $connector$ by connector, task span=10s
+| eval key=connector . ":" . task
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by key</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
@@ -212,8 +213,9 @@
             <title>The maximum size of the batches processed by the connector</title>
             <chart>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.batch-size-max" $connector$ by task span=10s
-| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.batch-size-max" $connector$ by connector, task span=10s
+| eval key=connector . ":" . task
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by key</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
@@ -234,8 +236,9 @@
             <title>The average percentage of this task's offset commit attempts that failed</title>
             <chart>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.offset-commit-success-percentage" $connector$ by task span=10s
-| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.offset-commit-success-percentage" $connector$ by connector, task span=10s
+| eval key=connector . ":" . task
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by key</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
@@ -253,8 +256,9 @@
             <title>The average time in milliseconds taken by this task to commit offsets</title>
             <chart>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.offset-commit-avg-time-ms" $connector$ by task span=10s
-| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.offset-commit-avg-time-ms" $connector$ by connector, task span=10s
+| eval key=connector . ":" . task
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by key</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
@@ -272,8 +276,9 @@
             <title>The maximum time in milliseconds taken by this task to commit offsets</title>
             <chart>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.offset-commit-max-time-ms" $connector$ by task span=10s
-| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.offset-commit-max-time-ms" $connector$ by connector, task span=10s
+| eval key=connector . ":" . task
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by key</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
@@ -294,8 +299,9 @@
             <title>Avg/sec records produced/polled (before transformation)</title>
             <chart>
                 <search depends="$chart2$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.source-task.source-record-poll-rate" $connector$ by task span=10s
-| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.source-task.source-record-poll-rate" $connector$ by connector, task span=10s
+| eval key=connector . ":" . task
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by key</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
@@ -313,8 +319,9 @@
             <title>Avg time/ms taken to poll for a batch of source records</title>
             <chart>
                 <search depends="$chart2$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.source-task.poll-batch-avg-time-ms" $connector$ by task span=10s
-| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.source-task.poll-batch-avg-time-ms" $connector$ by connector, task span=10s
+| eval key=connector . ":" . task
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by key</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
@@ -332,8 +339,9 @@
             <title>Max time/ms taken by this task to poll for a batch of source records</title>
             <chart>
                 <search depends="$chart2$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.source-task.poll-batch-max-time-ms" $connector$ by task span=10s
-| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.source-task.poll-batch-max-time-ms" $connector$ by connector, task span=10s
+| eval key=connector . ":" . task
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by key</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
@@ -354,8 +362,9 @@
             <title>Avg/sec no records output from transformations written to Kafka, after transformations</title>
             <chart>
                 <search depends="$chart2$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.source-task.source-record-write-rate" $connector$ by task span=10s
-| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.source-task.source-record-write-rate" $connector$ by connector, task span=10s
+| eval key=connector . ":" . task
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by key</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
@@ -373,8 +382,9 @@
             <title>Avg no records that have been produced but not yet completely written to Kafka</title>
             <chart>
                 <search depends="$chart2$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.source-task.source-record-active-count-avg" $connector$ by task span=10s
-| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.source-task.source-record-active-count-avg" $connector$ by connector, task span=10s
+| eval key=connector . ":" . task
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by key</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
@@ -392,8 +402,9 @@
             <title>Max no records that have been produced but not yet completely written to Kafka</title>
             <chart>
                 <search depends="$chart2$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.source-task.source-record-active-count-max" $connector$ by task span=10s
-| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.source-task.source-record-active-count-max" $connector$ by connector, task span=10s
+| eval key=connector . ":" . task
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by key</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
@@ -414,8 +425,9 @@
             <title>The number of errors that were logged</title>
             <chart>
                 <search depends="$chart3$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.error-task.total-errors-logged" $connector$ by task span=10s
-| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.error-task.total-errors-logged" $connector$ by connector, task span=10s
+| eval key=connector . ":" . task
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by key</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
@@ -433,8 +445,9 @@
             <title>The number of operations retried</title>
             <chart>
                 <search depends="$chart3$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.error-task.total-retries" $connector$ by task span=10s
-| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.error-task.total-retries" $connector$ by connector, task span=10s
+| eval key=connector . ":" . task
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by key</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
@@ -452,8 +465,9 @@
             <title>The number of records skipped due to errors</title>
             <chart>
                 <search depends="$chart3$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.error-task.total-records-skipped" $connector$ by task span=10s
-| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.error-task.total-records-skipped" $connector$ by connector, task span=10s
+| eval key=connector . ":" . task
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by key</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
@@ -474,8 +488,9 @@
             <title>The number of record processing failures in this task</title>
             <chart>
                 <search depends="$chart3$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.error-task.total-record-failures" $connector$ by task span=10s
-| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.error-task.total-record-failures" $connector$ by connector, task span=10s
+| eval key=connector . ":" . task
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by key</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
@@ -493,8 +508,9 @@
             <title>The number of record processing errors in this task</title>
             <chart>
                 <search depends="$chart3$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.error-task.total-record-errors" $connector$ by task span=10s
-| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.error-task.total-record-errors" $connector$ by connector, task span=10s
+| eval key=connector . ":" . task
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by key</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
@@ -512,8 +528,9 @@
             <title>The number of attempted writes to the dead letter queue</title>
             <chart>
                 <search depends="$chart3$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.error-task.deadletterqueue-produce-requests" $connector$ by task span=10s
-| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.error-task.deadletterqueue-produce-requests" $connector$ by connector, task span=10s
+| eval key=connector . ":" . task
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by key</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
@@ -534,8 +551,9 @@
             <title>The number of failed writes to the dead letter queue</title>
             <chart>
                 <search depends="$chart3$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.error-task.deadletterqueue-produce-failures" $connector$ by task span=10s
-| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by task</query>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_connect.error-task.deadletterqueue-produce-failures" $connector$ by connector, task span=10s
+| eval key=connector . ":" . task
+| timechart `telegraf_kafka_span` avg(_value) as avg useother=f limit=20 by key</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
