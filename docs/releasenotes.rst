@@ -1,6 +1,10 @@
 Release notes
 #############
 
+Version 1.0.5
+=============
+- feature: Confluent schema-registry support
+
 Version 1.0.4
 =============
 - fix: inverted filters for source/task in Overview

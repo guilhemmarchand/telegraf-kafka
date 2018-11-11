@@ -36,6 +36,14 @@
         <latest>now</latest>
         <refresh>90s</refresh>
         <refreshType>delay</refreshType>
+        <progress>
+            <condition match="$job.resultCount$ == 0">
+                <unset token="schema_registrey_detected"></unset>
+            </condition>
+            <condition>
+                <set token="schema_registrey_detected">true</set>
+            </condition>
+        </progress>
     </search>
 
     <search id="connect_tasks_summary">
@@ -45,6 +53,34 @@
 | eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2) | fields connector connector-task.status | rename connector-task.status as integer_status
 | eval status=case(integer_status=0, "paused", integer_status=1, "running", integer_status=2, "unassigned", integer_status=3, "failed", integer_status=4, "destroyed")
 | join connector [ | savedsearch telegraf-kafka-kafka-connect-tasks | rename kafka_task as connector ]</query>
+        <earliest>-90s</earliest>
+        <latest>now</latest>
+        <refresh>90s</refresh>
+        <refreshType>delay</refreshType>
+    </search>
+
+    <search id="schema_registry_summary">
+        <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_schema-registry.jetty-metrics.connections-active" OR  metric_name="kafka_schema-registry.jetty-metrics.connections-opened-rate" OR metric_name="kafka_schema-registry.jetty-metrics.connections-closed-rate" by metric_name
+| eval {metric_name}=value
+| stats first(kafka_schema-registry.*) as "*"</query>
+        <earliest>-90s</earliest>
+        <latest>now</latest>
+        <refresh>90s</refresh>
+        <refreshType>delay</refreshType>
+        <progress>
+            <condition match="$job.resultCount$ == 0">
+                <unset token="schema_registrey_detected"></unset>
+            </condition>
+            <condition>
+                <set token="schema_registrey_detected">true</set>
+            </condition>
+        </progress>
+    </search>
+
+    <search id="schema_registry_summary_jersey">
+        <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.request-error-rate" by metric_name
+| eval {metric_name}=value
+| stats first(kafka_schema-registry.*) as "*"</query>
         <earliest>-90s</earliest>
         <latest>now</latest>
         <refresh>90s</refresh>
@@ -457,6 +493,101 @@
                     <div class="mainbutton_highmargin">
                         <a class="button2_lowpadding glow" href="telegraf-kafka-kafka-connect-sink-task">  SINK TASK DASHBOARD VIEW  </a>
                     </div>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+    <row>
+        <panel>
+            <html>
+                <div class="dashseparator">
+                    <h1>CONFLUENT SHEMA-REGISTRY</h1>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+    <row depends="$schema_registrey_detected$">
+        <panel>
+            <single>
+                <search base="schema_registry_summary">
+                    <query>fields "jetty-metrics.connections-active"</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">ACTIVE CONNECTIONS REQ/SEC</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="schema_registry_summary">
+                    <query>fields "jetty-metrics.connections-opened-rate"</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">OPENED CONNECTIONS REQ/SEC</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="schema_registry_summary">
+                    <query>fields "jetty-metrics.connections-closed-rate"</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">CLOSED CONNECTIONS REQ/SEC</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="schema_registry_summary_jersey">
+                    <query>fields "jersey-metrics.request-error-rate"</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">HTTP ERROR RESPONSES REQ/SEC</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+    </row>
+
+    <row depends="$schema_registrey_detected$">
+        <panel>
+            <html>
+                <div class="mainbutton_container_nomargin">
+                    <div class="mainbutton_highmargin">
+                        <a class="button2_lowpadding glow" href="telegraf-kafka-confluent-shema-registry">  OPEN ENTITY DASHBOARD VIEW  </a>
+                    </div>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+    <row rejects="$schema_registrey_detected$">
+        <panel>
+            <html>
+                <div style="text-align: left;">
+                <h2>NO ACTIVE SCHEMA-REGISTRY NOES DETECTED</h2>
                 </div>
             </html>
         </panel>

@@ -51,6 +51,10 @@
             <view name="telegraf-kafka-kafka-connect-sink-task" />
         </collection>
 
+        <collection label="Confluent schema-registry">
+            <view name="telegraf-kafka-confluent-shema-registry" />
+        </collection>
+
         <collection label="Kafka LinkedIn monitor">
             <view name="telegraf-kafka-kafka-monitor" />
         </collection>
