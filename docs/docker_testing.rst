@@ -12,6 +12,7 @@ https://github.com/guilhemmarchand/kafka-docker-splunk
 - 3 x nodes Zookeeper cluster
 - 3 x nodes Apache Kafka brokers cluster
 - 3 x nodes Apache Kafka connect cluster
+- 1 x node Confluent schema-registry
 - 1 x Splunk standalone server running in docker
 - 1 x LinkedIn Kafka monitor node
 - 1 x Telegraf collector container to collect metrics from Zookeeper, Kafka brokers

@@ -124,6 +124,17 @@ Kafka connect source task dashboard view
    :alt: dashboard_kafka_connect_source_pic3.png
    :align: center
 
+Confluent schema-registry dashboard view
+########################################
+
+.. image:: img/dashboard_schema_registry_pic1.png
+   :alt: dashboard_schema_registry_pic1.png
+   :align: center
+
+.. image:: img/dashboard_schema_registry_pic2.png
+   :alt: dashboard_schema_registry_pic2.png
+   :align: center
+
 LinkedIn Kafka monitor view
 ###########################
 
