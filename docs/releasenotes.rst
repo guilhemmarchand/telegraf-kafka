@@ -1,6 +1,10 @@
 Release notes
 #############
 
+Version 1.0.6
+=============
+- fix: Typo in Overview
+
 Version 1.0.5
 =============
 - feature: Confluent schema-registry support

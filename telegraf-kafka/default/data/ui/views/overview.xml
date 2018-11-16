@@ -587,7 +587,7 @@
         <panel>
             <html>
                 <div style="text-align: left;">
-                <h2>NO ACTIVE SCHEMA-REGISTRY NOES DETECTED</h2>
+                <h2>NO ACTIVE SCHEMA-REGISTRY NODES DETECTED</h2>
                 </div>
             </html>
         </panel>
