@@ -794,8 +794,8 @@
             <event>
                 <search depends="$chart6$">
                     <query>eventtype="kafka_connect" $log_search_tk$ $log_sourcetype_tk$ [ | savedsearch telegraf-kafka-kafka-connect-workers | search $jolokia_agent_url$ | table kafka_connect | rename kafka_connect as host ]</query>
-                    <earliest>-24h@h</earliest>
-                    <latest>now</latest>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
                 </search>
                 <option name="count">10</option>

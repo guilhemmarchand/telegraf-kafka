@@ -597,8 +597,8 @@
             <event>
                 <search depends="$chart4$">
                     <query>eventtype="kafka_connect_sink" $log_search_tk$ [ | savedsearch telegraf-kafka-kafka-connect-tasks | rename kafka_task as connector | search role="kafka_sink_task" $connector$ | table connector | rename connector as connector_sink ]</query>
-                    <earliest>-24h@h</earliest>
-                    <latest>now</latest>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
                 </search>
                 <option name="count">10</option>

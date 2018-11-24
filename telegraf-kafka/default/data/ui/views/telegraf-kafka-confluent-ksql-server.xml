@@ -317,8 +317,8 @@
             <event>
                 <search depends="$chart2$">
                     <query>eventtype="kafka_ksql_server" $log_search_tk$ $log_sourcetype_tk$ [ | savedsearch telegraf-kafka-ksql-server | search $jolokia_agent_url$ | table kafka_ksql_server | rename kafka_ksql_server as host ]</query>
-                    <earliest>-24h@h</earliest>
-                    <latest>now</latest>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
                 </search>
                 <option name="count">10</option>
