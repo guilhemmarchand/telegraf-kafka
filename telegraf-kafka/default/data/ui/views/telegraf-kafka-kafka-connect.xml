@@ -776,7 +776,7 @@
     </row>
     <row depends="$chart6$">
         <panel>
-            <title>Events (last 1K events)</title>
+            <title>Events</title>
             <input type="multiselect" token="log_sourcetype_tk" searchWhenChanged="true">
                 <label>Sourcetypes:</label>
                 <choice value="*">ANY</choice>
