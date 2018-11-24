@@ -342,7 +342,7 @@
         </panel>
     </row>
 
-    <row>
+    <row depends="$kafka_connect_detected$">
         <panel>
             <single>
                 <search>
@@ -420,7 +420,7 @@
         </panel>
     </row>
 
-    <row>
+    <row depends="$kafka_connect_detected$">
         <panel>
             <html>
                 <div class="mainbutton_container_nomargin">
@@ -432,7 +432,7 @@
         </panel>
     </row>
 
-    <row>
+    <row depends="$kafka_connect_detected$">
         <panel>
             <html>
                 <div class="dashseparator">
@@ -449,7 +449,7 @@
         </panel>
     </row>
 
-    <row>
+    <row depends="$kafka_connect_detected$">
         <panel>
             <single>
                 <search base="connect_tasks_summary">
@@ -508,7 +508,7 @@
         </panel>
     </row>
 
-    <row>
+    <row depends="$kafka_connect_detected$">
         <panel>
             <html>
                 <div class="mainbutton_container_nomargin">
@@ -529,17 +529,44 @@
         </panel>
     </row>
 
+    <row rejects="$ksql_server_detected$">
+        <panel>
+            <html>
+                <div style="text-align: left;">
+                <h2>NO ACTIVE KAFKA CONNECT WORKER DETECTED</h2>
+                </div>
+            </html>
+        </panel>
+    </row>
+
     <row>
         <panel>
             <html>
                 <div class="dashseparator">
-                    <h1>CONFLUENT SHEMA-REGISTRY</h1>
+                    <h1>CONFLUENT SCHEMA-REGISTRY</h1>
                 </div>
             </html>
         </panel>
     </row>
 
     <row depends="$schema_registry_detected$">
+        <panel>
+            <single>
+                <search>
+                    <query>| savedsearch telegraf-kafka-schema-registry | stats dc(kafka_schema_registry) as dcount</query>
+                    <earliest>-15m</earliest>
+                    <latest>now</latest>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">SCHEMA-REGISTRY NODES</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
         <panel>
             <single>
                 <search base="schema_registry_summary">
@@ -637,23 +664,25 @@
     <row depends="$ksql_server_detected$">
         <panel>
             <single>
-                <search base="ksql_server_queries_activity_summary">
-                    <query>fields "num-active-queries"</query>
+                <search>
+                    <query>| savedsearch telegraf-kafka-ksql-server | stats dc(kafka_ksql_server) as dcount</query>
+                    <earliest>-15m</earliest>
+                    <latest>now</latest>
                 </search>
                 <option name="colorMode">block</option>
-                <option name="drilldown">none</option>
+                <option name="drilldown">all</option>
                 <option name="numberPrecision">0</option>
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
-                <option name="underLabel">REALTIME ACTIVE QUERIES</option>
+                <option name="underLabel">KSQL-SERVER NODES</option>
                 <option name="useColors">1</option>
             </single>
         </panel>
         <panel>
             <single>
                 <search base="ksql_server_queries_activity_summary">
-                    <query>fields "num-persistent-queries"</query>
+                    <query>fields num-active-queries</query>
                 </search>
                 <option name="colorMode">block</option>
                 <option name="drilldown">none</option>
@@ -661,22 +690,7 @@
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
-                <option name="underLabel">REALTIME PERSISTENT QUERIES</option>
-                <option name="useColors">1</option>
-            </single>
-        </panel>
-        <panel>
-            <single>
-                <search base="ksql_server_queries_activity_summary">
-                    <query>fields "num-idle-queries"</query>
-                </search>
-                <option name="colorMode">block</option>
-                <option name="drilldown">none</option>
-                <option name="numberPrecision">0</option>
-                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
-                <option name="rangeValues">[0]</option>
-                <option name="refresh.display">progressbar</option>
-                <option name="underLabel">REALTIME IDLE QUERIES</option>
+                <option name="underLabel">ACTIVE QUERIES</option>
                 <option name="useColors">1</option>
             </single>
         </panel>

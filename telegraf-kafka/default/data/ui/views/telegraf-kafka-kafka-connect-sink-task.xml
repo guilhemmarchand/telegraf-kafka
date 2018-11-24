@@ -569,7 +569,7 @@
         <panel>
             <title>Kafka Connect log events by log_level</title>
             <chart>
-                <search depends="$chart4$">
+                <search id="timechart_loglevel" depends="$chart4$">
                     <query>eventtype="kafka_connect_sink" log_level=* [ | savedsearch telegraf-kafka-kafka-connect-tasks | rename kafka_task as connector | search role="kafka_sink_task" $connector$ | table connector | rename connector as connector_sink]
 | timechart useother=f limit=0 minspan=1m count by log_level</query>
                     <earliest>$earliest$</earliest>
