@@ -1,5 +1,5 @@
 <form stylesheet="telegraf-kafka:common.css" hideEdit="True" isVisible="True">
-    <label>Kafka schema-registry - Entity health view</label>
+    <label>Confluent schema-registry - Entity health view</label>
 
     <search id="activity_summary">
         <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_schema-registry.jetty-metrics.connections-active" OR  metric_name="kafka_schema-registry.jetty-metrics.connections-opened-rate" OR metric_name="kafka_schema-registry.jetty-metrics.connections-closed-rate" $jolokia_agent_url$ by metric_name
@@ -100,6 +100,7 @@
                 <choice value="chart7">SCHEMA IDS-GET-SHEMAS</choice>
                 <choice value="chart8">COMPATIBILITY SUBJECTS VERSIONS</choice>
                 <choice value="chart9">MASTER/SLAVE ROLE</choice>
+                <choice value="chart10">LOGS ACTIVITY</choice>
                 <default>chart1</default>
                 <change>
                     <condition value="chart1">
@@ -112,6 +113,7 @@
                         <unset token="chart7"></unset>
                         <unset token="chart8"></unset>
                         <unset token="chart9"></unset>
+                        <unset token="chart10"></unset>
                     </condition>
                     <condition value="chart2">
                         <set token="chart2">true</set>
@@ -123,6 +125,7 @@
                         <unset token="chart7"></unset>
                         <unset token="chart8"></unset>
                         <unset token="chart9"></unset>
+                        <unset token="chart10"></unset>
                     </condition>
                     <condition value="chart3">
                         <set token="chart3">true</set>
@@ -134,6 +137,7 @@
                         <unset token="chart7"></unset>
                         <unset token="chart8"></unset>
                         <unset token="chart9"></unset>
+                        <unset token="chart10"></unset>
                     </condition>
                     <condition value="chart4">
                         <set token="chart4">true</set>
@@ -145,6 +149,7 @@
                         <unset token="chart7"></unset>
                         <unset token="chart8"></unset>
                         <unset token="chart9"></unset>
+                        <unset token="chart10"></unset>
                     </condition>
                     <condition value="chart5">
                         <set token="chart5">true</set>
@@ -156,6 +161,7 @@
                         <unset token="chart7"></unset>
                         <unset token="chart8"></unset>
                         <unset token="chart9"></unset>
+                        <unset token="chart10"></unset>
                     </condition>
                     <condition value="chart6">
                         <set token="chart6">true</set>
@@ -167,6 +173,7 @@
                         <unset token="chart7"></unset>
                         <unset token="chart8"></unset>
                         <unset token="chart9"></unset>
+                        <unset token="chart10"></unset>
                     </condition>
                     <condition value="chart7">
                         <set token="chart7">true</set>
@@ -178,6 +185,7 @@
                         <unset token="chart6"></unset>
                         <unset token="chart8"></unset>
                         <unset token="chart9"></unset>
+                        <unset token="chart10"></unset>
                     </condition>
                     <condition value="chart8">
                         <set token="chart8">true</set>
@@ -189,6 +197,7 @@
                         <unset token="chart6"></unset>
                         <unset token="chart7"></unset>
                         <unset token="chart9"></unset>
+                        <unset token="chart10"></unset>
                     </condition>
                     <condition value="chart9">
                         <set token="chart9">true</set>
@@ -200,6 +209,19 @@
                         <unset token="chart6"></unset>
                         <unset token="chart7"></unset>
                         <unset token="chart8"></unset>
+                        <unset token="chart10"></unset>
+                    </condition>
+                    <condition value="chart10">
+                        <set token="chart10">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart2"></unset>
+                        <unset token="chart3"></unset>
+                        <unset token="chart4"></unset>
+                        <unset token="chart5"></unset>
+                        <unset token="chart6"></unset>
+                        <unset token="chart7"></unset>
+                        <unset token="chart8"></unset>
+                        <unset token="chart9"></unset>
                     </condition>
                 </change>
             </input>
@@ -1114,6 +1136,70 @@
                     <sampleRatio>1</sampleRatio>
                 </search>
             </table>
+        </panel>
+    </row>
+
+    <!--
+    chart$10: logs
+    -->
+
+    <row depends="$chart10$">
+        <panel>
+            <title>schema-registry log events by log_level</title>
+            <chart>
+                <search depends="$chart10$">
+                    <query>eventtype="kafka_schema_registry" log_level=* [ | savedsearch telegraf-kafka-schema-registry | search $jolokia_agent_url$ | table kafka_schema_registry | rename kafka_schema_registry as host ]
+| timechart useother=f limit=0 minspan=1m count by log_level</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">column</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+                <option name="charting.fieldColors">{"ERROR": 0xff6961, "WARN": 0xffb347, "INFO": 0x779ecb, "DEBUG": 0xaec6cf, "TRACE": 0xb19cd9}</option>
+            </chart>
+        </panel>
+    </row>
+    <row depends="$chart10$">
+        <panel>
+            <title>Events</title>
+            <input type="multiselect" token="log_sourcetype_tk" searchWhenChanged="true">
+                <label>Sourcetypes:</label>
+                <choice value="*">ANY</choice>
+                <choice value="kafka:schema-registry">kafka:schema-registry</choice>
+                <choice value="kafka:schema-registry:gc-log">kafka:schema-registry:gc-log</choice>
+                <valuePrefix>sourcetype="</valuePrefix>
+                <valueSuffix>"</valueSuffix>
+                <delimiter> OR </delimiter>
+                <initialValue>*</initialValue>
+            </input>
+            <input type="text" token="log_search_tk" searchWhenChanged="true">
+                <label>Raw search:</label>
+                <initialValue>*</initialValue>
+            </input>
+            <event>
+                <search depends="$chart10$">
+                    <query>eventtype="kafka_schema_registry" $log_search_tk$ $log_sourcetype_tk$ [ | savedsearch telegraf-kafka-schema-registry | search $jolokia_agent_url$ | table kafka_schema_registry | rename kafka_schema_registry as host ]</query>
+                    <earliest>-24h@h</earliest>
+                    <latest>now</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="count">10</option>
+                <option name="list.drilldown">none</option>
+                <option name="list.wrap">1</option>
+                <option name="maxLines">5</option>
+                <option name="raw.drilldown">none</option>
+                <option name="rowNumbers">0</option>
+                <option name="table.drilldown">none</option>
+                <option name="table.sortDirection">asc</option>
+                <option name="table.wrap">1</option>
+                <option name="type">list</option>
+            </event>
         </panel>
     </row>
 

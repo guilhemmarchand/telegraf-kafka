@@ -109,6 +109,7 @@
                 <choice value="chart3">SOURCE TASKS</choice>
                 <choice value="chart4">SINK TASKS</choice>
                 <choice value="chart5">ERROR TASKS</choice>
+                <choice value="chart6">LOGS ACTIVITY</choice>
                 <default>chart1</default>
                 <change>
                     <condition value="chart1">
@@ -117,6 +118,7 @@
                         <unset token="chart3"></unset>
                         <unset token="chart4"></unset>
                         <unset token="chart5"></unset>
+                        <unset token="chart6"></unset>
                     </condition>
                     <condition value="chart2">
                         <set token="chart2">true</set>
@@ -124,6 +126,7 @@
                         <unset token="chart3"></unset>
                         <unset token="chart4"></unset>
                         <unset token="chart5"></unset>
+                        <unset token="chart6"></unset>
                     </condition>
                     <condition value="chart3">
                         <set token="chart3">true</set>
@@ -131,6 +134,7 @@
                         <unset token="chart2"></unset>
                         <unset token="chart4"></unset>
                         <unset token="chart5"></unset>
+                        <unset token="chart6"></unset>
                     </condition>
                     <condition value="chart4">
                         <set token="chart4">true</set>
@@ -138,6 +142,7 @@
                         <unset token="chart2"></unset>
                         <unset token="chart3"></unset>
                         <unset token="chart5"></unset>
+                        <unset token="chart6"></unset>
                     </condition>
                     <condition value="chart5">
                         <set token="chart5">true</set>
@@ -145,6 +150,15 @@
                         <unset token="chart2"></unset>
                         <unset token="chart3"></unset>
                         <unset token="chart4"></unset>
+                        <unset token="chart6"></unset>
+                    </condition>
+                    <condition value="chart6">
+                        <set token="chart6">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart2"></unset>
+                        <unset token="chart3"></unset>
+                        <unset token="chart4"></unset>
+                        <unset token="chart5"></unset>
                     </condition>
                 </change>
             </input>
@@ -738,5 +752,63 @@
         <panel>
         </panel>
     </row>
-
+    <row depends="$chart6$">
+        <panel>
+            <title>Kafka Connect log events by log_level</title>
+            <chart>
+                <search depends="$chart6$">
+                    <query>eventtype="kafka_connect" log_level=* [ | savedsearch telegraf-kafka-kafka-connect-workers | search $jolokia_agent_url$ | table kafka_connect | rename kafka_connect as host ]
+| timechart useother=f limit=0 minspan=1m count by log_level</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">column</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+                <option name="charting.fieldColors">{"ERROR": 0xff6961, "WARN": 0xffb347, "INFO": 0x779ecb, "DEBUG": 0xaec6cf, "TRACE": 0xb19cd9}</option>
+            </chart>
+        </panel>
+    </row>
+    <row depends="$chart6$">
+        <panel>
+            <title>Events (last 1K events)</title>
+            <input type="multiselect" token="log_sourcetype_tk" searchWhenChanged="true">
+                <label>Sourcetypes:</label>
+                <choice value="*">ANY</choice>
+                <choice value="kafka:connect">kafka:connect</choice>
+                <choice value="kafka:connect:gc-log">kafka:connect:gc-log</choice>
+                <valuePrefix>sourcetype="</valuePrefix>
+                <valueSuffix>"</valueSuffix>
+                <delimiter> OR </delimiter>
+                <initialValue>*</initialValue>
+            </input>
+            <input type="text" token="log_search_tk" searchWhenChanged="true">
+                <label>Raw search:</label>
+                <initialValue>*</initialValue>
+            </input>
+            <event>
+                <search depends="$chart6$">
+                    <query>eventtype="kafka_connect" $log_search_tk$ $log_sourcetype_tk$ [ | savedsearch telegraf-kafka-kafka-connect-workers | search $jolokia_agent_url$ | table kafka_connect | rename kafka_connect as host ]</query>
+                    <earliest>-24h@h</earliest>
+                    <latest>now</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="count">10</option>
+                <option name="list.drilldown">none</option>
+                <option name="list.wrap">1</option>
+                <option name="maxLines">5</option>
+                <option name="raw.drilldown">none</option>
+                <option name="rowNumbers">0</option>
+                <option name="table.drilldown">none</option>
+                <option name="table.sortDirection">asc</option>
+                <option name="table.wrap">1</option>
+                <option name="type">list</option>
+            </event>
+        </panel>
+    </row>
 </form>

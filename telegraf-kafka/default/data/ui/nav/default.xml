@@ -55,6 +55,10 @@
             <view name="telegraf-kafka-confluent-shema-registry" />
         </collection>
 
+        <collection label="Confluent ksql-server">
+            <view name="telegraf-kafka-confluent-ksql-server" />
+        </collection>
+
         <collection label="Kafka LinkedIn monitor">
             <view name="telegraf-kafka-kafka-monitor" />
         </collection>

@@ -108,9 +108,30 @@
 
     <row>
         <panel>
+            <input type="link" token="linkinput_tk">
+                <label></label>
+                <choice value="chart1">METRICS</choice>
+                <choice value="chart2">LOGS ACTIVITY</choice>
+                <default>chart1</default>
+                <change>
+                    <condition value="chart1">
+                        <set token="chart1">true</set>
+                        <unset token="chart2"></unset>
+                    </condition>
+                    <condition value="chart2">
+                        <set token="chart2">true</set>
+                        <unset token="chart1"></unset>
+                    </condition>
+                </change>
+            </input>
+        </panel>
+    </row>
+
+    <row depends="$chart1$">
+        <panel>
             <chart>
                 <title>Average latency</title>
-                <search>
+                <search depends="$chart1$">
                     <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="zookeeper.avg_latency" $server$ by server span=1s
 | timechart `telegraf_kafka_span` avg(_value) as "Avg" by server</query>
                     <earliest>$earliest$</earliest>
@@ -128,7 +149,7 @@
         <panel>
             <chart>
                 <title>Outstanding requests</title>
-                <search>
+                <search depends="$chart1$">
                     <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="zookeeper.outstanding_requests" $server$ by server span=1s
 | timechart `telegraf_kafka_span` avg(_value) as "Avg" by server</query>
                     <earliest>$earliest$</earliest>
@@ -146,7 +167,7 @@
         <panel>
             <chart rejects="$show_null_pendingsync$">
                 <title>Pending Sync</title>
-                <search>
+                <search depends="$chart1$">
                     <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="zookeeper.pending_syncs" $server$ by server span=1s
 | timechart `telegraf_kafka_span` avg(_value) as "Avg" by server</query>
                     <earliest>$earliest$</earliest>
@@ -170,18 +191,18 @@
             </chart>
             <html depends="$show_null_pendingsync$">
                 <div style="text-align: center;">
-                    <img src="../../static/app/DA-ITSI-TELEGRAF-KAFKA/icons/ok_green.png" alt="ok"/>
-                    <p style="color:blue;font-size:14px;"><br/>NO PENDING SYNC OPERATIONS DETECTED</p>
+                    <img src="../../static/app/telegraf-kafka/icons/ok_green.png" alt="ok"/>
+                    <p style="color:blue;font-size:14px;"><br/>NO PENDING SYNC OPERATIONS DETECTED OR FOLLOWER(S) MODE</p>
                 </div>
             </html>
         </panel>
     </row>
 
-    <row>
+    <row depends="$chart1$">
         <panel>
             <chart>
                 <title>File descriptor percentage used</title>
-                <search>
+                <search depends="$chart1$">
                     <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.max_file_descriptor_count" OR metric_name="zookeeper.open_file_descriptor_count" $server$ by metric_name, server span=1s
 | eval {metric_name}=value
 | stats first(zookeeper.*) as "*" by _time, server
@@ -202,7 +223,7 @@
         <panel>
             <chart>
                 <title>Packets received</title>
-                <search>
+                <search depends="$chart1$">
                     <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.packets_received" $server$ by metric_name, server span=1s
 | eval {metric_name}=value
 | stats first(zookeeper.*) as "*_counter" by _time, server
@@ -226,7 +247,7 @@
         <panel>
             <chart>
                 <title>Packets sent</title>
-                <search>
+                <search depends="$chart1$">
                     <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.packets_sent" $server$ by metric_name, server span=1s
 | eval {metric_name}=value
 | stats first(zookeeper.*) as "*_counter" by _time, server
@@ -248,4 +269,68 @@
             </chart>
         </panel>
     </row>
+
+    <row depends="$chart2$">
+        <panel>
+            <title>Zookeeper log events by log_level</title>
+            <chart>
+                <search depends="$chart2$">
+                    <query>eventtype="zookeeper" log_level=* [ | savedsearch telegraf-kafka-zookeeper-servers | search $server$ | table server | rename server as host ]
+| timechart useother=f limit=0 minspan=1m count by log_level</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">column</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+                <option name="charting.fieldColors">{"ERROR": 0xff6961, "WARN": 0xffb347, "INFO": 0x779ecb, "DEBUG": 0xaec6cf, "TRACE": 0xb19cd9}</option>
+            </chart>
+        </panel>
+    </row>
+    <row depends="$chart2$">
+        <panel>
+            <title>Events (last 1K events)</title>
+            <input type="multiselect" token="log_sourcetype_tk" searchWhenChanged="true">
+                <label>Sourcetypes:</label>
+                <choice value="*">ANY</choice>
+                <choice value="zookeeper:server">zookeeper:server</choice>
+                <choice value="zookeeper:controller">zookeeper:controller</choice>
+                <choice value="zookeeper:state-change">zookeeper:state-change</choice>
+                <choice value="zookeeper:log-cleaner">zookeeper:log-cleaner</choice>
+                <choice value="zookeeper:gc-log">zookeeper:gc-log</choice>
+                <valuePrefix>sourcetype="</valuePrefix>
+                <valueSuffix>"</valueSuffix>
+                <delimiter> OR </delimiter>
+                <initialValue>*</initialValue>
+            </input>
+            <input type="text" token="log_search_tk" searchWhenChanged="true">
+                <label>Raw search:</label>
+                <initialValue>*</initialValue>
+            </input>
+            <event>
+                <search depends="$chart2$">
+                    <query>eventtype="zookeeper" $log_search_tk$ $log_sourcetype_tk$ [ | savedsearch telegraf-kafka-zookeeper-servers | search $server$ | table server | rename server as host ]</query>
+                    <earliest>-24h@h</earliest>
+                    <latest>now</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="count">10</option>
+                <option name="list.drilldown">none</option>
+                <option name="list.wrap">1</option>
+                <option name="maxLines">5</option>
+                <option name="raw.drilldown">none</option>
+                <option name="rowNumbers">0</option>
+                <option name="table.drilldown">none</option>
+                <option name="table.sortDirection">asc</option>
+                <option name="table.wrap">1</option>
+                <option name="type">list</option>
+            </event>
+        </panel>
+    </row>
+
 </form>
