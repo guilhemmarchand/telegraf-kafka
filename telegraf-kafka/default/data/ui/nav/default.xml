@@ -67,6 +67,42 @@
 
     <!--
     ####################################################################################################################
+    KAFKA LOGS
+    ####################################################################################################################
+    -->
+
+    <collection label="Kafka logging">
+
+        <collection label="Zookeeper servers">
+            <a href="search?q=search%20eventtype%3Dzookeeper">eventtype=zookeeper</a>
+        </collection>
+
+        <collection label="Kafka Brokers">
+            <a href="search?q=search%20eventtype%3Dkafka_broker">eventtype=kafka_broker</a>
+        </collection>
+
+        <collection label="Kafka Connect">
+            <a href="search?q=search%20eventtype%3Dkafka_connect">eventtype=kafka_connect</a>
+            <a href="search?q=search%20eventtype%3Dkafka_connect_source">eventtype=kafka_connect_source</a>
+            <a href="search?q=search%20eventtype%3Dkafka_connect_sink">eventtype=kafka_connect_sink</a>
+        </collection>
+
+        <collection label="Confluent schema-registry">
+            <a href="search?q=search%20eventtype%3Dkafka_schema_registry">eventtype=kafka_schema_registry</a>
+        </collection>
+
+        <collection label="Confluent kafka-rest">
+            <a href="search?q=search%20eventtype%3Dkafka_rest">eventtype=kafka_rest</a>
+        </collection>
+
+        <collection label="Confluent ksql-server">
+            <a href="search?q=search%20eventtype%3Dkafka_ksql_server">eventtype=kafka_ksql_server</a>
+        </collection>
+
+    </collection>
+
+    <!--
+    ####################################################################################################################
     Run a search
     ####################################################################################################################
     -->
