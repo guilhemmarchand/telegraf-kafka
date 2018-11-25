@@ -413,7 +413,7 @@
         </panel>
     </row>
 
-    <row rejects="$zookeeper_detected$">
+    <row rejects="$kafka_broker_detected$">
         <panel>
             <html>
                 <div style="text-align: left; font-style: italic;">
@@ -744,7 +744,7 @@
         </panel>
     </row>
 
-    <row rejects="$ksql_server_detected$">
+    <row rejects="$schema_registry_detected$">
         <panel>
             <html>
                 <div style="text-align: left; font-style: italic;">
