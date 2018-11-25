@@ -112,23 +112,33 @@
                 <label></label>
                 <choice value="chart1">GLOBAL METRICS</choice>
                 <choice value="chart2">AGGREGATED ENDPOINTS</choice>
-                <choice value="chart3">LOGS ACTIVITY</choice>
+                <choice value="chart3">PER ENDPOINT METRICS</choice>
+                <choice value="chart4">LOGS ACTIVITY</choice>
                 <default>chart1</default>
                 <change>
                     <condition value="chart1">
                         <set token="chart1">true</set>
                         <unset token="chart2"></unset>
                         <unset token="chart3"></unset>
+                        <unset token="chart4"></unset>
                     </condition>
                     <condition value="chart2">
                         <set token="chart2">true</set>
                         <unset token="chart1"></unset>
                         <unset token="chart3"></unset>
+                        <unset token="chart4"></unset>
                     </condition>
                     <condition value="chart3">
                         <set token="chart3">true</set>
                         <unset token="chart1"></unset>
                         <unset token="chart2"></unset>
+                        <unset token="chart4"></unset>
+                    </condition>
+                    <condition value="chart4">
+                        <set token="chart4">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart2"></unset>
+                        <unset token="chart3"></unset>
                     </condition>
                 </change>
             </input>
@@ -328,14 +338,57 @@
     </row>
 
     <!--
-    chart$3: logs
+    chart$3: Per endpoint metrics
     -->
 
     <row depends="$chart3$">
         <panel>
-            <title>kafka_rest log events by log_level</title>
+            <title>Per endpoint metrics - please select one or more metrics bellow (See the metric workspace application for better navigation)</title>
+
+            <input type="multiselect" token="per_endpoint_tk" searchWhenChanged="true">
+                <label>metrics:</label>
+                <search depends="$chart3$">
+                    <query>| mcatalog values(metric_name) as metric_name where `telegraf_kafka_index` metric_name="kafka_kafka-rest.jersey-metrics.*" $jolokia_agent_url$
+| mvexpand metric_name
+| sort 0 metric_name</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <valuePrefix>metric_name="</valuePrefix>
+                <valueSuffix>"</valueSuffix>
+                <delimiter> OR </delimiter>
+                <fieldForLabel>metric_name</fieldForLabel>
+                <fieldForValue>metric_name</fieldForValue>
+            </input>
             <chart>
                 <search depends="$chart3$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` $per_endpoint_tk$ $jolokia_agent_url$ by metric_name span=10s
+| timechart `telegraf_kafka_span` avg(_value) as value by metric_name</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+                <option name="height">500</option>
+            </chart>
+        </panel>
+    </row>
+
+    <!--
+    chart$4: logs
+    -->
+
+    <row depends="$chart4$">
+        <panel>
+            <title>kafka_rest log events by log_level</title>
+            <chart>
+                <search depends="$chart4$">
                     <query>eventtype="kafka_rest" log_level=* [ | savedsearch telegraf-kafka-kafka-rest | search $jolokia_agent_url$ | table kafka_rest | rename kafka_rest as host ]
 | timechart useother=f limit=0 minspan=1m count by log_level</query>
                     <earliest>$earliest$</earliest>
@@ -353,7 +406,7 @@
             </chart>
         </panel>
     </row>
-    <row depends="$chart3$">
+    <row depends="$chart4$">
         <panel>
             <title>Events</title>
             <input type="multiselect" token="log_sourcetype_tk" searchWhenChanged="true">
@@ -371,7 +424,7 @@
                 <initialValue>*</initialValue>
             </input>
             <event>
-                <search depends="$chart3$">
+                <search depends="$chart4$">
                     <query>eventtype="kafka_rest" $log_search_tk$ $log_sourcetype_tk$ [ | savedsearch telegraf-kafka-kafka-rest | search $jolokia_agent_url$ | table kafka_rest | rename kafka_rest as host ]</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
