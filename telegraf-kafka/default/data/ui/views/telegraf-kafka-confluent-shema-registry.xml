@@ -85,6 +85,25 @@
                 <option name="useColors">1</option>
             </single>
         </panel>
+        <panel>
+            <single>
+                <search>
+                    <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.request-error-rate" $jolokia_agent_url$</query>
+                    <earliest>-90s</earliest>
+                    <latest>now</latest>
+                    <refresh>90s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">HTTP ERROR RESPONSES REQ/SEC</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
     </row>
 
     <row>

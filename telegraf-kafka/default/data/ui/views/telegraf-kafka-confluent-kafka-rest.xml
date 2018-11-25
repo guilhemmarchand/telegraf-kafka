@@ -1,0 +1,394 @@
+<form stylesheet="telegraf-kafka:common.css" hideEdit="True" isVisible="True">
+    <label>Confluent kafka-rest - Entity health view</label>
+
+    <search id="activity_summary">
+        <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_kafka-rest.jetty-metrics.connections-active" OR  metric_name="kafka_kafka-rest.jetty-metrics.connections-opened-rate" OR metric_name="kafka_kafka-rest.jetty-metrics.connections-closed-rate" $jolokia_agent_url$ by metric_name
+| eval {metric_name}=value
+| stats first(kafka_kafka-rest.*) as "*"</query>
+        <earliest>-90s</earliest>
+        <latest>now</latest>
+        <refresh>30s</refresh>
+        <refreshType>delay</refreshType>
+    </search>
+
+    <fieldset autoRun="false" submitButton="false">
+        <input type="time" searchWhenChanged="true">
+            <label></label>
+            <default>
+                <earliestTime>-4h</earliestTime>
+                <latestTime>now</latestTime>
+            </default>
+        </input>
+        <input type="multiselect" token="jolokia_agent_url" searchWhenChanged="true">
+            <label>kafka-rest node(s):</label>
+            <!-- Populating Data Model Search -->
+            <search>
+                <query>| savedsearch telegraf-kafka-kafka-rest</query>
+                <earliest>$earliest$</earliest>
+                <latest>$latest$</latest>
+            </search>
+            <valuePrefix>jolokia_agent_url="</valuePrefix>
+            <valueSuffix>"</valueSuffix>
+            <delimiter> OR </delimiter>
+            <choice value="*">ANY</choice>
+            <fieldForLabel>jolokia_agent_url</fieldForLabel>
+            <fieldForValue>jolokia_agent_url</fieldForValue>
+        </input>
+    </fieldset>
+
+    <row>
+        <panel>
+            <single>
+                <search base="activity_summary">
+                    <query>fields "jetty-metrics.connections-active"</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">REALTIME AVG ACTIVE CONNECTIONS</option>
+                <option name="unit">req/sec</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="activity_summary">
+                    <query>fields "jetty-metrics.connections-opened-rate"</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">REALTIME AVG OPENED CONNECTIONS RATE</option>
+                <option name="unit">req/sec</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="activity_summary">
+                    <query>fields "jetty-metrics.connections-closed-rate"</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">REALTIME AVG CLOSED CONNECTIONS RATE</option>
+                <option name="unit">req/sec</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search>
+                    <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_kafka-rest.jersey-metrics.request-error-rate" $jolokia_agent_url$</query>
+                    <earliest>-90s</earliest>
+                    <latest>now</latest>
+                    <refresh>90s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">HTTP ERROR RESPONSES REQ/SEC</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+    </row>
+
+    <row>
+        <panel>
+            <input type="link" token="top_linkinput">
+                <label></label>
+                <choice value="chart1">GLOBAL METRICS</choice>
+                <choice value="chart2">AGGREGATED ENDPOINTS</choice>
+                <choice value="chart3">LOGS ACTIVITY</choice>
+                <default>chart1</default>
+                <change>
+                    <condition value="chart1">
+                        <set token="chart1">true</set>
+                        <unset token="chart2"></unset>
+                        <unset token="chart3"></unset>
+                    </condition>
+                    <condition value="chart2">
+                        <set token="chart2">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart3"></unset>
+                    </condition>
+                    <condition value="chart3">
+                        <set token="chart3">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart2"></unset>
+                    </condition>
+                </change>
+            </input>
+        </panel>
+    </row>
+
+    <!--
+    Global Metrics (jetty-metrics)
+    -->
+
+    <row depends="$chart1$">
+        <panel>
+            <title>Total number of active Jetty TCP connections (connections-active)</title>
+            <chart>
+                <search depends="$chart1$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_kafka-rest.jetty-metrics.connections-active" $jolokia_agent_url$ by jolokia_agent_url span=10s
+| timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>Average rate per second of opened Jetty TCP connections (connections-opened-rate)</title>
+            <chart>
+                <search depends="$chart1$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_kafka-rest.jetty-metrics.connections-opened-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+| timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+    <row depends="$chart1$">
+        <panel>
+            <title>Average rate per second of closed Jetty TCP connections (connections-closed-rate)</title>
+            <chart>
+                <search depends="$chart1$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_kafka-rest.jetty-metrics.connections-closed-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+| timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+        </panel>
+    </row>
+
+    <!--
+    Endpoint aggregate (jersey-metrics)
+    -->
+
+    <row depends="$chart2$">
+        <panel>
+            <title>Average number of HTTP requests per second (request-rate)</title>
+            <chart>
+                <search depends="$chart2$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_kafka-rest.jersey-metrics.request-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+| timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>Average request latency in ms (request-latency-avg)</title>
+            <chart>
+                <search depends="$chart2$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_kafka-rest.jersey-metrics.request-latency-avg" $jolokia_agent_url$ by jolokia_agent_url span=10s
+| timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>Average no of requests/sec HTTP error responses (request-error-rate)</title>
+            <chart>
+                <search depends="$chart2$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_kafka-rest.jersey-metrics.request-error-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+| timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+
+    <row depends="$chart2$">
+        <panel>
+            <title>Average number of HTTP requests per second (response-rate)</title>
+            <chart>
+                <search depends="$chart2$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_kafka-rest.jersey-metrics.response-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+| timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>Average response size in bytes (response-size-avg)</title>
+            <chart>
+                <search depends="$chart2$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_kafka-rest.jersey-metrics.response-size-avg" $jolokia_agent_url$ by jolokia_agent_url span=10s
+| timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>Bytes/second of outgoing responses (response-byte-rate)</title>
+            <chart>
+                <search depends="$chart2$">
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_kafka-rest.jersey-metrics.response-byte-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+| timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
+        </panel>
+    </row>
+
+    <!--
+    chart$3: logs
+    -->
+
+    <row depends="$chart3$">
+        <panel>
+            <title>kafka_rest log events by log_level</title>
+            <chart>
+                <search depends="$chart3$">
+                    <query>eventtype="kafka_rest" log_level=* [ | savedsearch telegraf-kafka-kafka-rest | search $jolokia_agent_url$ | table kafka_rest | rename kafka_rest as host ]
+| timechart useother=f limit=0 minspan=1m count by log_level</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="charting.chart">column</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+                <option name="charting.fieldColors">{"ERROR": 0xff6961, "WARN": 0xffb347, "INFO": 0x779ecb, "DEBUG": 0xaec6cf, "TRACE": 0xb19cd9}</option>
+            </chart>
+        </panel>
+    </row>
+    <row depends="$chart3$">
+        <panel>
+            <title>Events</title>
+            <input type="multiselect" token="log_sourcetype_tk" searchWhenChanged="true">
+                <label>Sourcetypes:</label>
+                <choice value="*">ANY</choice>
+                <choice value="kafka:kafka-rest">kafka:kafka-rest</choice>
+                <choice value="kafka:kafka-rest:gc-log">kafka:kafka-rest:gc-log</choice>
+                <valuePrefix>sourcetype="</valuePrefix>
+                <valueSuffix>"</valueSuffix>
+                <delimiter> OR </delimiter>
+                <initialValue>*</initialValue>
+            </input>
+            <input type="text" token="log_search_tk" searchWhenChanged="true">
+                <label>Raw search:</label>
+                <initialValue>*</initialValue>
+            </input>
+            <event>
+                <search depends="$chart3$">
+                    <query>eventtype="kafka_rest" $log_search_tk$ $log_sourcetype_tk$ [ | savedsearch telegraf-kafka-kafka-rest | search $jolokia_agent_url$ | table kafka_rest | rename kafka_rest as host ]</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="count">10</option>
+                <option name="list.drilldown">none</option>
+                <option name="list.wrap">1</option>
+                <option name="maxLines">5</option>
+                <option name="raw.drilldown">none</option>
+                <option name="rowNumbers">0</option>
+                <option name="table.drilldown">none</option>
+                <option name="table.sortDirection">asc</option>
+                <option name="table.wrap">1</option>
+                <option name="type">list</option>
+            </event>
+        </panel>
+    </row>
+
+</form>

@@ -73,6 +73,19 @@
         </progress>
     </search>
 
+    <!-- Detect Confluent kafka-rest -->
+    <search id="detect_confluent_kafka_rest" base="all_kafka_components_mcatalog">
+        <query>where metric_name="kafka_kafka-rest.jetty-metrics.connections-active"</query>
+        <progress>
+            <condition match="$job.resultCount$ == 0">
+                <unset token="kafka_rest_detected"></unset>
+            </condition>
+            <condition>
+                <set token="kafka_rest_detected">true</set>
+            </condition>
+        </progress>
+    </search>
+
     <!-- base search for Zookeeper -->
 
     <search id="server_activity_summary" depends="$zookeeper_detected$">
@@ -173,6 +186,28 @@
         <earliest>-90s</earliest>
         <latest>now</latest>
         <refresh>30s</refresh>
+        <refreshType>delay</refreshType>
+    </search>
+
+    <!-- base search for Confluent kafka-rest -->
+
+    <search id="kafka_rest_summary" depends="$kafka_rest_detected$">
+        <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_kafka-rest.jetty-metrics.connections-active" OR  metric_name="kafka_kafka-rest.jetty-metrics.connections-opened-rate" OR metric_name="kafka_kafka-rest.jetty-metrics.connections-closed-rate" by metric_name
+            | eval {metric_name}=value
+            | stats first(kafka_kafka-rest.*) as "*"</query>
+        <earliest>-90s</earliest>
+        <latest>now</latest>
+        <refresh>90s</refresh>
+        <refreshType>delay</refreshType>
+    </search>
+
+    <search id="kafka_rest_summary_jersey" depends="$kafka_rest_detected$">
+        <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_kafka-rest.jersey-metrics.request-error-rate" by metric_name
+            | eval {metric_name}=value
+            | stats first(kafka_kafka-rest.*) as "*"</query>
+        <earliest>-90s</earliest>
+        <latest>now</latest>
+        <refresh>90s</refresh>
         <refreshType>delay</refreshType>
     </search>
 
@@ -873,4 +908,122 @@
         </panel>
     </row>
 
+    <!--
+
+    CONFLUENT KAFKA-REST
+
+    -->
+
+    <row>
+        <panel>
+            <html>
+                <div class="dashseparator">
+                    <h1>CONFLUENT KAFKA-REST</h1>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+    <row depends="$kafka_rest_detected$">
+        <panel>
+            <single>
+                <search depends="$kafka_rest_detected$">
+                    <query>| savedsearch telegraf-kafka-kafka-rest | stats dc(kafka_rest) as dcount</query>
+                    <earliest>-15m</earliest>
+                    <latest>now</latest>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">KAFKA-REST NODES</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="kafka_rest_summary">
+                    <query>fields "jetty-metrics.connections-active"</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">ACTIVE CONNECTIONS REQ/SEC</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="kafka_rest_summary">
+                    <query>fields "jetty-metrics.connections-opened-rate"</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">OPENED CONNECTIONS REQ/SEC</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="kafka_rest_summary">
+                    <query>fields "jetty-metrics.connections-closed-rate"</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">CLOSED CONNECTIONS REQ/SEC</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="kafka_rest_summary_jersey">
+                    <query>fields "jersey-metrics.request-error-rate"</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">HTTP ERROR RESPONSES REQ/SEC</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+    </row>
+
+    <row depends="$kafka_rest_detected$">
+        <panel>
+            <html>
+                <div class="mainbutton_container_nomargin">
+                    <div class="mainbutton_highmargin">
+                        <a class="button2_lowpadding glow" href="telegraf-kafka-confluent-kafka-rest">  OPEN ENTITY DASHBOARD VIEW  </a>
+                    </div>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+    <row rejects="$kafka_rest_detected$">
+        <panel>
+            <html>
+                <div style="text-align: left; font-style: italic;">
+                    <h2 style="color: #779ecb;">NO ACTIVE KAFKA-REST NODES DETECTED</h2>
+                </div>
+            </html>
+        </panel>
+    </row>
+    
 </dashboard>
