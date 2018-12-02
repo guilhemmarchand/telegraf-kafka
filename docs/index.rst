@@ -24,7 +24,7 @@ The application provides builtin and native monitoring for Apache Kafka componen
 * Confluent schema-registry
 * Confluent ksql-server
 * Confluent kafka-rest
-* Kafka SLA monitoring with the Linkedin Kafka monitor
+* Kafka SLA and end to end monitoring with the Linkedin Kafka monitor
 
 Overview:
 =========
