@@ -3,11 +3,12 @@ Release notes
 
 Version 1.0.7
 =============
-- fix: minor fixes and improvements in views
+- feature: Out of the box alerts for Kafka Infrastructure
 - feature: Support for Confluent ksql-server
 - feature: Support for Confluent kafka-rest
-- feature: Overview home page improvements and fixes
+- feature: Overview home page improvements
 - feature: event logging integration with the TA-kafka-streaming-platform
+- fix: minor fixes and improvements in views
 
 Version 1.0.6
 =============
