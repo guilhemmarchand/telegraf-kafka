@@ -48,6 +48,7 @@ Deployment and configuration:
    kafka_monitoring
    docker_testing
    health_view
+   ootb_alerting
 
 Troubleshoot:
 =============
