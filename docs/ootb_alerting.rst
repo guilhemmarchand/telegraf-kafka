@@ -8,7 +8,7 @@ Stale metrics life test
 
 **Important: All alerts are disabled by default, and must be enabled depending on your needs**
 
-Life test monitoring alerts perform a verification of the metric availability to alert on a potential downtime of issue with a component.
+Life test monitoring alerts perform a verification of the metric availability to alert on a potential downtime or issue with a component.
 
 * Kafka monitoring - [ component ] - stale metrics life test
 
