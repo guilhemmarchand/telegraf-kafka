@@ -1,6 +1,12 @@
 Release notes
 #############
 
+Version 1.0.8
+=============
+
+- feature: Out of the box alerting templates for Kafka infrastructure
+- fix: Kafka Connect aggregated states issues in Overview page
+
 Version 1.0.7
 =============
 - feature: Out of the box alerts for Kafka Infrastructure
