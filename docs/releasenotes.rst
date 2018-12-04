@@ -1,6 +1,12 @@
 Release notes
 #############
 
+Version 1.0.9
+=============
+- feature: Added OOTB Alert for under-replicated partitions per topics
+- feature: Management interface for embedded Kafka alerting
+- feature: Enabling / Deactivating maintenance mode through UI for alerting management
+
 Version 1.0.8
 =============
 

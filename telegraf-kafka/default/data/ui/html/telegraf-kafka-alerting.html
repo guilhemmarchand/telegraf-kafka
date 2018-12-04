@@ -7,7 +7,7 @@
     <link rel="shortcut icon" href="/en-US/static/@92F74F933102622F25D139967C9C020242623D8C2AE766D55E7680F38A7DA428.10/img/favicon.ico" />
     <link rel="stylesheet" type="text/css" href="{{SPLUNKWEB_URL_PREFIX}}/static/build/css/bootstrap-enterprise.css" />
     <link rel="stylesheet" type="text/css" href="{{SPLUNKWEB_URL_PREFIX}}/static/build/css/splunkjs-dashboard.css" />
-
+    <link rel="stylesheet" type="text/css" media="all" href="{{SPLUNKWEB_URL_PREFIX}}/static/app/telegraf-kafka/boottsrap-btn.css" />
 
     <meta name="referrer" content="never" />
     <meta name="referrer" content="no-referrer" />
@@ -60,7 +60,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
                 <h2 class="panel-title"></h2>
                 <div class="fieldset" style="text-align: center;">
                     <div class="form-submit" id="btn_enable_maintenance">
-                        <button class="btn btn-primary submit">Enable maintenance mode</button>
+                        <button class="btn btn-danger submit">Enable maintenance mode</button>
                     </div>
                 </div>
             </div>
@@ -70,7 +70,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
                 <h2 class="panel-title"></h2>
                 <div class="fieldset" style="text-align: center;">
                     <div class="form-submit" id="btn_disable_maintenance">
-                        <button class="btn btn-primary submit">Disable maintenance mode</button>
+                        <button class="btn btn-info submit">Disable maintenance mode</button>
                     </div>
                 </div>
             </div>
@@ -112,7 +112,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
     <div id="row_kafka_infra_search" class="dashboard-row dashboard-row_kafka_infra_search">
         <div id="panel_togglepanel_true_search_kafka_infra" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_search_kafka_infra">
             <div class="dashboard-panel clearfix">
-                <h2 class="panel-title">Search and filter:</h2>
+                <h2 class="panel-title">Search and filter</h2>
                 <div class="fieldset">
                     <div class="input input-text" id="input_kafka_infra_search_name">
                         <label>name:</label>
@@ -132,7 +132,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
     <div id="row_kafka_infra_modify" class="dashboard-row dashboard-row_kafka_infra_modify">
         <div id="panel_togglepanel_true_modify_kafka_infra" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_modify_kafka_infra">
             <div class="dashboard-panel clearfix">
-                <h2 class="panel-title">Modify entry:</h2>
+                <h2 class="panel-title">Modify entries</h2>
                 <div class="fieldset">
                     <div class="input input-text" id="input_kafka_infra_modify_grace_period">
                         <label>grace_period:</label>
@@ -149,9 +149,9 @@ styles in <div> tags, similar to Bootstrap's grid system.
         </div>
     </div>
     <div id="row_kafka_infra_delete" class="dashboard-row dashboard-row_kafka_infra_delete">
-        <div id="panel_kafka_infra_delete" class="dashboard-cell" style="width: 100%;">
+        <div id="panel_togglepanel_true_show_kafka_infra" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_show_kafka_infra">
             <div class="dashboard-panel clearfix">
-                <h2 class="panel-title">Delete entry:</h2>
+                <h2 class="panel-title">Collection content</h2>
                 <div class="fieldset">
                     <div class="input input-text" id="input_kafka_infra_delete">
                         <label>keyid:</label>
@@ -160,15 +160,6 @@ styles in <div> tags, similar to Bootstrap's grid system.
                         <button class="btn btn-primary submit">Delete this entry</button>
                     </div>
                 </div>
-
-            </div>
-        </div>
-    </div>
-    
-    <div id="row_kafka_infra_main_table" class="dashboard-row dashboard-row_connect_main_table">
-        <div id="panel_kafka_infra_main_table" class="dashboard-cell" style="width: 100%;">
-            <div class="dashboard-panel clearfix">
-
                 <div class="panel-element-row">
                     <div id="element_kafka_infra_main_table" class="dashboard-element table" style="width: 100%">
                         <div class="panel-body"></div>
@@ -178,6 +169,92 @@ styles in <div> tags, similar to Bootstrap's grid system.
         </div>
     </div>
 
+    <div id="row_kafka_topics" class="dashboard-row dashboard-row_topics">
+        <div id="panel_kafka_topics" class="dashboard-cell" style="width: 100%;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title"></h2>
+                <div class="fieldset" style="text-align: left;">
+                    <div>
+                        <h1>Kafka Topics monitoring</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="row_kafka_topics_single" class="dashboard-row dashboard-row_connect_single">
+        <div id="panel_kafka_topics_single" class="dashboard-cell" style="width: 100%;">
+            <div class="dashboard-panel clearfix">
+
+                <div class="panel-element-row">
+                    <div id="element_kafka_topics_single1" class="dashboard-element single" style="width: 33.33%">
+                        <div class="panel-body"></div>
+                    </div>
+                    <div id="element_kafka_topics_single2" class="dashboard-element single" style="width: 33.33%">
+                        <div class="panel-body"></div>
+                    </div>
+                    <div id="element_kafka_topics_single3" class="dashboard-element single" style="width: 33.33%">
+                        <div class="panel-body"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="row_kafka_topics_search" class="dashboard-row dashboard-row_kafka_topics_search">
+        <div id="panel_togglepanel_true_search_kafka_topics" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_search_kafka_topics">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Search and filter</h2>
+                <div class="fieldset">
+                    <div class="input input-text" id="input_kafka_topics_search_name">
+                        <label>name:</label>
+                    </div>
+                    <div class="input input-dropdown" id="input_kafka_topics_search_monitoring_state">
+                        <label>Monitoring state:</label>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="row_kafka_topics_modify" class="dashboard-row dashboard-row_kafka_topics_modify">
+        <div id="panel_togglepanel_true_modify_kafka_topics" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_modify_kafka_topics">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Modify entries</h2>
+                <div class="fieldset">
+                    <div class="input input-text" id="input_kafka_topics_modify_monitoring_state">
+                        <label>monitoring_state:</label>
+                    </div>
+                    <div class="form-submit" id="btn_modify_content_kafka_topics">
+                        <button class="btn btn-primary submit">Modify this entry</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div id="row_kafka_topics_delete" class="dashboard-row dashboard-row_kafka_topics_delete">
+        <div id="panel_togglepanel_true_show_kafka_topics" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_show_kafka_topics">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Collection content</h2>
+                <div class="fieldset">
+                    <div class="input input-text" id="input_kafka_topics_delete">
+                        <label>keyid:</label>
+                    </div>
+                    <div class="form-submit" id="btn_remove_content_kafka_topics">
+                        <button class="btn btn-primary submit">Delete this entry</button>
+                    </div>
+                </div>
+                <div class="panel-element-row">
+                    <div id="element_kafka_topics_main_table" class="dashboard-element table" style="width: 100%">
+                        <div class="panel-body"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <div id="row_connect" class="dashboard-row dashboard-row_connect">
         <div id="panel_connect" class="dashboard-cell" style="width: 100%;">
             <div class="dashboard-panel clearfix">
@@ -213,7 +290,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
     <div id="row_connect_search" class="dashboard-row dashboard-row_connect_search">
         <div id="panel_togglepanel_true_search" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_search">
             <div class="dashboard-panel clearfix">
-                <h2 class="panel-title">Search and filter:</h2>
+                <h2 class="panel-title">Search and filter</h2>
                 <div class="fieldset">
                     <div class="input input-text" id="input_connect_search_connector">
                         <label>connector:</label>
@@ -233,7 +310,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
     <div id="row_connect_modify" class="dashboard-row dashboard-row_connect_modify">
         <div id="panel_togglepanel_true_modify" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_modify">
             <div class="dashboard-panel clearfix">
-                <h2 class="panel-title">Modify entry:</h2>
+                <h2 class="panel-title">Modify entries</h2>
                 <div class="fieldset">
                     <div class="input input-text" id="input_connect_modify_grace_period">
                         <label>grace_period:</label>
@@ -250,9 +327,9 @@ styles in <div> tags, similar to Bootstrap's grid system.
         </div>
     </div>
     <div id="row_connect_delete" class="dashboard-row dashboard-row_connect_delete">
-        <div id="panel_connect_delete" class="dashboard-cell" style="width: 100%;">
+        <div id="panel_togglepanel_true_show_connect" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_show_connect">
             <div class="dashboard-panel clearfix">
-                <h2 class="panel-title">Delete entry:</h2>
+                <h2 class="panel-title">Collection content</h2>
                 <div class="fieldset">
                     <div class="input input-text" id="input_connect_delete">
                         <label>keyid:</label>
@@ -261,15 +338,6 @@ styles in <div> tags, similar to Bootstrap's grid system.
                         <button class="btn btn-primary submit">Delete this entry</button>
                     </div>
                 </div>
-
-            </div>
-        </div>
-    </div>
-    
-    <div id="row_connect_main_table" class="dashboard-row dashboard-row_connect_main_table">
-        <div id="panel_connect_main_table" class="dashboard-cell" style="width: 100%;">
-            <div class="dashboard-panel clearfix">
-
                 <div class="panel-element-row">
                     <div id="element_connect_main_table" class="dashboard-element table" style="width: 100%">
                         <div class="panel-body"></div>
@@ -278,8 +346,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
             </div>
         </div>
     </div>
-
-
+    
 </div>
 
 <!--
@@ -511,7 +578,75 @@ var search_kafka_infra_no_components_disabled = new SearchManager({
             "sample_ratio": null,
             "earliest_time": "-24h@h",
             "cancelOnUnload": true,
-            "search": "| inputlookup kafka_infra_inventory | where monitoring_state!=\"enabled\" | stats count",
+            "search": "| inputlookup kafka_infra_inventory | where monitoring_state!=\"enabled\" | stats count | rangemap field=maintenance low=0-0 high=1-1000 default=severe",
+            "latest_time": "now",
+            "status_buckets": 0,
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true, tokenNamespace: "submitted"});
+
+        //
+        // KAFKA TOPICS
+        //
+        
+var search_kafka_topics_main_table = new SearchManager({
+            "id": "search_kafka_topics_main_table",
+            "sample_ratio": 1,
+            "earliest_time": "-15m",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_topics_monitoring | eval keyid = _key | search $search_tk_kafka_topics_name$ $search_tk_kafka_topics_monitoring_state$ | fields keyid, topic, monitoring_state | sort 0 name",
+            "latest_time": "now",
+            "status_buckets": 0,
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true, tokenNamespace: "submitted"});        
+
+var search_kafka_topics_no_components = new SearchManager({
+            "id": "search_kafka_topics_no_components",
+            "sample_ratio": null,
+            "earliest_time": "-24h@h",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_topics_monitoring | stats count",
+            "latest_time": "now",
+            "status_buckets": 0,
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true, tokenNamespace: "submitted"});
+
+var search_kafka_topics_no_components_enabled = new SearchManager({
+            "id": "search_kafka_topics_no_components_enabled",
+            "sample_ratio": null,
+            "earliest_time": "-24h@h",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_topics_monitoring | where monitoring_state=\"enabled\" | stats count",
+            "latest_time": "now",
+            "status_buckets": 0,
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true, tokenNamespace: "submitted"});
+
+var search_kafka_topics_no_components_disabled = new SearchManager({
+            "id": "search_kafka_topics_no_components_disabled",
+            "sample_ratio": null,
+            "earliest_time": "-24h@h",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_topics_monitoring | where monitoring_state!=\"enabled\" | stats count | rangemap field=maintenance low=0-0 high=1-1000 default=severe",
             "latest_time": "now",
             "status_buckets": 0,
             "app": utils.getCurrentApp(),
@@ -656,9 +791,23 @@ var search_connect_main_table = new SearchManager({
 
         var element_kafka_infra_single3 = new SingleElement({
             "id": "element_kafka_infra_single3",
-            "rangeColors": "[\"0x53a051\",\"0x0877a6\",\"0xf8be34\",\"0xf1813f\",\"0xdc4e41\"]",
             "underLabel": "UN-MONITORED COMPONENTS",
+            "showSparkline": "1",
+            "trellis.enabled": "0",
+            "rangeValues": "[0]",
+            "rangeColors": "[\"0x53a051\",\"0xf1813f\"]",
+            "colorMode": "none",
+            "trellis.scales.shared": "1",
+            "useThousandSeparators": "1",
+            "showTrendIndicator": "1",
+            "trendDisplayMode": "absolute",
+            "trellis.size": "medium",
             "drilldown": "none",
+            "numberPrecision": "0",
+            "trendColorInterpretation": "standard",
+            "useColors": "1",
+            "colorBy": "value",
+            "unitPosition": "after",
             "managerid": "search_kafka_infra_no_components_disabled",
             "el": $('#element_kafka_infra_single3')
         }, {tokens: true, tokenNamespace: "submitted"}).render();
@@ -687,6 +836,72 @@ var search_connect_main_table = new SearchManager({
             }
         });
 
+        //
+        // KAFKA TOPICS
+        //
+
+        var element_kafka_topics_single1 = new SingleElement({
+            "id": "element_kafka_topics_single1",
+            "rangeColors": "[\"0x53a051\",\"0x0877a6\",\"0xf8be34\",\"0xf1813f\",\"0xdc4e41\"]",
+            "underLabel": "TOTAL TOPICS DISCOVERED",
+            "drilldown": "none",
+            "managerid": "search_kafka_topics_no_components",
+            "el": $('#element_kafka_topics_single1')
+        }, {tokens: true, tokenNamespace: "submitted"}).render();
+
+        var element_kafka_topics_single2 = new SingleElement({
+            "id": "element_kafka_topics_single2",
+            "rangeColors": "[\"0x53a051\",\"0x0877a6\",\"0xf8be34\",\"0xf1813f\",\"0xdc4e41\"]",
+            "underLabel": "TOTAL TOPICS MONITORED",
+            "drilldown": "none",
+            "managerid": "search_kafka_topics_no_components_enabled",
+            "el": $('#element_kafka_topics_single2')
+        }, {tokens: true, tokenNamespace: "submitted"}).render();
+
+        var element_kafka_topics_single3 = new SingleElement({
+            "id": "element_kafka_topics_single3",
+            "underLabel": "UN-MONITORED TOPICS",
+            "showSparkline": "1",
+            "trellis.enabled": "0",
+            "rangeValues": "[0]",
+            "rangeColors": "[\"0x53a051\",\"0xf1813f\"]",
+            "colorMode": "none",
+            "trellis.scales.shared": "1",
+            "useThousandSeparators": "1",
+            "showTrendIndicator": "1",
+            "trendDisplayMode": "absolute",
+            "trellis.size": "medium",
+            "drilldown": "none",
+            "numberPrecision": "0",
+            "trendColorInterpretation": "standard",
+            "useColors": "1",
+            "colorBy": "value",
+            "unitPosition": "after",
+            "managerid": "search_kafka_topics_no_components_disabled",
+            "el": $('#element_kafka_topics_single3')
+        }, {tokens: true, tokenNamespace: "submitted"}).render();
+
+        var element_kafka_topics_main_table = new TableElement({
+            "id": "element_kafka_topics_main_table",
+            "count": 10,
+            "dataOverlayMode": "none",
+            "drilldown": "row",
+            "percentagesRow": "false",
+            "rowNumbers": "false",
+            "totalsRow": "false",
+            "wrap": "true",
+            "managerid": "search_kafka_topics_main_table",
+            "el": $('#element_kafka_topics_main_table')
+        }, {tokens: true, tokenNamespace: "submitted"}).render();
+
+        element_kafka_topics_main_table.on("click", function(e) {
+            if (e.field !== undefined) {
+                e.preventDefault();
+                setToken("form.tk_kafka_topics_keyid", TokenUtils.replaceTokenNames("$row.keyid$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("tk_kafka_topics_name", TokenUtils.replaceTokenNames("$row.topic$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("form.modify_tk_kafka_topics_monitoring_state", TokenUtils.replaceTokenNames("$row.monitoring_state$", _.extend(submittedTokenModel.toJSON(), e.data)));
+            }
+        });
 
         //
         // KAFKA CONNECT
@@ -712,9 +927,23 @@ var search_connect_main_table = new SearchManager({
 
         var element_connect_single3 = new SingleElement({
             "id": "element_connect_single3",
-            "rangeColors": "[\"0x53a051\",\"0x0877a6\",\"0xf8be34\",\"0xf1813f\",\"0xdc4e41\"]",
             "underLabel": "UN-MONITORED CONNECTORS",
+            "showSparkline": "1",
+            "trellis.enabled": "0",
+            "rangeValues": "[0]",
+            "rangeColors": "[\"0x53a051\",\"0xf1813f\"]",
+            "colorMode": "none",
+            "trellis.scales.shared": "1",
+            "useThousandSeparators": "1",
+            "showTrendIndicator": "1",
+            "trendDisplayMode": "absolute",
+            "trellis.size": "medium",
             "drilldown": "none",
+            "numberPrecision": "0",
+            "trendColorInterpretation": "standard",
+            "useColors": "1",
+            "colorBy": "value",
+            "unitPosition": "after",
             "managerid": "search_connect_no_connectors_disabled",
             "el": $('#element_connect_single3')
         }, {tokens: true, tokenNamespace: "submitted"}).render();
@@ -852,6 +1081,68 @@ var search_connect_main_table = new SearchManager({
 
         input_kafka_infra_delete.on("change", function(newValue) {
             FormUtils.handleValueChange(input_kafka_infra_delete);
+        });
+
+        //
+        // KAFKA TOPICS
+        //
+
+        var input_kafka_topics_search_name = new TextInput({
+            "id": "input_kafka_topics_search_name",
+            "searchWhenChanged": true,
+            "initialValue": "*",
+            "suffix": "\"",
+            "prefix": "topic=\"",
+            "value": "$form.search_tk_kafka_topics_name$",
+            "el": $('#input_kafka_topics_search_name')
+        }, {tokens: true}).render();
+
+        input_kafka_topics_search_name.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_kafka_topics_search_name);
+        });
+
+        var input_kafka_topics_search_monitoring_state = new DropdownInput({
+            "id": "input_kafka_topics_search_monitoring_state",
+            "choices": [
+                {"label": "ANY", "value": "*"},
+                {"label": "enabled", "value": "enabled"},
+                {"label": "disabled", "value": "disabled"}
+            ],
+            "searchWhenChanged": true,
+            "default": "*",
+            "prefix": "monitoring_state=\"",
+            "initialValue": "*",
+            "selectFirstChoice": false,
+            "suffix": "\"",
+            "showClearButton": true,
+            "value": "$form.search_tk_kafka_topics_monitoring_state$",
+            "el": $('#input_kafka_topics_search_monitoring_state')
+        }, {tokens: true}).render();
+
+        input_kafka_topics_search_monitoring_state.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_kafka_topics_search_monitoring_state);
+        });
+
+        var input_kafka_topics_modify_monitoring_state = new TextInput({
+            "id": "input_kafka_topics_modify_monitoring_state",
+            "searchWhenChanged": true,
+            "value": "$form.modify_tk_kafka_topics_monitoring_state$",
+            "el": $('#input_kafka_topics_modify_monitoring_state')
+        }, {tokens: true}).render();
+
+        input_kafka_topics_modify_monitoring_state.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_kafka_topics_modify_monitoring_state);
+        });
+
+        var input_kafka_topics_delete = new TextInput({
+            "id": "input_kafka_topics_delete",
+            "searchWhenChanged": true,
+            "value": "$form.tk_kafka_topics_keyid$",
+            "el": $('#input_kafka_topics_delete')
+        }, {tokens: true}).render();
+
+        input_kafka_topics_delete.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_kafka_topics_delete);
         });
 
         //
@@ -1098,6 +1389,131 @@ var search_connect_main_table = new SearchManager({
                 }
 
             });
+
+        });
+
+        //
+        // KAFKA TOPICS
+        //
+        
+        //
+        // DELETE BUTTON
+        //
+
+        // Call this function when the Delete Record button is clicked
+        $("#btn_remove_content_kafka_topics").click(function() {
+            var tokens = mvc.Components.get("default");
+            var form_keyid = tokens.get("tk_kafka_topics_keyid");
+
+            if (!form_keyid || !form_keyid.length) {
+                // Show an error message
+                bootbox.alert("<h3 style=\"color: indianred;\">Error: the KeyID value is empty ! Please first click on any entry in the table</h3>");
+            }
+            else
+            {
+
+                bootbox.confirm("<h3 style=\"color: indianred;\">Confirm deletion?</h3>", function(result){
+
+                    if (result) {
+
+                    // Delete the record that corresponds to the key ID using
+                    // the del method to send a DELETE request
+                    // to the storage/collections/data/{collection}/ endpoint
+                    service.del("storage/collections/data/kv_telegraf_kafka_topics_monitoring/" + encodeURIComponent(form_keyid))
+                        .done(function() {
+                            // Run the search again to update the table
+                            search_kafka_topics_no_components.startSearch();
+                            search_kafka_topics_no_components_enabled.startSearch();
+                            search_kafka_topics_no_components_disabled.startSearch();
+                            search_kafka_topics_main_table.startSearch();
+
+                            // clear the forms
+
+                            // keyID
+                            $("#input_kafka_topics_delete input[type=text]").val("");
+
+                            // modifications
+
+                        });
+
+                    }
+
+                });
+
+            }
+
+        });        
+
+        //
+        // MODIFY BUTTON
+        //
+
+        $("#btn_modify_content_kafka_topics").click(function() {
+            submitTokens();
+
+            // When the Submit button is clicked, get all the form fields by accessing token values
+            var tokens = mvc.Components.get("default");
+            var modify_key = tokens.get("tk_kafka_topics_keyid");
+            var tk_name = tokens.get("tk_kafka_topics_name");
+            var modify_tk_kafka_topics_monitoring_state = tokens.get("modify_tk_kafka_topics_monitoring_state");
+
+            // Create the endpoint URL
+            var myendpoint_URl = "storage/collections/data/kv_telegraf_kafka_topics_monitoring/" + modify_key;
+
+            // Create a dictionary to store the field names and values
+            var record = {
+                "topic": tk_name,
+                "monitoring_state": modify_tk_kafka_topics_monitoring_state
+            };
+
+            if (!modify_key || !modify_key.length) {
+                // Show an error message
+                bootbox.alert("<h3 style=\"color: indianred;\">Error: the KeyID value is empty !</h3>");
+            }
+
+            else if (!modify_tk_kafka_topics_monitoring_state || !modify_tk_kafka_topics_monitoring_state.length) {
+                // Show an error message
+                bootbox.alert("<h3 style=\"color: indianred;\">Error: the monitoring_state value is empty !</h3>");
+            }
+
+            else
+            {
+
+                bootbox.confirm("<h3 style=\"color: indianred;\">Confirm modification?</h3>", function(result){
+
+                    if (result) {
+
+                        // Get the value of the key ID field
+
+                    // Use the request method to send a REST POST request
+                    // to the storage/collections/data/{collection}/entry_key endpoint
+                    service.request(
+                        myendpoint_URl,
+                        "POST",
+                        null,
+                        null,
+                        JSON.stringify(record),
+                        {"Content-Type": "application/json"},
+                        null)
+                            .done(function() {
+                                 // Run the search again to update the table
+                                search_kafka_topics_no_components.startSearch();
+                                search_kafka_topics_no_components_enabled.startSearch();
+                                search_kafka_topics_no_components_disabled.startSearch();
+                                search_kafka_topics_main_table.startSearch();
+
+                                // clear the forms
+                                // $("#input_selected_key input[type=text]").val("");
+
+                                // modifications
+
+                            });
+
+                    }
+
+                });
+
+            }
 
         });
 
