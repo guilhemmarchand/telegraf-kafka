@@ -49,6 +49,7 @@
         <collection label="Kafka Connect tasks">
             <view name="telegraf-kafka-kafka-connect-source-task" />
             <view name="telegraf-kafka-kafka-connect-sink-task" />
+            <saved name="Kafka monitoring - tasks status report" />
         </collection>
 
         <collection label="Confluent schema-registry">
@@ -112,6 +113,7 @@
     -->
 
     <collection label="Kafka alerting">
+        <a href="telegraf-kafka-alerting">Management of Kafka alerting</a>
         <a href="../../alerts/telegraf-kafka">Triggered alerts for Kafka</a>
         <a href="alerts">Alerts configuration</a>
         <a href="search?q=%7C%20inputlookup%20kafka_infra_inventory%20%7C%20fields%20name%2C%20role%2C%20monitoring_state%2C%20grace_period">Collection kafka_infra_inventory</a>
