@@ -6,6 +6,7 @@ Version 1.0.10
 - fix: Management interface toggle panels not working (bad reference in js)
 - fix: Management interface disable maintenance button not showing up properly in Splunk 7.0.x
 - fix: Preset a default value for maintenance mode status
+- fix: share lookups, transforms and macros at system level by default
 
 Version 1.0.9
 =============
