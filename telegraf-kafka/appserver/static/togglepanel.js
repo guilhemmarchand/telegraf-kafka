@@ -15,8 +15,8 @@
   // configure the RequrieJS paths
   require.config({
     paths: {
-      "appBase"     : "../app/metricator-for-nmon",
-      "TogglePanel" : "../app/metricator-for-nmon/components/togglepanel/togglepanel",
+      "appBase"     : "../app/telegraf-kafka",
+      "TogglePanel" : "../app/telegraf-kafka/components/togglepanel/togglepanel",
     }
   });
 
