@@ -26,6 +26,10 @@ The application provides builtin and native monitoring for Apache Kafka componen
 * Confluent kafka-rest
 * Kafka SLA and end to end monitoring with the Linkedin Kafka monitor
 
+**It is recommended to read the unified guide for Kafka and Confluent monitoring first:**
+
+https://splunk-guide-for-kafka-monitoring.readthedocs.io
+
 Overview:
 =========
 
