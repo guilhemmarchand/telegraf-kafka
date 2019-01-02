@@ -1,6 +1,11 @@
 Release notes
 #############
 
+Version 1.0.12
+==============
+- fix: Improve detection of Kafka Connect tasks not successfully running on the Overview page
+- fix: Drilldown on single forms for Kafka Connect tasks
+
 Version 1.0.11
 ==============
 - fix: Management interface toggle panels not working (bad reference in js)
