@@ -231,7 +231,7 @@
         <panel>
             <single>
                 <search depends="$zookeeper_detected$">
-                    <query>| savedsearch telegraf-kafka-zookeeper-servers | stats dc(server) as dcount</query>
+                    <query>| savedsearch telegraf-kafka-zookeeper-servers | stats count</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                 </search>
@@ -331,7 +331,7 @@
         <panel>
             <single>
                 <search depends="$kafka_broker_detected$">
-                    <query>| savedsearch telegraf-kafka-kafka-brokers | stats dc(jolokia_agent_url) as dcount</query>
+                    <query>| savedsearch telegraf-kafka-kafka-brokers | stats count</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                 </search>
@@ -478,7 +478,7 @@
         <panel>
             <single>
                 <search depends="$kafka_connect_detected$">
-                    <query>| savedsearch telegraf-kafka-kafka-connect-workers | stats dc(jolokia_agent_url) as dcount</query>
+                    <query>| savedsearch telegraf-kafka-kafka-connect-workers | stats count</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                 </search>
@@ -585,7 +585,7 @@
         <panel>
             <single>
                 <search base="connect_tasks_summary">
-                    <query>where role="kafka_source_task" | stats dc(connector) as dcount</query>
+                    <query>where role="kafka_source_task" | stats count</query>
                 </search>
                 <option name="colorMode">block</option>
                 <option name="drilldown">all</option>
@@ -717,7 +717,7 @@
         <panel>
             <single>
                 <search depends="$schema_registry_detected$">
-                    <query>| savedsearch telegraf-kafka-schema-registry | stats dc(kafka_schema_registry) as dcount</query>
+                    <query>| savedsearch telegraf-kafka-schema-registry | stats count</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                 </search>
@@ -835,7 +835,7 @@
         <panel>
             <single>
                 <search depends="$ksql_server_detected$">
-                    <query>| savedsearch telegraf-kafka-ksql-server | stats dc(kafka_ksql_server) as dcount</query>
+                    <query>| savedsearch telegraf-kafka-ksql-server | stats count</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                 </search>
@@ -954,7 +954,7 @@
         <panel>
             <single>
                 <search depends="$kafka_rest_detected$">
-                    <query>| savedsearch telegraf-kafka-kafka-rest | stats dc(kafka_rest) as dcount</query>
+                    <query>| savedsearch telegraf-kafka-kafka-rest | stats count</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                 </search>
