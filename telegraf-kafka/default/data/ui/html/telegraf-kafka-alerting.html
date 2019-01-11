@@ -117,6 +117,12 @@ styles in <div> tags, similar to Bootstrap's grid system.
                     <div class="input input-text" id="input_kafka_infra_search_name">
                         <label>name:</label>
                     </div>
+                    <div class="input input-dropdown" id="input_kafka_infra_search_env">
+                        <label>Environment:</label>
+                    </div>
+                    <div class="input input-dropdown" id="input_kafka_infra_search_label">
+                        <label>Label:</label>
+                    </div>
                     <div class="input input-dropdown" id="input_kafka_infra_search_role">
                         <label>type of component:</label>
                     </div>
@@ -206,6 +212,12 @@ styles in <div> tags, similar to Bootstrap's grid system.
             <div class="dashboard-panel clearfix">
                 <h2 class="panel-title">Search and filter</h2>
                 <div class="fieldset">
+                    <div class="input input-text" id="input_kafka_topics_search_env">
+                        <label>env:</label>
+                    </div>
+                    <div class="input input-text" id="input_kafka_topics_search_label">
+                        <label>label:</label>
+                    </div>
                     <div class="input input-text" id="input_kafka_topics_search_name">
                         <label>name:</label>
                     </div>
@@ -292,6 +304,12 @@ styles in <div> tags, similar to Bootstrap's grid system.
             <div class="dashboard-panel clearfix">
                 <h2 class="panel-title">Search and filter</h2>
                 <div class="fieldset">
+                    <div class="input input-text" id="input_connect_search_env">
+                        <label>env:</label>
+                    </div>
+                    <div class="input input-text" id="input_connect_search_label">
+                        <label>label:</label>
+                    </div>
                     <div class="input input-text" id="input_connect_search_connector">
                         <label>connector:</label>
                     </div>
@@ -508,7 +526,7 @@ require([
 var search_maintenance_state = new SearchManager({
             "id": "search_maintenance_state",
             "sample_ratio": 1,
-            "search": "| inputlookup kafka_alerting_maintenance | fields maintenance_mode | eval maintenance=if(match(maintenance_mode, \"enabled\"), 1, 0) | rangemap field=maintenance low=0-0 high=1-1 default=severe",
+            "search": "| inputlookup kafka_alerting_maintenance | fields maintenance_mode | eval maintenance=if(match(maintenance_mode, \"enabled\"), 1, 0), maintenance_mode=upper(maintenance_mode) | rangemap field=maintenance low=0-0 high=1-1 default=severe",
             "status_buckets": 0,
             "earliest_time": "-24h@h",
             "cancelOnUnload": true,
@@ -525,12 +543,44 @@ var search_maintenance_state = new SearchManager({
         // KAFKA INFRASTRUCTURE
         //
 
+var search_kafka_infra_search_env = new SearchManager({
+            "id": "search_kafka_infra_search_env",
+            "earliest_time": "-24h@h",
+            "status_buckets": 0,
+            "sample_ratio": null,
+            "latest_time": "now",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_infra_inventory | fillnull value=\"unknown\" env | stats count by env | fields env | dedup env | sort 0 env",
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true});
+
+var search_kafka_infra_search_label = new SearchManager({
+            "id": "search_kafka_infra_search_label",
+            "earliest_time": "-24h@h",
+            "status_buckets": 0,
+            "sample_ratio": null,
+            "latest_time": "now",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_infra_inventory | fillnull value=\"unknown\" label | stats count by label | fields label | dedup label | sort 0 label",
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true});
+
 var search_kafka_infra_main_table = new SearchManager({
             "id": "search_kafka_infra_main_table",
             "sample_ratio": 1,
             "earliest_time": "-15m",
             "cancelOnUnload": true,
-            "search": "| inputlookup kafka_infra_inventory | eval keyid = _key | search $search_tk_kafka_infra_name$ $search_tk_kafka_infra_role$ $search_tk_kafka_infra_monitoring_state$ | fields keyid, name, role, monitoring_state, grace_period | sort 0 role, name",
+            "search": "| inputlookup kafka_infra_inventory | eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_kafka_infra_name$ $search_tk_kafka_infra_env$ $search_tk_kafka_infra_label$ $search_tk_kafka_infra_role$ $search_tk_kafka_infra_monitoring_state$ | fields keyid, env, label, name, role, monitoring_state, grace_period | sort 0 role, env, label, name",
             "latest_time": "now",
             "status_buckets": 0,
             "app": utils.getCurrentApp(),
@@ -592,13 +642,45 @@ var search_kafka_infra_no_components_disabled = new SearchManager({
         //
         // KAFKA TOPICS
         //
-        
+
+var search_kafka_topics_search_env = new SearchManager({
+            "id": "search_kafka_topics_search_env",
+            "earliest_time": "-24h@h",
+            "status_buckets": 0,
+            "sample_ratio": null,
+            "latest_time": "now",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_topics_monitoring | fillnull value=\"unknown\" env | stats count by env | fields env | dedup env | sort 0 env",
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true});
+
+var search_kafka_topics_search_label = new SearchManager({
+            "id": "search_kafka_topics_search_label",
+            "earliest_time": "-24h@h",
+            "status_buckets": 0,
+            "sample_ratio": null,
+            "latest_time": "now",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_topics_monitoring | fillnull value=\"unknown\" label | stats count by label | fields label | dedup label | sort 0 label",
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true});
+
 var search_kafka_topics_main_table = new SearchManager({
             "id": "search_kafka_topics_main_table",
             "sample_ratio": 1,
             "earliest_time": "-15m",
             "cancelOnUnload": true,
-            "search": "| inputlookup kafka_topics_monitoring | eval keyid = _key | search $search_tk_kafka_topics_name$ $search_tk_kafka_topics_monitoring_state$ | fields keyid, topic, monitoring_state | sort 0 name",
+            "search": "| inputlookup kafka_topics_monitoring | eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_kafka_topics_env$ $search_tk_kafka_topics_label$ $search_tk_kafka_topics_name$ $search_tk_kafka_topics_monitoring_state$ | fields keyid, env, label, topic, monitoring_state | sort 0 env, label, name",
             "latest_time": "now",
             "status_buckets": 0,
             "app": utils.getCurrentApp(),
@@ -709,12 +791,44 @@ var search_connect_no_connectors_disabled = new SearchManager({
             "runWhenTimeIsUndefined": false
         }, {tokens: true, tokenNamespace: "submitted"});
 
+var search_connect_search_env = new SearchManager({
+            "id": "search_connect_search_env",
+            "earliest_time": "-24h@h",
+            "status_buckets": 0,
+            "sample_ratio": null,
+            "latest_time": "now",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_connect_tasks_monitoring | fillnull value=\"unknown\" env | stats count by env | fields env | dedup env | sort 0 env",
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true});
+
+var search_connect_search_label = new SearchManager({
+            "id": "search_connect_search_label",
+            "earliest_time": "-24h@h",
+            "status_buckets": 0,
+            "sample_ratio": null,
+            "latest_time": "now",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_connect_tasks_monitoring | fillnull value=\"unknown\" label | stats count by label | fields label | dedup label | sort 0 label",
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true});
+
 var search_connect_main_table = new SearchManager({
             "id": "search_connect_main_table",
             "sample_ratio": 1,
             "earliest_time": "-15m",
             "cancelOnUnload": true,
-            "search": "| inputlookup kafka_connect_tasks_monitoring | eval keyid = _key | append [ | mstats latest(_value) as task_state_id where `telegraf_kafka_index` metric_name=\"kafka_connect.connector-task.status\" connector=* by connector, jolokia_agent_url, task span=1s | stats min(task_state_id) as task_state_id by connector | eval task_state=case(task_state_id=0, \"paused\", task_state_id=1, \"running\", task_state_id=2, \"unassigned\", task_state_id=3, \"failed\", task_state_id=4, \"destroyed\") ] | stats values(*) as \"*\" by connector  | search $search_tk_connect_connector$ $search_tk_connect_role$ $search_tk_connect_monitoring_state$ | fields keyid, connector, role, grace_period, task_state, monitoring_state | sort 0 connector",
+            "search": "| inputlookup kafka_connect_tasks_monitoring | eval keyid = _key | fillnull value=\"unknown\" env, label | append [ | mstats latest(_value) as task_state_id where `telegraf_kafka_index` metric_name=\"kafka_connect.connector-task.status\" connector=* by connector, env, label, jolokia_agent_url, task span=1s | stats min(task_state_id) as task_state_id by env, label, connector | eval task_state=case(task_state_id=0, \"paused\", task_state_id=1, \"running\", task_state_id=2, \"unassigned\", task_state_id=3, \"failed\", task_state_id=4, \"destroyed\") ] | stats values(*) as \"*\" by env, label, connector  | search $search_tk_connect_env$ $search_tk_connect_label$ $search_tk_connect_connector$ $search_tk_connect_role$ $search_tk_connect_monitoring_state$ | fields keyid, env, label, connector, role, grace_period, task_state, monitoring_state | sort 0 env, label, connector",
             "latest_time": "now",
             "status_buckets": 0,
             "app": utils.getCurrentApp(),
@@ -831,6 +945,8 @@ var search_connect_main_table = new SearchManager({
                 setToken("form.tk_kafka_infra_keyid", TokenUtils.replaceTokenNames("$row.keyid$", _.extend(submittedTokenModel.toJSON(), e.data)));
                 setToken("tk_kafka_infra_name", TokenUtils.replaceTokenNames("$row.name$", _.extend(submittedTokenModel.toJSON(), e.data)));
                 setToken("tk_kafka_infra_role", TokenUtils.replaceTokenNames("$row.role$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("tk_kafka_infra_env", TokenUtils.replaceTokenNames("$row.env$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("tk_kafka_infra_label", TokenUtils.replaceTokenNames("$row.label$", _.extend(submittedTokenModel.toJSON(), e.data)));
                 setToken("form.modify_tk_kafka_infra_grace_period", TokenUtils.replaceTokenNames("$row.grace_period$", _.extend(submittedTokenModel.toJSON(), e.data)));
                 setToken("form.modify_tk_kafka_infra_monitoring_state", TokenUtils.replaceTokenNames("$row.monitoring_state$", _.extend(submittedTokenModel.toJSON(), e.data)));
             }
@@ -899,6 +1015,8 @@ var search_connect_main_table = new SearchManager({
                 e.preventDefault();
                 setToken("form.tk_kafka_topics_keyid", TokenUtils.replaceTokenNames("$row.keyid$", _.extend(submittedTokenModel.toJSON(), e.data)));
                 setToken("tk_kafka_topics_name", TokenUtils.replaceTokenNames("$row.topic$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("tk_kafka_topics_env", TokenUtils.replaceTokenNames("$row.env$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("tk_kafka_topics_label", TokenUtils.replaceTokenNames("$row.label$", _.extend(submittedTokenModel.toJSON(), e.data)));
                 setToken("form.modify_tk_kafka_topics_monitoring_state", TokenUtils.replaceTokenNames("$row.monitoring_state$", _.extend(submittedTokenModel.toJSON(), e.data)));
             }
         });
@@ -967,6 +1085,8 @@ var search_connect_main_table = new SearchManager({
                 setToken("form.tk_connect_keyid", TokenUtils.replaceTokenNames("$row.keyid$", _.extend(submittedTokenModel.toJSON(), e.data)));
                 setToken("tk_connector", TokenUtils.replaceTokenNames("$row.connector$", _.extend(submittedTokenModel.toJSON(), e.data)));
                 setToken("tk_role", TokenUtils.replaceTokenNames("$row.role$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("tk_connect_env", TokenUtils.replaceTokenNames("$row.env$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("tk_connect_label", TokenUtils.replaceTokenNames("$row.label$", _.extend(submittedTokenModel.toJSON(), e.data)));
                 setToken("form.modify_tk_connect_grace_period", TokenUtils.replaceTokenNames("$row.grace_period$", _.extend(submittedTokenModel.toJSON(), e.data)));
                 setToken("form.modify_tk_connect_monitoring_state", TokenUtils.replaceTokenNames("$row.monitoring_state$", _.extend(submittedTokenModel.toJSON(), e.data)));
             }
@@ -999,6 +1119,52 @@ var search_connect_main_table = new SearchManager({
 
         input_kafka_infra_search_name.on("change", function(newValue) {
             FormUtils.handleValueChange(input_kafka_infra_search_name);
+        });
+
+        var input_kafka_infra_search_env = new DropdownInput({
+            "id": "input_kafka_infra_search_env",
+            "choices": [
+                {"value": "*", "label": "ANY"}
+            ],
+            "default": "*",
+            "searchWhenChanged": true,
+            "labelField": "env",
+            "showClearButton": true,
+            "selectFirstChoice": false,
+            "initialValue": "*",
+            "suffix": "\"",
+            "prefix": "env=\"",
+            "valueField": "env",
+            "value": "$form.search_tk_kafka_infra_env$",
+            "managerid": "search_kafka_infra_search_env",
+            "el": $('#input_kafka_infra_search_env')
+        }, {tokens: true}).render();
+
+        input_kafka_infra_search_env.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_kafka_infra_search_env);
+        });
+
+        var input_kafka_infra_search_label = new DropdownInput({
+            "id": "input_kafka_infra_search_label",
+            "choices": [
+                {"value": "*", "label": "ANY"}
+            ],
+            "default": "*",
+            "searchWhenChanged": true,
+            "labelField": "label",
+            "showClearButton": true,
+            "selectFirstChoice": false,
+            "initialValue": "*",
+            "suffix": "\"",
+            "prefix": "label=\"",
+            "valueField": "label",
+            "value": "$form.search_tk_kafka_infra_label$",
+            "managerid": "search_kafka_infra_search_label",
+            "el": $('#input_kafka_infra_search_label')
+        }, {tokens: true}).render();
+
+        input_kafka_infra_search_label.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_kafka_infra_search_label);
         });
 
         var input_kafka_infra_search_role = new DropdownInput({
@@ -1101,6 +1267,52 @@ var search_connect_main_table = new SearchManager({
             FormUtils.handleValueChange(input_kafka_topics_search_name);
         });
 
+        var input_kafka_topics_search_env = new DropdownInput({
+            "id": "input_kafka_topics_search_env",
+            "choices": [
+                {"value": "*", "label": "ANY"}
+            ],
+            "default": "*",
+            "searchWhenChanged": true,
+            "labelField": "env",
+            "showClearButton": true,
+            "selectFirstChoice": false,
+            "initialValue": "*",
+            "suffix": "\"",
+            "prefix": "env=\"",
+            "valueField": "env",
+            "value": "$form.search_tk_kafka_topics_env$",
+            "managerid": "search_kafka_topics_search_env",
+            "el": $('#input_kafka_topics_search_env')
+        }, {tokens: true}).render();
+
+        input_kafka_topics_search_env.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_kafka_topics_search_env);
+        });
+
+        var input_kafka_topics_search_label = new DropdownInput({
+            "id": "input_kafka_topics_search_label",
+            "choices": [
+                {"value": "*", "label": "ANY"}
+            ],
+            "default": "*",
+            "searchWhenChanged": true,
+            "labelField": "label",
+            "showClearButton": true,
+            "selectFirstChoice": false,
+            "initialValue": "*",
+            "suffix": "\"",
+            "prefix": "label=\"",
+            "valueField": "label",
+            "value": "$form.search_tk_kafka_topics_label$",
+            "managerid": "search_kafka_topics_search_label",
+            "el": $('#input_kafka_topics_search_label')
+        }, {tokens: true}).render();
+
+        input_kafka_topics_search_label.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_kafka_topics_search_label);
+        });
+
         var input_kafka_topics_search_monitoring_state = new DropdownInput({
             "id": "input_kafka_topics_search_monitoring_state",
             "choices": [
@@ -1161,6 +1373,52 @@ var search_connect_main_table = new SearchManager({
 
         input_connect_search_connector.on("change", function(newValue) {
             FormUtils.handleValueChange(input_connect_search_connector);
+        });
+
+        var input_connect_search_env = new DropdownInput({
+            "id": "input_connect_search_env",
+            "choices": [
+                {"value": "*", "label": "ANY"}
+            ],
+            "default": "*",
+            "searchWhenChanged": true,
+            "labelField": "env",
+            "showClearButton": true,
+            "selectFirstChoice": false,
+            "initialValue": "*",
+            "suffix": "\"",
+            "prefix": "env=\"",
+            "valueField": "env",
+            "value": "$form.search_tk_connect_env$",
+            "managerid": "search_connect_search_env",
+            "el": $('#input_connect_search_env')
+        }, {tokens: true}).render();
+
+        input_connect_search_env.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_connect_search_env);
+        });
+
+        var input_connect_search_label = new DropdownInput({
+            "id": "input_connect_search_label",
+            "choices": [
+                {"value": "*", "label": "ANY"}
+            ],
+            "default": "*",
+            "searchWhenChanged": true,
+            "labelField": "label",
+            "showClearButton": true,
+            "selectFirstChoice": false,
+            "initialValue": "*",
+            "suffix": "\"",
+            "prefix": "label=\"",
+            "valueField": "label",
+            "value": "$form.search_tk_connect_label$",
+            "managerid": "search_connect_search_label",
+            "el": $('#input_connect_search_label')
+        }, {tokens: true}).render();
+
+        input_connect_search_label.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_connect_search_label);
         });
 
         var input_connect_search_task = new DropdownInput({
@@ -1426,6 +1684,8 @@ var search_connect_main_table = new SearchManager({
                             search_kafka_topics_no_components_enabled.startSearch();
                             search_kafka_topics_no_components_disabled.startSearch();
                             search_kafka_topics_main_table.startSearch();
+                            search_kafka_topics_search_env.startSearch();
+                            search_kafka_topics_search_label.startSearch();
 
                             // clear the forms
 
@@ -1455,6 +1715,8 @@ var search_connect_main_table = new SearchManager({
             var tokens = mvc.Components.get("default");
             var modify_key = tokens.get("tk_kafka_topics_keyid");
             var tk_name = tokens.get("tk_kafka_topics_name");
+            var tk_kafka_topics_env = tokens.get("tk_kafka_topics_env");
+            var tk_kafka_topics_label = tokens.get("tk_kafka_topics_label");
             var modify_tk_kafka_topics_monitoring_state = tokens.get("modify_tk_kafka_topics_monitoring_state");
 
             // Create the endpoint URL
@@ -1463,6 +1725,8 @@ var search_connect_main_table = new SearchManager({
             // Create a dictionary to store the field names and values
             var record = {
                 "topic": tk_name,
+                "env": tk_kafka_topics_env,
+                "label": tk_kafka_topics_label,
                 "monitoring_state": modify_tk_kafka_topics_monitoring_state
             };
 
@@ -1501,6 +1765,8 @@ var search_connect_main_table = new SearchManager({
                                 search_kafka_topics_no_components_enabled.startSearch();
                                 search_kafka_topics_no_components_disabled.startSearch();
                                 search_kafka_topics_main_table.startSearch();
+                                search_kafka_topics_search_env.startSearch();
+                                search_kafka_topics_search_label.startSearch();
 
                                 // clear the forms
                                 // $("#input_selected_key input[type=text]").val("");
@@ -1551,6 +1817,8 @@ var search_connect_main_table = new SearchManager({
                             search_kafka_infra_no_components_enabled.startSearch();
                             search_kafka_infra_no_components_disabled.startSearch();
                             search_kafka_infra_main_table.startSearch();
+                            search_kafka_infra_search_env.startSearch();
+                            search_kafka_infra_search_label.startSearch();
 
                             // clear the forms
 
@@ -1581,6 +1849,8 @@ var search_connect_main_table = new SearchManager({
             var modify_key = tokens.get("tk_kafka_infra_keyid");
             var tk_name = tokens.get("tk_kafka_infra_name");
             var tk_role = tokens.get("tk_kafka_infra_role");
+            var tk_kafka_infra_env = tokens.get("tk_kafka_infra_env");
+            var tk_kafka_infra_label = tokens.get("tk_kafka_infra_label");
             var modify_tk_kafka_infra_grace_period = tokens.get("modify_tk_kafka_infra_grace_period");
             var modify_tk_kafka_infra_monitoring_state = tokens.get("modify_tk_kafka_infra_monitoring_state");
 
@@ -1591,6 +1861,8 @@ var search_connect_main_table = new SearchManager({
             var record = {
                 "name": tk_name,
                 "role": tk_role,
+                "env": tk_kafka_infra_env,
+                "label": tk_kafka_infra_label,
                 "grace_period": modify_tk_kafka_infra_grace_period,
                 "monitoring_state": modify_tk_kafka_infra_monitoring_state
             };
@@ -1635,6 +1907,8 @@ var search_connect_main_table = new SearchManager({
                                 search_kafka_infra_no_components_enabled.startSearch();
                                 search_kafka_infra_no_components_disabled.startSearch();
                                 search_kafka_infra_main_table.startSearch();
+                                search_kafka_infra_search_env.startSearch();
+                                search_kafka_infra_search_label.startSearch();
 
                                 // clear the forms
                                 // $("#input_selected_key input[type=text]").val("");
@@ -1685,6 +1959,8 @@ var search_connect_main_table = new SearchManager({
                             search_connect_no_connectors_enabled.startSearch();
                             search_connect_no_connectors_disabled.startSearch();
                             search_connect_main_table.startSearch();
+                            search_connect_search_env.startSearch();
+                            search_connect_search_label.startSearch();
 
                             // clear the forms
 
@@ -1715,6 +1991,8 @@ var search_connect_main_table = new SearchManager({
             var modify_key = tokens.get("tk_connect_keyid");
             var tk_connector = tokens.get("tk_connector");
             var tk_role = tokens.get("tk_role");
+            var tk_connect_env = tokens.get("tk_connect_env");
+            var tk_connect_label = tokens.get("tk_connect_label");
             var modify_tk_connect_grace_period = tokens.get("modify_tk_connect_grace_period");
             var modify_tk_connect_monitoring_state = tokens.get("modify_tk_connect_monitoring_state");
 
@@ -1725,6 +2003,8 @@ var search_connect_main_table = new SearchManager({
             var record = {
                 "connector": tk_connector,
                 "role": tk_role,
+                "env": tk_connect_env,
+                "label": tk_connect_label,
                 "grace_period": modify_tk_connect_grace_period,
                 "monitoring_state": modify_tk_connect_monitoring_state
             };
@@ -1769,6 +2049,8 @@ var search_connect_main_table = new SearchManager({
                                 search_connect_no_connectors_enabled.startSearch();
                                 search_connect_no_connectors_disabled.startSearch();
                                 search_connect_main_table.startSearch();
+                                search_connect_search_env.startSearch();
+                                search_connect_search_label.startSearch();
 
                                 // clear the forms
                                 // $("#input_selected_key input[type=text]").val("");

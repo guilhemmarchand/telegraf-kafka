@@ -13,6 +13,12 @@
         <refreshType>delay</refreshType>
     </search>
 
+    <search id="main_populate">
+        <query>| savedsearch telegraf-kafka-zookeeper-servers</query>
+        <earliest>$earliest$</earliest>
+        <latest>$latest$</latest>
+    </search>
+
     <fieldset autoRun="false" submitButton="false">
         <input type="time" searchWhenChanged="true">
             <label></label>
@@ -21,13 +27,39 @@
                 <latestTime>now</latestTime>
             </default>
         </input>
+        <input type="multiselect" token="env" searchWhenChanged="true">
+            <label>Env:</label>
+            <!-- Populating Data Model Search -->
+            <search base="main_populate">
+                <query>dedup env | sort 0 env</query>
+            </search>
+            <valuePrefix>env="</valuePrefix>
+            <valueSuffix>"</valueSuffix>
+            <delimiter> OR </delimiter>
+            <choice value="*">ANY</choice>
+            <initialValue>*</initialValue>
+            <fieldForLabel>env</fieldForLabel>
+            <fieldForValue>env</fieldForValue>
+        </input>
+        <input type="multiselect" token="label" searchWhenChanged="true">
+            <label>Label:</label>
+            <!-- Populating Data Model Search -->
+            <search base="main_populate">
+                <query>search $env$ | dedup label | sort 0 label</query>
+            </search>
+            <valuePrefix>label="</valuePrefix>
+            <valueSuffix>"</valueSuffix>
+            <delimiter> OR </delimiter>
+            <choice value="*">ANY</choice>
+            <initialValue>*</initialValue>
+            <fieldForLabel>label</fieldForLabel>
+            <fieldForValue>label</fieldForValue>
+        </input>
         <input type="multiselect" token="server" searchWhenChanged="true">
             <label>Zookeeper server(s):</label>
             <!-- Populating Data Model Search -->
-            <search>
-                <query>| savedsearch telegraf-kafka-zookeeper-servers</query>
-                <earliest>$earliest$</earliest>
-                <latest>$latest$</latest>
+            <search base="main_populate">
+                <query>search $env$ $label$ | dedup server | sort 0 server</query>
             </search>
             <valuePrefix>server="</valuePrefix>
             <valueSuffix>"</valueSuffix>

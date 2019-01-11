@@ -2,13 +2,19 @@
     <label>Confluent schema-registry - Entity health view</label>
 
     <search id="activity_summary">
-        <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_schema-registry.jetty-metrics.connections-active" OR  metric_name="kafka_schema-registry.jetty-metrics.connections-opened-rate" OR metric_name="kafka_schema-registry.jetty-metrics.connections-closed-rate" $jolokia_agent_url$ by metric_name
+        <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_schema-registry.jetty-metrics.connections-active" OR  metric_name="kafka_schema-registry.jetty-metrics.connections-opened-rate" OR metric_name="kafka_schema-registry.jetty-metrics.connections-closed-rate" $env$ $label$ $jolokia_agent_url$ by metric_name
 | eval {metric_name}=value
 | stats first(kafka_schema-registry.*) as "*"</query>
         <earliest>-90s</earliest>
         <latest>now</latest>
         <refresh>30s</refresh>
         <refreshType>delay</refreshType>
+    </search>
+
+    <search id="main_populate">
+        <query>| savedsearch telegraf-kafka-schema-registry</query>
+        <earliest>$earliest$</earliest>
+        <latest>$latest$</latest>
     </search>
 
     <fieldset autoRun="false" submitButton="false">
@@ -19,13 +25,39 @@
                 <latestTime>now</latestTime>
             </default>
         </input>
+        <input type="multiselect" token="env" searchWhenChanged="true">
+            <label>Env:</label>
+            <!-- Populating Data Model Search -->
+            <search base="main_populate">
+                <query>dedup env | sort 0 env</query>
+            </search>
+            <valuePrefix>env="</valuePrefix>
+            <valueSuffix>"</valueSuffix>
+            <delimiter> OR </delimiter>
+            <choice value="*">ANY</choice>
+            <initialValue>*</initialValue>
+            <fieldForLabel>env</fieldForLabel>
+            <fieldForValue>env</fieldForValue>
+        </input>
+        <input type="multiselect" token="label" searchWhenChanged="true">
+            <label>Label:</label>
+            <!-- Populating Data Model Search -->
+            <search base="main_populate">
+                <query>search $env$ | dedup label | sort 0 label</query>
+            </search>
+            <valuePrefix>label="</valuePrefix>
+            <valueSuffix>"</valueSuffix>
+            <delimiter> OR </delimiter>
+            <choice value="*">ANY</choice>
+            <initialValue>*</initialValue>
+            <fieldForLabel>label</fieldForLabel>
+            <fieldForValue>label</fieldForValue>
+        </input>
         <input type="multiselect" token="jolokia_agent_url" searchWhenChanged="true">
             <label>Schema registry node(s):</label>
             <!-- Populating Data Model Search -->
-            <search>
-                <query>| savedsearch telegraf-kafka-schema-registry</query>
-                <earliest>$earliest$</earliest>
-                <latest>$latest$</latest>
+            <search base="main_populate">
+                <query>search $env$ $label$ | dedup jolokia_agent_url | sort jolokia_agent_url</query>
             </search>
             <valuePrefix>jolokia_agent_url="</valuePrefix>
             <valueSuffix>"</valueSuffix>
@@ -88,7 +120,7 @@
         <panel>
             <single>
                 <search>
-                    <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.request-error-rate" $jolokia_agent_url$</query>
+                    <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.request-error-rate" $env$ $label$ $jolokia_agent_url$</query>
                     <earliest>-90s</earliest>
                     <latest>now</latest>
                     <refresh>90s</refresh>
@@ -256,7 +288,7 @@
             <title>Total number of active Jetty TCP connections (connections-active)</title>
             <chart>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jetty-metrics.connections-active" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jetty-metrics.connections-active" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -275,7 +307,7 @@
             <title>Average rate per second of opened Jetty TCP connections (connections-opened-rate)</title>
             <chart>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jetty-metrics.connections-opened-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jetty-metrics.connections-opened-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -296,7 +328,7 @@
             <title>Average rate per second of closed Jetty TCP connections (connections-closed-rate)</title>
             <chart>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jetty-metrics.connections-closed-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jetty-metrics.connections-closed-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -315,7 +347,7 @@
             <title>Historical master/slave state (master-slave-role, 0=slave / 1=master)</title>
             <chart>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.master-slave-role.master-slave-role" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.master-slave-role.master-slave-role" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -341,7 +373,7 @@
             <title>Average number of HTTP requests per second (request-rate)</title>
             <chart>
                 <search depends="$chart2$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.request-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.request-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -360,7 +392,7 @@
             <title>Average request latency in ms (request-latency-avg)</title>
             <chart>
                 <search depends="$chart2$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.request-latency-avg" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.request-latency-avg" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -379,7 +411,7 @@
             <title>Average no of requests/sec HTTP error responses (request-error-rate)</title>
             <chart>
                 <search depends="$chart2$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.request-error-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.request-error-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -401,7 +433,7 @@
             <title>Average number of HTTP requests per second (response-rate)</title>
             <chart>
                 <search depends="$chart2$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.response-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.response-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -420,7 +452,7 @@
             <title>Average response size in bytes (response-size-avg)</title>
             <chart>
                 <search depends="$chart2$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.response-size-avg" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.response-size-avg" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -439,7 +471,7 @@
             <title>Bytes/second of outgoing responses (response-byte-rate)</title>
             <chart>
                 <search depends="$chart2$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.response-byte-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.response-byte-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -465,7 +497,7 @@
             <title>Average number of HTTP requests per second (get-schema.request-rate)</title>
             <chart>
                 <search depends="$chart3$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.get-schema.request-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.get-schema.request-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -484,7 +516,7 @@
             <title>Average number of HTTP responses per second (get-schema.response-rate)</title>
             <chart>
                 <search depends="$chart3$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.get-schema.response-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.get-schema.response-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -503,7 +535,7 @@
             <title>Average no of requests/sec HTTP error responses (get-schema.error-rate)</title>
             <chart>
                 <search depends="$chart3$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.get-schema.request-error-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.get-schema.request-error-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -529,7 +561,7 @@
             <title>Average number of HTTP requests per second (subjects.list.request-rate)</title>
             <chart>
                 <search depends="$chart4$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.list.request-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.list.request-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -548,7 +580,7 @@
             <title>Average request latency in ms (subjects.list.request-latency-avg)</title>
             <chart>
                 <search depends="$chart4$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.list.request-latency-avg" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.list.request-latency-avg" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -567,7 +599,7 @@
             <title>Average no of requests/sec HTTP error responses (subjects.list.request-error-rate)</title>
             <chart>
                 <search depends="$chart4$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.list.request-error-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.list.request-error-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -589,7 +621,7 @@
             <title>Average number of HTTP requests per second (subjects.list.response-rate)</title>
             <chart>
                 <search depends="$chart4$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.list.response-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.list.response-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -608,7 +640,7 @@
             <title>Average request size in bytes (subjects.list.response-size-avg)</title>
             <chart>
                 <search depends="$chart4$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.list.response-size-avg" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.list.response-size-avg" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -627,7 +659,7 @@
             <title>Bytes/second of outgoing responses (subjects.list.response-byte-rate)</title>
             <chart>
                 <search depends="$chart4$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.list.response-byte-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.list.response-byte-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -653,7 +685,7 @@
             <title>Average number of HTTP requests per second (delete-schema.request-rate)</title>
             <chart>
                 <search depends="$chart5$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.delete-schema.request-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.delete-schema.request-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -672,7 +704,7 @@
             <title>Average number of HTTP responses per second (delete-schema.response-rate)</title>
             <chart>
                 <search depends="$chart5$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.delete-schema.response-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.delete-schema.response-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -691,7 +723,7 @@
             <title>Average no of requests/sec HTTP error responses (delete-schema.error-rate)</title>
             <chart>
                 <search depends="$chart5$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.delete-schema.request-error-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.delete-schema.request-error-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -717,7 +749,7 @@
             <title>Average number of HTTP requests per second (subjects.versions.get-schema.request-rate)</title>
             <chart>
                 <search depends="$chart6$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.get-schema.request-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.get-schema.request-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -736,7 +768,7 @@
             <title>Average no of requests/sec HTTP error responses (subjects.versions.get-schema.request-error-rate)</title>
             <chart>
                 <search depends="$chart6$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.get-schema.request-error-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.get-schema.request-error-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -755,7 +787,7 @@
             <title>Average number of HTTP requests per second (subjects.versions.get-schema.only.request-rate)</title>
             <chart>
                 <search depends="$chart6$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.get-schema.only.request-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.get-schema.only.request-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -774,7 +806,7 @@
             <title>Average no of requests/sec HTTP error responses (subjects.versions.get-schema.only.request-error-rate)</title>
             <chart>
                 <search depends="$chart6$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.get-schema.only.request-error-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.get-schema.only.request-error-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -796,7 +828,7 @@
             <title>Average number of HTTP requests per second (subjects.versions.list.request-rate)</title>
             <chart>
                 <search depends="$chart6$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.list.request-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.list.request-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -815,7 +847,7 @@
             <title>Average no of requests/sec HTTP error responses (subjects.versions.list.request-error-rate)</title>
             <chart>
                 <search depends="$chart6$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.list.request-error-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.list.request-error-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -834,7 +866,7 @@
             <title>Average number of HTTP requests per second (subjects.versions.deleteSchemaVersion-schema.request-rate)</title>
             <chart>
                 <search depends="$chart6$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.deleteSchemaVersion-schema.request-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.deleteSchemaVersion-schema.request-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -853,7 +885,7 @@
             <title>Average no of requests/sec HTTP error responses (subjects.versions.deleteSchemaVersion-schema.request-error-rate)</title>
             <chart>
                 <search depends="$chart6$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.deleteSchemaVersion-schema.request-error-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.deleteSchemaVersion-schema.request-error-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -875,7 +907,7 @@
             <title>Average number of HTTP requests per second (subjects.versions.register.request-rate)</title>
             <chart>
                 <search depends="$chart6$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.register.request-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.register.request-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -894,7 +926,7 @@
             <title>Average request latency in ms (subjects.versions.register.request-latency-avg)</title>
             <chart>
                 <search depends="$chart6$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.register.request-latency-avg" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.register.request-latency-avg" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -913,7 +945,7 @@
             <title>Bytes/second of incoming requests (subjects.versions.register.request-byte-rate)</title>
             <chart>
                 <search depends="$chart6$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.register.request-byte-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.register.request-byte-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -932,7 +964,7 @@
             <title>Average request size in bytes (subjects.versions.register.request-size-avg)</title>
             <chart>
                 <search depends="$chart6$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.register.request-size-avg" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.subjects.versions.register.request-size-avg" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -958,7 +990,7 @@
             <title>Average number of HTTP requests per second (schemas.ids.get-schema.request-rate)</title>
             <chart>
                 <search depends="$chart7$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.schemas.ids.get-schema.request-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.schemas.ids.get-schema.request-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -977,7 +1009,7 @@
             <title>Average request latency in ms (schemas.ids.get-schema.request-latency-avg)</title>
             <chart>
                 <search depends="$chart7$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.schemas.ids.get-schema.request-latency-avg" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.schemas.ids.get-schema.request-latency-avg" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -996,7 +1028,7 @@
             <title>Average no of requests/sec HTTP error responses (schemas.ids.get-schema.request-error-rate)</title>
             <chart>
                 <search depends="$chart7$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.schemas.ids.get-schema.request-error-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.schemas.ids.get-schema.request-error-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -1018,7 +1050,7 @@
             <title>Average number of HTTP requests per second (schemas.ids.get-schema.response-rate)</title>
             <chart>
                 <search depends="$chart7$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.schemas.ids.get-schema.response-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.schemas.ids.get-schema.response-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -1037,7 +1069,7 @@
             <title>Average request size in bytes (schemas.ids.get-schema.response-size-avg)</title>
             <chart>
                 <search depends="$chart7$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.schemas.ids.get-schema.response-size-avg" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.schemas.ids.get-schema.response-size-avg" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -1056,7 +1088,7 @@
             <title>Bytes/second of outgoing responses (schemas.ids.get-schema.response-byte-rate)</title>
             <chart>
                 <search depends="$chart7$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.schemas.ids.get-schema.response-byte-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.schemas.ids.get-schema.response-byte-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -1082,7 +1114,7 @@
             <title>Average number of HTTP requests per second (compatibility.subjects.versions.verify.request-rate)</title>
             <chart>
                 <search depends="$chart8$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.compatibility.subjects.versions.verify.request-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.compatibility.subjects.versions.verify.request-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -1101,7 +1133,7 @@
             <title>Average number of HTTP responses per second (compatibility.subjects.versions.verify.response-rate)</title>
             <chart>
                 <search depends="$chart8$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.compatibility.subjects.versions.verify.response-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.compatibility.subjects.versions.verify.response-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -1120,7 +1152,7 @@
             <title>Average no of requests/sec HTTP error responses (compatibility.subjects.versions.verify.error-rate)</title>
             <chart>
                 <search depends="$chart8$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.compatibility.subjects.versions.verify.request-error-rate" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.compatibility.subjects.versions.verify.request-error-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as value by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>

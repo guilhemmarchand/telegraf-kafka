@@ -2,7 +2,7 @@
     <label>Kafka Broker - Entity health view</label>
 
     <search id="broker_activity_summary">
-        <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topics.MessagesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesOutPerSec.OneMinuteRate" $jolokia_agent_url$ by metric_name
+        <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topics.MessagesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesOutPerSec.OneMinuteRate" $env$ $label$ $jolokia_agent_url$ by metric_name
 | eval {metric_name}=value
 | stats first(kafka_topics.*.OneMinuteRate) as "*"
 | eval KBytesInPerSec=round(BytesInPerSec/1024, 2), KBytesOutPerSec=round(BytesOutPerSec/1024, 2), MessagesInPerSec=round(MessagesInPerSec, 2)
@@ -14,13 +14,19 @@
     </search>
 
     <search id="topics_list">
-        <query>| mcatalog values(topic) as topic where `telegraf_kafka_index` metric_name="kafka_topic.MessagesInPerSec.OneMinuteRate" OR metric_name="kafka_topic.BytesInPerSec.OneMinuteRate" OR metric_name="kafka_topic.BytesOutPerSec.OneMinuteRate" $jolokia_agent_url$ by metric_name</query>
+        <query>| mcatalog values(topic) as topic where `telegraf_kafka_index` metric_name="kafka_topic.MessagesInPerSec.OneMinuteRate" OR metric_name="kafka_topic.BytesInPerSec.OneMinuteRate" OR metric_name="kafka_topic.BytesOutPerSec.OneMinuteRate" $env$ $label$ $jolokia_agent_url$ by metric_name</query>
         <earliest>$earliest$</earliest>
         <latest>$latest$</latest>
     </search>
 
     <search id="topics_partitions_list">
-        <query>| mcatalog values(partition) as partition where `telegraf_kafka_index` metric_name="kafka_partition.Size" $jolokia_agent_url$ by topic, jolokia_agent_url</query>
+        <query>| mcatalog values(partition) as partition where `telegraf_kafka_index` metric_name="kafka_partition.Size" $env$ $label$ $jolokia_agent_url$ by topic, jolokia_agent_url</query>
+        <earliest>$earliest$</earliest>
+        <latest>$latest$</latest>
+    </search>
+
+    <search id="main_populate">
+        <query>| savedsearch telegraf-kafka-kafka-brokers</query>
         <earliest>$earliest$</earliest>
         <latest>$latest$</latest>
     </search>
@@ -33,11 +39,39 @@
                 <latestTime>now</latestTime>
             </default>
         </input>
+        <input type="multiselect" token="env" searchWhenChanged="true">
+            <label>Env:</label>
+            <!-- Populating Data Model Search -->
+            <search base="main_populate">
+                <query>dedup env | sort 0 env</query>
+            </search>
+            <valuePrefix>env="</valuePrefix>
+            <valueSuffix>"</valueSuffix>
+            <delimiter> OR </delimiter>
+            <choice value="*">ANY</choice>
+            <initialValue>*</initialValue>
+            <fieldForLabel>env</fieldForLabel>
+            <fieldForValue>env</fieldForValue>
+        </input>
+        <input type="multiselect" token="label" searchWhenChanged="true">
+            <label>Label:</label>
+            <!-- Populating Data Model Search -->
+            <search base="main_populate">
+                <query>search $env$ | dedup label | sort 0 label</query>
+            </search>
+            <valuePrefix>label="</valuePrefix>
+            <valueSuffix>"</valueSuffix>
+            <delimiter> OR </delimiter>
+            <choice value="*">ANY</choice>
+            <initialValue>*</initialValue>
+            <fieldForLabel>label</fieldForLabel>
+            <fieldForValue>label</fieldForValue>
+        </input>
         <input type="multiselect" token="jolokia_agent_url" searchWhenChanged="true">
             <label>Kafka broker(s):</label>
             <!-- Populating Data Model Search -->
-            <search>
-                <query>| savedsearch telegraf-kafka-kafka-brokers</query>
+            <search base="main_populate">
+                <query>search $env$ $label$ | dedup jolokia_agent_url | sort jolokia_agent_url</query>
                 <earliest>$earliest$</earliest>
                 <latest>$latest$</latest>
             </search>
@@ -54,7 +88,7 @@
         <panel>
             <single>
                 <search>
-                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_controller.OfflinePartitionsCount.Value" $jolokia_agent_url$ by jolokia_agent_url
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_controller.OfflinePartitionsCount.Value" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url
 | stats sum(value) as value</query>
                     <earliest>-90s</earliest>
                     <latest>now</latest>
@@ -81,7 +115,7 @@
         <panel>
             <single>
                 <search>
-                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_replica_manager.UnderReplicatedPartitions.Value" $jolokia_agent_url$ by jolokia_agent_url
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_replica_manager.UnderReplicatedPartitions.Value" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url
 | stats sum(value) as value</query>
                     <earliest>-90s</earliest>
                     <latest>now</latest>
@@ -303,7 +337,7 @@
             <title>All topics messages per sec</title>
             <chart>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topics.MessagesInPerSec.OneMinuteRate" $jolokia_agent_url$ span=10s by jolokia_agent_url
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topics.MessagesInPerSec.OneMinuteRate" $env$ $label$ $jolokia_agent_url$ span=10s by jolokia_agent_url
 | timechart limit=20 useother=f `telegraf_kafka_span` avg(_value) as MessagesInPerSec by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -324,7 +358,7 @@
             <title>All topics KBytesInPerSec</title>
             <chart>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topics.BytesInPerSec.OneMinuteRate" $jolokia_agent_url$ span=10s by jolokia_agent_url
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topics.BytesInPerSec.OneMinuteRate" $env$ $label$ $jolokia_agent_url$ span=10s by jolokia_agent_url
 | eval value=value/1024
 | timechart limit=20 useother=f `telegraf_kafka_span` avg(value) as KBytesInPerSec by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
@@ -344,7 +378,7 @@
             <title>All topics KBytesOutPerSec</title>
             <chart>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topics.BytesOutPerSec.OneMinuteRate" $jolokia_agent_url$ span=10s by jolokia_agent_url
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topics.BytesOutPerSec.OneMinuteRate" $env$ $label$ $jolokia_agent_url$ span=10s by jolokia_agent_url
 | eval value=value/1024
 | timechart limit=20 useother=f `telegraf_kafka_span` avg(value) as KBytesOutPerSec by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
@@ -366,7 +400,7 @@
             <title>OfflinePartitions</title>
             <chart>
                 <search depends="$chart2$">
-                    <query>| mstats max(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_controller.OfflinePartitionsCount.Value" $jolokia_agent_url$ span=10s by jolokia_agent_url
+                    <query>| mstats max(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_controller.OfflinePartitionsCount.Value" $env$ $label$ $jolokia_agent_url$ span=10s by jolokia_agent_url
 | timechart limit=20 useother=f `telegraf_kafka_span` max(_value) as OfflinePartitions by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -385,7 +419,7 @@
             <title>UnderReplicatedPartitions</title>
             <chart>
                 <search depends="$chart2$">
-                    <query>| mstats max(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_replica_manager.UnderReplicatedPartitions.Value" $jolokia_agent_url$ span=10s by jolokia_agent_url
+                    <query>| mstats max(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_replica_manager.UnderReplicatedPartitions.Value" $env$ $label$ $jolokia_agent_url$ span=10s by jolokia_agent_url
 | timechart limit=20 useother=f `telegraf_kafka_span` max(_value) as UnderReplicatedPartitions by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -424,7 +458,7 @@
             <title>UnderReplicatedPartitions by topic</title>
             <table>
                 <search depends="$chart2$">
-                    <query>| mstats latest(_value) as UnderReplicatedPartitions where `telegraf_kafka_index` metric_name="kafka_partition.UnderReplicatedPartitions" $jolokia_agent_url$ by jolokia_agent_url, topic | sort 0 topic, jolokia_agent_url</query>
+                    <query>| mstats latest(_value) as UnderReplicatedPartitions where `telegraf_kafka_index` metric_name="kafka_partition.UnderReplicatedPartitions" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url, topic | sort 0 topic, jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                 </search>
@@ -437,7 +471,7 @@
             <title>Produce requests/sec</title>
             <chart>
                 <search depends="$chart3$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.TotalProduceRequestsPerSec.OneMinuteRate" $jolokia_agent_url$ span=10s by jolokia_agent_url
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.TotalProduceRequestsPerSec.OneMinuteRate" $env$ $label$ $jolokia_agent_url$ span=10s by jolokia_agent_url
 | timechart `telegraf_kafka_span` avg(_value) as TotalProduceRequestsPerSec by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -456,7 +490,7 @@
             <title>Fetch requests/sec</title>
             <chart>
                 <search depends="$chart3$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.TotalFetchRequestsPerSec.OneMinuteRate" $jolokia_agent_url$ span=10s by jolokia_agent_url
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.TotalFetchRequestsPerSec.OneMinuteRate" $env$ $label$ $jolokia_agent_url$ span=10s by jolokia_agent_url
 | timechart `telegraf_kafka_span` avg(_value) as TotalFetchRequestsPerSec by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -476,7 +510,7 @@
             <title>Produce failed requests/sec</title>
             <chart>
                 <search depends="$chart3$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.FailedProduceRequestsPerSec.OneMinuteRate" $jolokia_agent_url$ span=10s by jolokia_agent_url
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.FailedProduceRequestsPerSec.OneMinuteRate" $env$ $label$ $jolokia_agent_url$ span=10s by jolokia_agent_url
 | timechart `telegraf_kafka_span` avg(_value) as FailedProduceRequestsPerSec by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -495,7 +529,7 @@
             <title>Fetch failed requests/sec</title>
             <chart>
                 <search depends="$chart3$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.FailedFetchRequestsPerSec.OneMinuteRate" $jolokia_agent_url$ span=10s by jolokia_agent_url
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.FailedFetchRequestsPerSec.OneMinuteRate" $env$ $label$ $jolokia_agent_url$ span=10s by jolokia_agent_url
 | timechart `telegraf_kafka_span` avg(_value) as FailedFetchRequestsPerSec by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -516,7 +550,7 @@
             <title>TotalTimeMs</title>
             <chart>
                 <search depends="$chart4$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_network.TotalTimeMs.Mean" (request="Produce" OR request="FetchConsumer" OR request="FetchFollower") $jolokia_agent_url$ span=10s by request
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_network.TotalTimeMs.Mean" (request="Produce" OR request="FetchConsumer" OR request="FetchFollower") $env$ $label$ $jolokia_agent_url$ span=10s by request
 | timechart `telegraf_kafka_span` avg(_value) as "Avg" by request</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -534,7 +568,7 @@
             <title>RequestQueueTimeMs</title>
             <chart>
                 <search depends="$chart4$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_network.RequestQueueTimeMs.Mean" (request="Produce" OR request="FetchConsumer" OR request="FetchFollower") $jolokia_agent_url$ span=10s by request
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_network.RequestQueueTimeMs.Mean" (request="Produce" OR request="FetchConsumer" OR request="FetchFollower") $env$ $label$ $jolokia_agent_url$ span=10s by request
 | timechart `telegraf_kafka_span` avg(_value) as "Avg" by request</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -552,7 +586,7 @@
             <title>LocalTimeMs</title>
             <chart>
                 <search depends="$chart4$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_network.LocalTimeMs.Mean" (request="Produce" OR request="FetchConsumer" OR request="FetchFollower") $jolokia_agent_url$ span=10s by request
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_network.LocalTimeMs.Mean" (request="Produce" OR request="FetchConsumer" OR request="FetchFollower") $env$ $label$ $jolokia_agent_url$ span=10s by request
 | timechart `telegraf_kafka_span` avg(_value) as "Avg" by request</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -573,7 +607,7 @@
             <title>RemoteTimeMs</title>
             <chart>
                 <search depends="$chart4$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_network.RemoteTimeMs.Mean" (request="Produce" OR request="FetchConsumer" OR request="FetchFollower") $jolokia_agent_url$ span=10s by request
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_network.RemoteTimeMs.Mean" (request="Produce" OR request="FetchConsumer" OR request="FetchFollower") $env$ $label$ $jolokia_agent_url$ span=10s by request
 | timechart `telegraf_kafka_span` avg(_value) as "Avg" by request</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -591,7 +625,7 @@
             <title>ResponseQueueTimeMs</title>
             <chart>
                 <search depends="$chart4$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_network.ResponseQueueTimeMs.Mean" (request="Produce" OR request="FetchConsumer" OR request="FetchFollower") $jolokia_agent_url$ span=10s by request
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_network.ResponseQueueTimeMs.Mean" (request="Produce" OR request="FetchConsumer" OR request="FetchFollower") $env$ $label$ $jolokia_agent_url$ span=10s by request
 | timechart `telegraf_kafka_span` avg(_value) as "Avg" by request</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -609,7 +643,7 @@
             <title>ResponseSendTimeMs</title>
             <chart>
                 <search depends="$chart4$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_network.ResponseSendTimeMs.Mean" (request="Produce" OR request="FetchConsumer" OR request="FetchFollower") $jolokia_agent_url$ span=10s by request
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_network.ResponseSendTimeMs.Mean" (request="Produce" OR request="FetchConsumer" OR request="FetchFollower") $env$ $label$ $jolokia_agent_url$ span=10s by request
 | timechart `telegraf_kafka_span` avg(_value) as "Avg" by request</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -630,7 +664,7 @@
             <title>ResponseSendTimeMs</title>
             <chart>
                 <search depends="$chart4$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_network.ResponseSendTimeMs.Mean" (request="Produce" OR request="FetchConsumer" OR request="FetchFollower") $jolokia_agent_url$ span=10s by request
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_network.ResponseSendTimeMs.Mean" (request="Produce" OR request="FetchConsumer" OR request="FetchFollower") $env$ $label$ $jolokia_agent_url$ span=10s by request
 | timechart `telegraf_kafka_span` avg(_value) as "Avg" by request</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -694,7 +728,7 @@
         <panel>
             <chart>
                 <search depends="$chart5$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.MessagesInPerSec.OneMinuteRate" $jolokia_agent_url$ $topic$ span=10s by topic
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.MessagesInPerSec.OneMinuteRate" $env$ $label$ $jolokia_agent_url$ $topic$ span=10s by topic
 | eval value=round(value, 3)
 | timechart `telegraf_kafka_span` avg(_value) as "Avg" limit=20 useother=false by topic</query>
                     <earliest>$earliest$</earliest>
@@ -728,7 +762,7 @@
             </input>
             <table>
                 <search depends="$chart6$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesInPerSec.OneMinuteRate" $jolokia_agent_url$ $topic_kbps_in$ span=10s by topic, jolokia_agent_url
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesInPerSec.OneMinuteRate" $env$ $label$ $jolokia_agent_url$ $topic_kbps_in$ span=10s by topic, jolokia_agent_url
 | eval value=value/1024
 | stats avg(value) as "avg Kbps in/sec", max(value) as "max Kbps in/sec", sparkline(avg(value),) As sparkline by topic, jolokia_agent_url
 | eval "avg Kbps in/sec"=round('avg Kbps in/sec', 2), "max Kbps in/sec"=round('max Kbps in/sec', 2) | sort 0 topic, jolokia_agent_url</query>
@@ -767,7 +801,7 @@
             </input>
             <table>
                 <search depends="$chart6$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesOutPerSec.OneMinuteRate" $jolokia_agent_url$ $topic_kbps_out$ span=10s by topic, jolokia_agent_url
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesOutPerSec.OneMinuteRate" $env$ $label$ $jolokia_agent_url$ $topic_kbps_out$ span=10s by topic, jolokia_agent_url
 | eval value=value/1024
 | stats avg(value) as "avg Kbps out/sec", max(value) as "max Kbps out/sec", sparkline(avg(value),) As sparkline by topic, jolokia_agent_url
 | eval "avg Kbps out/sec"=round('avg Kbps out/sec', 2), "max Kbps out/sec"=round('max Kbps out/sec', 2) | sort 0 topic, jolokia_agent_url</query>
@@ -796,7 +830,7 @@
             <title>Traffic Kbps/In</title>
             <chart>
                 <search depends="$chart6$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesInPerSec.OneMinuteRate" $jolokia_agent_url$ $topic_kbps_in$ span=10s by topic
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesInPerSec.OneMinuteRate" $env$ $label$ $jolokia_agent_url$ $topic_kbps_in$ span=10s by topic
 | eval value=round(value/1024, 3)
 | timechart `telegraf_kafka_span` avg(value) as "Avg" useother=false by topic</query>
                     <earliest>$earliest$</earliest>
@@ -815,7 +849,7 @@
             <title>Traffic Kbps/Out</title>
             <chart>
                 <search depends="$chart6$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesOutPerSec.OneMinuteRate" $jolokia_agent_url$ $topic_kbps_out$ span=10s by topic
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesOutPerSec.OneMinuteRate" $env$ $label$ $jolokia_agent_url$ $topic_kbps_out$ span=10s by topic
 | eval value=round(value/1024, 3)
 | timechart `telegraf_kafka_span` avg(value) as "Avg" useother=false by topic</query>
                     <earliest>$earliest$</earliest>
@@ -837,7 +871,7 @@
             <title>Ratio leader %</title>
             <chart>
                 <search depends="$chart7$">
-                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_replica_manager.LeaderCount.Value" OR metric_name="kafka_replica_manager.PartitionCount.Value" $jolokia_agent_url$ span=10s by metric_name, jolokia_agent_url
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_replica_manager.LeaderCount.Value" OR metric_name="kafka_replica_manager.PartitionCount.Value" $env$ $label$ $jolokia_agent_url$ span=10s by metric_name, jolokia_agent_url
 | eval {metric_name}=value
 | stats first(kafka_replica_manager.*.Value) as "*" by _time, jolokia_agent_url
 | eval ratio=round((LeaderCount/PartitionCount)*100, 2)
@@ -863,7 +897,7 @@
             <title>Partitions count #</title>
             <chart>
                 <search depends="$chart7$">
-                    <query>| mstats max(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_replica_manager.PartitionCount.Value" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats max(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_replica_manager.PartitionCount.Value" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart limit=20 useother=f `telegraf_kafka_span` max(_value) as PartitionCount by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -882,7 +916,7 @@
             <title>Leader count #</title>
             <chart>
                 <search depends="$chart7$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_replica_manager.LeaderCount.Value" $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_replica_manager.LeaderCount.Value" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart limit=20 useother=f `telegraf_kafka_span` avg(_value) as LeaderCount by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -903,7 +937,7 @@
             <title>JVM garbage collector LastGcInfo duration (how long, in milliseconds, the last GC cycle took)</title>
             <chart>
                 <search depends="$chart8$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name=kafka_jvm_garbage_collector.LastGcInfo.duration $jolokia_agent_url$ span=1s by name, jolokia_agent_url
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name=kafka_jvm_garbage_collector.LastGcInfo.duration $env$ $label$ $jolokia_agent_url$ span=1s by name, jolokia_agent_url
 | eval key = name . ":" . jolokia_agent_url
 | timechart limit=20 useother=f `telegraf_kafka_span` avg(_value) as LastGcInfo_duration by key</query>
                     <earliest>$earliest$</earliest>
@@ -925,7 +959,7 @@
             <title>JVM garbage collector CollectionCount (number of GC cycles of that type)</title>
             <chart>
                 <search depends="$chart8$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_jvm_garbage_collector.CollectionCount" $jolokia_agent_url$ span=1s by name, jolokia_agent_url
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_jvm_garbage_collector.CollectionCount" $env$ $label$ $jolokia_agent_url$ span=1s by name, jolokia_agent_url
 | stats first(value) as Collection by _time, name, jolokia_agent_url
 | streamstats current=f last(Collection) as "prev" by name, jolokia_agent_url
 | eval garbage_collection=(Collection-prev)
@@ -999,7 +1033,7 @@
             </input>
             <table>
                 <search depends="$chart9$">
-                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name=kafka_partition.LogEndOffset OR metric_name=kafka_partition.LogStartOffset OR metric_name=kafka_partition.NumLogSegments OR metric_name=kafka_partition.Size OR metric_name=kafka_partition.UnderReplicatedPartitions $topic_partition$ $jolokia_agent_url$ by jolokia_agent_url, topic, partition, metric_name
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name=kafka_partition.LogEndOffset OR metric_name=kafka_partition.LogStartOffset OR metric_name=kafka_partition.NumLogSegments OR metric_name=kafka_partition.Size OR metric_name=kafka_partition.UnderReplicatedPartitions $topic_partition$ $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url, topic, partition, metric_name
 | eval {metric_name}=value
 | stats first(kafka_partition.*) as "*" by jolokia_agent_url, topic, partition
 | fields jolokia_agent_url, topic, partition, LogStartOffset, LogEndOffset, NumLogSegments, Size, UnderReplicatedPartitions</query>
