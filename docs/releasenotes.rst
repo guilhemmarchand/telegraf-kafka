@@ -1,6 +1,12 @@
 Release notes
 #############
 
+Version 1.1.0
+=============
+
+- feature: support for environment and label tagging at low metric level, allows management of any number of environment and/or additional sub-divising notion (multi-env, multi-dc...)
+- various: minor fixes and improvements
+
 Version 1.0.12
 ==============
 - fix: Improve detection of Kafka Connect tasks not successfully running on the Overview page
