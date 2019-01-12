@@ -599,8 +599,21 @@
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
-                <option name="underLabel">SOURCE TASKS (ACTIVE AND MONITORED)</option>
+                <option name="underLabel">SOURCE CONNECTORS (ACTIVE AND MONITORED)</option>
                 <option name="useColors">1</option>
+                <drilldown>
+                  <link target="_blank">search?q=| mstats latest(_value) as value WHERE index="telegraf_kafka" metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" `overview_page_filters` by metric_name, env, label, task, connector
+| eval {metric_name}=value
+| stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*" by env, label, connector, task
+| eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2)
+| fields env, label, connector, task, connector-task.status
+| rename connector-task.status as integer_status
+| eval status=case(integer_status=0, "paused", integer_status=1, "running", integer_status=2, "unassigned", integer_status=3, "failed", integer_status=4, "destroyed")
+| join env, label, connector [ | inputlookup kafka_connect_tasks_monitoring ]
+| stats first(*) as "*", values(task) as task, list(status) as status by env, label, connector
+| fields env, label, connector, role, task, status, monitoring_state
+| where monitoring_state="enabled" | where role="kafka_source_task"&amp;earliest=-90s&amp;latest=now</link>
+                </drilldown>
             </single>
         </panel>
         <panel>
@@ -632,7 +645,7 @@
         <panel>
             <single>
                 <search base="connect_tasks_summary">
-                    <query>where role="kafka_sink_task" | stats dc(connector) as dcount</query>
+                    <query>where role="kafka_sink_task" | stats count</query>
                 </search>
                 <option name="colorMode">block</option>
                 <option name="drilldown">all</option>
@@ -640,8 +653,21 @@
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
-                <option name="underLabel">SINK TASKS (ACTIVE AND MONITORED)</option>
+                <option name="underLabel">SINK CONNECTORS (ACTIVE AND MONITORED)</option>
                 <option name="useColors">1</option>
+                <drilldown>
+                  <link target="_blank">search?q=| mstats latest(_value) as value WHERE index="telegraf_kafka" metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" `overview_page_filters` by metric_name, env, label, task, connector
+| eval {metric_name}=value
+| stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*" by env, label, connector, task
+| eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2)
+| fields env, label, connector, task, connector-task.status
+| rename connector-task.status as integer_status
+| eval status=case(integer_status=0, "paused", integer_status=1, "running", integer_status=2, "unassigned", integer_status=3, "failed", integer_status=4, "destroyed")
+| join env, label, connector [ | inputlookup kafka_connect_tasks_monitoring ]
+| stats first(*) as "*", values(task) as task, list(status) as status by env, label, connector
+| fields env, label, connector, role, task, status, monitoring_state
+| where monitoring_state="enabled" | where role="kafka_sink_task"&amp;earliest=-90s&amp;latest=now</link>
+                </drilldown>
             </single>
         </panel>
         <panel>

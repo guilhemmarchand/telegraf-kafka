@@ -14,6 +14,25 @@
         <refreshType>delay</refreshType>
     </search>
 
+    <search id="connect_task_summary">
+        <query>| mstats latest(_value) as value WHERE index="telegraf_kafka" metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" $env$ $label$ $jolokia_agent_url$ by metric_name, env, label, jolokia_agent_url, connector, task
+| eval {metric_name}=value
+| stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*" by env, label, jolokia_agent_url, connector, task
+| eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2)
+| fields env, label, jolokia_agent_url, connector, task, connector-task.status
+| rename connector-task.status as integer_status
+| eval status=case(integer_status=0, "paused", integer_status=1, "running", integer_status=2, "unassigned", integer_status=3, "failed", integer_status=4, "destroyed")
+| stats first(*) as "*", values(task) as task, list(status) as status by env, label, jolokia_agent_url, connector
+| join env, label, jolokia_agent_url, connector [ | mcatalog values(metric_name) as metric_name where `telegraf_kafka_index` metric_name="kafka_connect.source-task.source-record-poll-total" OR metric_name="kafka_connect.sink-task.sink-record-read-total" connector=* by env, label, jolokia_agent_url, connector
+| eval role=case(match(metric_name, "sink-task"), "kafka_sink_task", match(metric_name, "source-task"), "kafka_source_task")
+| fields env, label, jolokia_agent_url, connector, role ]
+| fields env, label, jolokia_agent_url, connector, role, task, status</query>
+        <earliest>-90s</earliest>
+        <latest>now</latest>
+        <refresh>30s</refresh>
+        <refreshType>delay</refreshType>
+    </search>
+
     <search id="main_populate">
         <query>| savedsearch telegraf-kafka-kafka-connect-workers</query>
         <earliest>$earliest$</earliest>
@@ -117,8 +136,8 @@
         </panel>
         <panel>
             <single>
-                <search base="connect_state_summary">
-                    <query>fields worker.task-count</query>
+                <search base="connect_task_summary">
+                    <query>stats dc(connector) as connector</query>
                 </search>
                 <option name="colorMode">block</option>
                 <option name="drilldown">none</option>
@@ -126,7 +145,22 @@
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
-                <option name="underLabel">WORKER TASKS COUNT</option>
+                <option name="underLabel">CONNECTOR(S) DISTINCT COUNT</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="connect_task_summary">
+                    <query>stats count(task) as count</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">TOTAL TASK(S) COUNT</option>
                 <option name="useColors">1</option>
             </single>
         </panel>
@@ -141,7 +175,8 @@
                 <choice value="chart3">SOURCE TASKS</choice>
                 <choice value="chart4">SINK TASKS</choice>
                 <choice value="chart5">ERROR TASKS</choice>
-                <choice value="chart6">LOGS ACTIVITY</choice>
+                <choice value="chart6">TABLE CONNECTORS/TASKS</choice>
+                <choice value="chart7">LOGS ACTIVITY</choice>
                 <default>chart1</default>
                 <change>
                     <condition value="chart1">
@@ -151,6 +186,7 @@
                         <unset token="chart4"></unset>
                         <unset token="chart5"></unset>
                         <unset token="chart6"></unset>
+                        <unset token="chart7"></unset>
                     </condition>
                     <condition value="chart2">
                         <set token="chart2">true</set>
@@ -159,6 +195,7 @@
                         <unset token="chart4"></unset>
                         <unset token="chart5"></unset>
                         <unset token="chart6"></unset>
+                        <unset token="chart7"></unset>
                     </condition>
                     <condition value="chart3">
                         <set token="chart3">true</set>
@@ -167,6 +204,7 @@
                         <unset token="chart4"></unset>
                         <unset token="chart5"></unset>
                         <unset token="chart6"></unset>
+                        <unset token="chart7"></unset>
                     </condition>
                     <condition value="chart4">
                         <set token="chart4">true</set>
@@ -175,6 +213,7 @@
                         <unset token="chart3"></unset>
                         <unset token="chart5"></unset>
                         <unset token="chart6"></unset>
+                        <unset token="chart7"></unset>
                     </condition>
                     <condition value="chart5">
                         <set token="chart5">true</set>
@@ -183,6 +222,7 @@
                         <unset token="chart3"></unset>
                         <unset token="chart4"></unset>
                         <unset token="chart6"></unset>
+                        <unset token="chart7"></unset>
                     </condition>
                     <condition value="chart6">
                         <set token="chart6">true</set>
@@ -191,6 +231,16 @@
                         <unset token="chart3"></unset>
                         <unset token="chart4"></unset>
                         <unset token="chart5"></unset>
+                        <unset token="chart7"></unset>
+                    </condition>
+                    <condition value="chart7">
+                        <set token="chart7">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart2"></unset>
+                        <unset token="chart3"></unset>
+                        <unset token="chart4"></unset>
+                        <unset token="chart5"></unset>
+                        <unset token="chart6"></unset>
                     </condition>
                 </change>
             </input>
@@ -784,11 +834,23 @@
         <panel>
         </panel>
     </row>
+
     <row depends="$chart6$">
+        <panel>
+            <title>Connectors and tasks (realtime)</title>
+            <table>
+                <search base="connect_task_summary" depends="$chart6">
+                    <query>sort 0 env, label, connector</query>
+                </search>
+            </table>
+        </panel>
+    </row>
+
+    <row depends="$chart7$">
         <panel>
             <title>Kafka Connect log events by log_level</title>
             <chart>
-                <search depends="$chart6$">
+                <search depends="$chart7$">
                     <query>eventtype="kafka_connect" log_level=* [ | savedsearch telegraf-kafka-kafka-connect-workers | search $jolokia_agent_url$ | table kafka_connect | rename kafka_connect as host ]
 | timechart useother=f limit=0 minspan=1m count by log_level</query>
                     <earliest>$earliest$</earliest>
@@ -806,7 +868,7 @@
             </chart>
         </panel>
     </row>
-    <row depends="$chart6$">
+    <row depends="$chart7$">
         <panel>
             <title>Events</title>
             <input type="multiselect" token="log_sourcetype_tk" searchWhenChanged="true">
@@ -824,7 +886,7 @@
                 <initialValue>*</initialValue>
             </input>
             <event>
-                <search depends="$chart6$">
+                <search depends="$chart7$">
                     <query>eventtype="kafka_connect" $log_search_tk$ $log_sourcetype_tk$ [ | savedsearch telegraf-kafka-kafka-connect-workers | search $jolokia_agent_url$ | table kafka_connect | rename kafka_connect as host ]</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>

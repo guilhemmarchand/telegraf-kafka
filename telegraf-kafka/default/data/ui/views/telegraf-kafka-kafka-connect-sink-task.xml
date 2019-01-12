@@ -73,9 +73,8 @@
         <panel>
             <single>
                 <search>
-                    <query>| mcatalog values(task) as task where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.running-ratio" $env$ $label$ $connector$ by connector
-| mvexpand task
-| stats count</query>
+                    <query>| mcatalog values(task) as task where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.running-ratio" $env$ $label$ $connector$ by env, label, connector
+| stats count(task) as count</query>
                     <earliest>-90s</earliest>
                     <latest>now</latest>
                     <refresh>30s</refresh>
