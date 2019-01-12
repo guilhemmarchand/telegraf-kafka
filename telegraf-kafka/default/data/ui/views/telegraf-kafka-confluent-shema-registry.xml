@@ -1177,7 +1177,7 @@
         <panel>
             <table>
                 <search depends="$chart9$">
-                    <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_schema-registry.master-slave-role.master-slave-role" jolokia_agent_url=* by jolokia_agent_url, metric_name
+                    <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_schema-registry.master-slave-role.master-slave-role" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url, metric_name
 | eval {metric_name}=value
 | stats first(kafka_schema-registry.*) as "*" by jolokia_agent_url
 | rename "master-slave-role.master-slave-role" as role | eval role=case(role=0, "slave", role="1", "master")

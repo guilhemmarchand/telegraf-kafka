@@ -11,7 +11,7 @@
         <refreshType>delay</refreshType>
     </search>
 
-    <search>
+    <search id="main_populate">
         <query>| savedsearch telegraf-kafka-kafka-rest</query>
         <earliest>$earliest$</earliest>
         <latest>$latest$</latest>
