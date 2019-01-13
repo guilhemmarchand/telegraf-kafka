@@ -50,3 +50,26 @@
     margin-left: 90px;
     margin-right: 90px;
 }
+
+.box {
+   display: inline-flex;;
+   align-items: center;
+   margin-top: 5px;
+}
+
+/*
+        ---------------------
+        Multi depends buttons
+        ---------------------
+*/
+
+/* Button style */
+.custom-sub-nav button{
+        display: inline-block;
+        margin: 0 1em;
+}
+
+/* Style when button is active */
+.custom-sub-nav button.active{
+        background: #BBDAF6;
+}

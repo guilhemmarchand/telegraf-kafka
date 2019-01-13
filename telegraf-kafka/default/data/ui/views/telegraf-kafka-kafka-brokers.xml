@@ -72,8 +72,6 @@
             <!-- Populating Data Model Search -->
             <search base="main_populate">
                 <query>search $env$ $label$ | dedup jolokia_agent_url | sort jolokia_agent_url</query>
-                <earliest>$earliest$</earliest>
-                <latest>$latest$</latest>
             </search>
             <valuePrefix>jolokia_agent_url="</valuePrefix>
             <valueSuffix>"</valueSuffix>

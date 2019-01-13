@@ -4,8 +4,10 @@ Release notes
 Version 1.1.0
 =============
 
-- feature: support for environment and label tagging at low metric level, allows management of any number of environment and/or additional sub-divising notion (multi-env, multi-dc...)
-- various: minor fixes and improvements
+- feature: Multi-environment / Multi-dc support via env and label tagging at Telegraf metric level, allows embedded management of any number of environment and/or additional sub-divising notion (multi-env, multi-dc...)
+- feature: Refreshed Overview page with layers icons, additional overview in page views
+- feature: New applications icons
+- fix: Various fixes and improvements
 
 Version 1.0.12
 ==============
