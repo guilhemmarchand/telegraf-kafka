@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="{{SPLUNKWEB_URL_PREFIX}}/static/build/css/bootstrap-enterprise.css" />
     <link rel="stylesheet" type="text/css" href="{{SPLUNKWEB_URL_PREFIX}}/static/build/css/splunkjs-dashboard.css" />
     <link rel="stylesheet" type="text/css" media="all" href="{{SPLUNKWEB_URL_PREFIX}}/static/app/telegraf-kafka/boottsrap-btn.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="{{SPLUNKWEB_URL_PREFIX}}/static/app/telegraf-kafka/common.css" />
 
     <meta name="referrer" content="never" />
     <meta name="referrer" content="no-referrer" />
@@ -82,8 +83,8 @@ styles in <div> tags, similar to Bootstrap's grid system.
             <div class="dashboard-panel clearfix">
                 <h2 class="panel-title"></h2>
                 <div class="fieldset" style="text-align: left;">
-                    <div>
-                        <h1>Kafka Infrastructure monitoring</h1>
+                    <div class="dashseparator">
+                        <h1>Kafka Infrastructure monitoring<br /><br />Stale metrics monitoring per component entity</h1>
                     </div>
                 </div>
             </div>
@@ -143,7 +144,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
                     <div class="input input-text" id="input_kafka_infra_modify_grace_period">
                         <label>grace_period:</label>
                     </div>
-                    <div class="input input-text" id="input_kafka_infra_modify_monitoring_state">
+                    <div class="input input-dropdown" id="input_kafka_infra_modify_monitoring_state">
                         <label>monitoring_state:</label>
                     </div>
                     <div class="form-submit" id="btn_modify_content_kafka_infra">
@@ -157,7 +158,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
     <div id="row_kafka_infra_delete" class="dashboard-row dashboard-row_kafka_infra_delete">
         <div id="panel_togglepanel_true_show_kafka_infra" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_show_kafka_infra">
             <div class="dashboard-panel clearfix">
-                <h2 class="panel-title">Collection content</h2>
+                <h2 class="panel-title">Collection content (click on a row to populate for modification/suppression)</h2>
                 <div class="fieldset">
                     <div class="input input-text" id="input_kafka_infra_delete">
                         <label>keyid:</label>
@@ -175,13 +176,111 @@ styles in <div> tags, similar to Bootstrap's grid system.
         </div>
     </div>
 
+    <div id="row_kafka_infra_nodes" class="dashboard-row dashboard-row_connect">
+        <div id="panel_kafka_infra_nodes" class="dashboard-cell" style="width: 100%;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title"></h2>
+                <div class="fieldset" style="text-align: left;">
+                    <div class="dashseparator">
+                        <h1>Kafka Infrastructure monitoring by nodes<br /><br />Stale metrics monitoring per number of active nodes</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="row_kafka_infra_nodes_single" class="dashboard-row dashboard-row_connect_single">
+        <div id="panel_kafka_infra_nodes_single" class="dashboard-cell" style="width: 100%;">
+            <div class="dashboard-panel clearfix">
+
+                <div class="panel-element-row">
+                    <div id="element_kafka_infra_nodes_single1" class="dashboard-element single" style="width: 33.33%">
+                        <div class="panel-body"></div>
+                    </div>
+                    <div id="element_kafka_infra_nodes_single2" class="dashboard-element single" style="width: 33.33%">
+                        <div class="panel-body"></div>
+                    </div>
+                    <div id="element_kafka_infra_nodes_single3" class="dashboard-element single" style="width: 33.33%">
+                        <div class="panel-body"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="row_kafka_infra_nodes_search" class="dashboard-row dashboard-row_kafka_infra_search">
+        <div id="panel_togglepanel_true_search_kafka_infra_nodes" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_search_kafka_infra">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Search and filter</h2>
+                <div class="fieldset">
+                    <div class="input input-dropdown" id="input_kafka_infra_nodes_search_env">
+                        <label>Environment:</label>
+                    </div>
+                    <div class="input input-dropdown" id="input_kafka_infra_nodes_search_label">
+                        <label>Label:</label>
+                    </div>
+                    <div class="input input-dropdown" id="input_kafka_infra_nodes_search_role">
+                        <label>type of component:</label>
+                    </div>
+                    <div class="input input-dropdown" id="input_kafka_infra_nodes_search_monitoring_state">
+                        <label>Monitoring state:</label>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="row_kafka_infra_nodes_modify" class="dashboard-row dashboard-row_kafka_infra_nodes_modify">
+        <div id="panel_togglepanel_true_modify_kafka_infra_nodes" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_modify_kafka_infra_nodes">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Modify entries</h2>
+                <div class="fieldset">
+                    <div class="input input-text" id="input_kafka_infra_nodes_modify_minimal_nodes_number">
+                        <label>minimal_nodes_number:</label>
+                    </div>
+                    <div class="input input-text" id="input_kafka_infra_nodes_modify_grace_period">
+                        <label>grace_period:</label>
+                    </div>
+                    <div class="input input-dropdown" id="input_kafka_infra_nodes_modify_monitoring_state">
+                        <label>monitoring_state:</label>
+                    </div>
+                    <div class="form-submit" id="btn_modify_content_kafka_infra_nodes">
+                        <button class="btn btn-primary submit">Modify this entry</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div id="row_kafka_infra_nodes_delete" class="dashboard-row dashboard-row_kafka_infra_delete">
+        <div id="panel_togglepanel_true_show_kafka_infra_nodes" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_show_kafka_infra_nodes">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Collection content (click on a row to populate for modification/suppression)</h2>
+                <div class="fieldset">
+                    <div class="input input-text" id="input_kafka_infra_nodes_delete">
+                        <label>keyid:</label>
+                    </div>
+                    <div class="form-submit" id="btn_remove_content_kafka_infra_nodes">
+                        <button class="btn btn-primary submit">Delete this entry</button>
+                    </div>
+                </div>
+                <div class="panel-element-row">
+                    <div id="element_kafka_infra_nodes_main_table" class="dashboard-element table" style="width: 100%">
+                        <div class="panel-body"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="row_kafka_topics" class="dashboard-row dashboard-row_topics">
         <div id="panel_kafka_topics" class="dashboard-cell" style="width: 100%;">
             <div class="dashboard-panel clearfix">
                 <h2 class="panel-title"></h2>
                 <div class="fieldset" style="text-align: left;">
-                    <div>
-                        <h1>Kafka Topics monitoring</h1>
+                    <div class="dashseparator">
+                        <h1><br />Kafka Topics monitoring<br /></h1>
                     </div>
                 </div>
             </div>
@@ -235,7 +334,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
             <div class="dashboard-panel clearfix">
                 <h2 class="panel-title">Modify entries</h2>
                 <div class="fieldset">
-                    <div class="input input-text" id="input_kafka_topics_modify_monitoring_state">
+                    <div class="input input-dropdown" id="input_kafka_topics_modify_monitoring_state">
                         <label>monitoring_state:</label>
                     </div>
                     <div class="form-submit" id="btn_modify_content_kafka_topics">
@@ -249,7 +348,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
     <div id="row_kafka_topics_delete" class="dashboard-row dashboard-row_kafka_topics_delete">
         <div id="panel_togglepanel_true_show_kafka_topics" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_show_kafka_topics">
             <div class="dashboard-panel clearfix">
-                <h2 class="panel-title">Collection content</h2>
+                <h2 class="panel-title">Collection content (click on a row to populate for modification/suppression)</h2>
                 <div class="fieldset">
                     <div class="input input-text" id="input_kafka_topics_delete">
                         <label>keyid:</label>
@@ -272,8 +371,8 @@ styles in <div> tags, similar to Bootstrap's grid system.
             <div class="dashboard-panel clearfix">
                 <h2 class="panel-title"></h2>
                 <div class="fieldset" style="text-align: left;">
-                    <div>
-                        <h1>Kafka Connect tasks monitoring</h1>
+                    <div class="dashseparator">
+                        <h1><br />Kafka Connect tasks monitoring<br /></h1>
                     </div>
                 </div>
             </div>
@@ -333,7 +432,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
                     <div class="input input-text" id="input_connect_modify_grace_period">
                         <label>grace_period:</label>
                     </div>
-                    <div class="input input-text" id="input_connect_modify_monitoring_state">
+                    <div class="input input-dropdown" id="input_connect_modify_monitoring_state">
                         <label>monitoring_state:</label>
                     </div>
                     <div class="form-submit" id="btn_modify_content_connect">
@@ -347,7 +446,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
     <div id="row_connect_delete" class="dashboard-row dashboard-row_connect_delete">
         <div id="panel_togglepanel_true_show_connect" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_show_connect">
             <div class="dashboard-panel clearfix">
-                <h2 class="panel-title">Collection content</h2>
+                <h2 class="panel-title">Collection content (click on a row to populate for modification/suppression)</h2>
                 <div class="fieldset">
                     <div class="input input-text" id="input_connect_delete">
                         <label>keyid:</label>
@@ -580,7 +679,7 @@ var search_kafka_infra_main_table = new SearchManager({
             "sample_ratio": 1,
             "earliest_time": "-15m",
             "cancelOnUnload": true,
-            "search": "| inputlookup kafka_infra_inventory | eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_kafka_infra_name$ $search_tk_kafka_infra_env$ $search_tk_kafka_infra_label$ $search_tk_kafka_infra_role$ $search_tk_kafka_infra_monitoring_state$ | fields keyid, env, label, name, role, monitoring_state, grace_period | sort 0 role, env, label, name",
+            "search": "| inputlookup kafka_infra_inventory | eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_kafka_infra_name$ $search_tk_kafka_infra_env$ $search_tk_kafka_infra_label$ $search_tk_kafka_infra_role$ $search_tk_kafka_infra_monitoring_state$ | fields keyid, env, label, name, role, monitoring_state, grace_period, lasttime | eval lasttime_epoch=lasttime, lasttime=strftime(lasttime_epoch, \"%d/%m/%Y %H:%M:%S\") | sort 0 role, env, label, name",
             "latest_time": "now",
             "status_buckets": 0,
             "app": utils.getCurrentApp(),
@@ -629,6 +728,106 @@ var search_kafka_infra_no_components_disabled = new SearchManager({
             "earliest_time": "-24h@h",
             "cancelOnUnload": true,
             "search": "| inputlookup kafka_infra_inventory | where monitoring_state!=\"enabled\" | stats count | rangemap field=maintenance low=0-0 high=1-1000 default=severe",
+            "latest_time": "now",
+            "status_buckets": 0,
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true, tokenNamespace: "submitted"});
+
+        //
+        // KAFKA INFRASTRUCTURE NODES
+        //
+
+var search_kafka_infra_nodes_search_env = new SearchManager({
+            "id": "search_kafka_infra_nodes_search_env",
+            "earliest_time": "-24h@h",
+            "status_buckets": 0,
+            "sample_ratio": null,
+            "latest_time": "now",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_infra_nodes_inventory | fillnull value=\"unknown\" env | stats count by env | fields env | dedup env | sort 0 env",
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true});
+
+var search_kafka_infra_nodes_search_label = new SearchManager({
+            "id": "search_kafka_infra_nodes_search_label",
+            "earliest_time": "-24h@h",
+            "status_buckets": 0,
+            "sample_ratio": null,
+            "latest_time": "now",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_infra_nodes_inventory | fillnull value=\"unknown\" label | stats count by label | fields label | dedup label | sort 0 label",
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true});
+
+var search_kafka_infra_nodes_main_table = new SearchManager({
+            "id": "search_kafka_infra_nodes_main_table",
+            "sample_ratio": 1,
+            "earliest_time": "-15m",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_infra_nodes_inventory | eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_kafka_infra_nodes_env$ $search_tk_kafka_infra_nodes_label$ $search_tk_kafka_infra_nodes_role$ $search_tk_kafka_infra_nodes_monitoring_state$ | fields keyid, env, label, role, current_nodes_number, minimal_nodes_number, monitoring_state, grace_period | sort 0 role, env, label, role",
+            "latest_time": "now",
+            "status_buckets": 0,
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true, tokenNamespace: "submitted"});
+
+var search_kafka_infra_nodes_no_components = new SearchManager({
+            "id": "search_kafka_infra_nodes_no_components",
+            "sample_ratio": null,
+            "earliest_time": "-24h@h",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_infra_nodes_inventory | stats count",
+            "latest_time": "now",
+            "status_buckets": 0,
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true, tokenNamespace: "submitted"});
+
+var search_kafka_infra_nodes_no_components_enabled = new SearchManager({
+            "id": "search_kafka_infra_nodes_no_components_enabled",
+            "sample_ratio": null,
+            "earliest_time": "-24h@h",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_infra_nodes_inventory | where monitoring_state=\"enabled\" | stats count",
+            "latest_time": "now",
+            "status_buckets": 0,
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true, tokenNamespace: "submitted"});
+
+var search_kafka_infra_nodes_no_components_disabled = new SearchManager({
+            "id": "search_kafka_infra_nodes_no_components_disabled",
+            "sample_ratio": null,
+            "earliest_time": "-24h@h",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_infra_nodes_inventory | where monitoring_state!=\"enabled\" | stats count | rangemap field=maintenance low=0-0 high=1-1000 default=severe",
             "latest_time": "now",
             "status_buckets": 0,
             "app": utils.getCurrentApp(),
@@ -931,6 +1130,7 @@ var search_connect_main_table = new SearchManager({
             "count": 10,
             "dataOverlayMode": "none",
             "drilldown": "row",
+            "fields": "keyid, env, label, name, role, monitoring_state, grace_period, lasttime",
             "percentagesRow": "false",
             "rowNumbers": "false",
             "totalsRow": "false",
@@ -949,6 +1149,79 @@ var search_connect_main_table = new SearchManager({
                 setToken("tk_kafka_infra_label", TokenUtils.replaceTokenNames("$row.label$", _.extend(submittedTokenModel.toJSON(), e.data)));
                 setToken("form.modify_tk_kafka_infra_grace_period", TokenUtils.replaceTokenNames("$row.grace_period$", _.extend(submittedTokenModel.toJSON(), e.data)));
                 setToken("form.modify_tk_kafka_infra_monitoring_state", TokenUtils.replaceTokenNames("$row.monitoring_state$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("tk_kafka_infra_lasttime", TokenUtils.replaceTokenNames("$row.lasttime_epoch$", _.extend(submittedTokenModel.toJSON(), e.data)));
+            }
+        });
+
+        //
+        // KAFKA INFRA NODES
+        //
+
+        var element_kafka_infra_nodes_single1 = new SingleElement({
+            "id": "element_kafka_infra_nodes_single1",
+            "rangeColors": "[\"0x53a051\",\"0x0877a6\",\"0xf8be34\",\"0xf1813f\",\"0xdc4e41\"]",
+            "underLabel": "TOTAL COMPONENT ROLES DISCOVERED",
+            "drilldown": "none",
+            "managerid": "search_kafka_infra_nodes_no_components",
+            "el": $('#element_kafka_infra_nodes_single1')
+        }, {tokens: true, tokenNamespace: "submitted"}).render();
+
+        var element_kafka_infra_nodes_single2 = new SingleElement({
+            "id": "element_kafka_infra_nodes_single2",
+            "rangeColors": "[\"0x53a051\",\"0x0877a6\",\"0xf8be34\",\"0xf1813f\",\"0xdc4e41\"]",
+            "underLabel": "TOTAL COMPONENT ROLES MONITORED",
+            "drilldown": "none",
+            "managerid": "search_kafka_infra_nodes_no_components_enabled",
+            "el": $('#element_kafka_infra_nodes_single2')
+        }, {tokens: true, tokenNamespace: "submitted"}).render();
+
+        var element_kafka_infra_nodes_single3 = new SingleElement({
+            "id": "element_kafka_infra_nodes_single3",
+            "underLabel": "UN-MONITORED COMPONENT ROLES",
+            "showSparkline": "1",
+            "trellis.enabled": "0",
+            "rangeValues": "[0]",
+            "rangeColors": "[\"0x53a051\",\"0xf1813f\"]",
+            "colorMode": "none",
+            "trellis.scales.shared": "1",
+            "useThousandSeparators": "1",
+            "showTrendIndicator": "1",
+            "trendDisplayMode": "absolute",
+            "trellis.size": "medium",
+            "drilldown": "none",
+            "numberPrecision": "0",
+            "trendColorInterpretation": "standard",
+            "useColors": "1",
+            "colorBy": "value",
+            "unitPosition": "after",
+            "managerid": "search_kafka_infra_nodes_no_components_disabled",
+            "el": $('#element_kafka_infra_nodes_single3')
+        }, {tokens: true, tokenNamespace: "submitted"}).render();
+
+        var element_kafka_infra_nodes_main_table = new TableElement({
+            "id": "element_kafka_infra_nodes_main_table",
+            "count": 10,
+            "dataOverlayMode": "none",
+            "drilldown": "row",
+            "percentagesRow": "false",
+            "rowNumbers": "false",
+            "totalsRow": "false",
+            "wrap": "true",
+            "managerid": "search_kafka_infra_nodes_main_table",
+            "el": $('#element_kafka_infra_nodes_main_table')
+        }, {tokens: true, tokenNamespace: "submitted"}).render();
+
+        element_kafka_infra_nodes_main_table.on("click", function(e) {
+            if (e.field !== undefined) {
+                e.preventDefault();
+                setToken("form.tk_kafka_infra_nodes_keyid", TokenUtils.replaceTokenNames("$row.keyid$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("tk_kafka_infra_nodes_role", TokenUtils.replaceTokenNames("$row.role$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("tk_kafka_infra_nodes_env", TokenUtils.replaceTokenNames("$row.env$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("tk_kafka_infra_nodes_label", TokenUtils.replaceTokenNames("$row.label$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("tk_kafka_infra_nodes_current_nodes_number", TokenUtils.replaceTokenNames("$row.current_nodes_number$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("form.modify_tk_kafka_infra_nodes_minimal_nodes_number", TokenUtils.replaceTokenNames("$row.minimal_nodes_number$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("form.modify_tk_kafka_infra_nodes_grace_period", TokenUtils.replaceTokenNames("$row.grace_period$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("form.modify_tk_kafka_infra_nodes_monitoring_state", TokenUtils.replaceTokenNames("$row.monitoring_state$", _.extend(submittedTokenModel.toJSON(), e.data)));
             }
         });
 
@@ -1227,9 +1500,17 @@ var search_connect_main_table = new SearchManager({
             FormUtils.handleValueChange(input_kafka_infra_modify_grace_period);
         });
 
-        var input_kafka_infra_modify_monitoring_state = new TextInput({
+        var input_kafka_infra_modify_monitoring_state = new DropdownInput({
             "id": "input_kafka_infra_modify_monitoring_state",
+            "choices": [
+                {"label": "enabled", "value": "enabled"},
+                {"label": "disabled", "value": "disabled"}
+            ],
             "searchWhenChanged": true,
+            "default": "enabled",
+            "initialValue": "enabled",
+            "selectFirstChoice": false,
+            "showClearButton": false,
             "value": "$form.modify_tk_kafka_infra_monitoring_state$",
             "el": $('#input_kafka_infra_modify_monitoring_state')
         }, {tokens: true}).render();
@@ -1247,6 +1528,157 @@ var search_connect_main_table = new SearchManager({
 
         input_kafka_infra_delete.on("change", function(newValue) {
             FormUtils.handleValueChange(input_kafka_infra_delete);
+        });
+
+        //
+        // KAFKA INFRA NODES
+        //
+
+        var input_kafka_infra_nodes_search_env = new DropdownInput({
+            "id": "input_kafka_infra_nodes_search_env",
+            "choices": [
+                {"value": "*", "label": "ANY"}
+            ],
+            "default": "*",
+            "searchWhenChanged": true,
+            "labelField": "env",
+            "showClearButton": true,
+            "selectFirstChoice": false,
+            "initialValue": "*",
+            "suffix": "\"",
+            "prefix": "env=\"",
+            "valueField": "env",
+            "value": "$form.search_tk_kafka_infra_nodes_env$",
+            "managerid": "search_kafka_infra_nodes_search_env",
+            "el": $('#input_kafka_infra_nodes_search_env')
+        }, {tokens: true}).render();
+
+        input_kafka_infra_nodes_search_env.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_kafka_infra_nodes_search_env);
+        });
+
+        var input_kafka_infra_nodes_search_label = new DropdownInput({
+            "id": "input_kafka_infra_nodes_search_label",
+            "choices": [
+                {"value": "*", "label": "ANY"}
+            ],
+            "default": "*",
+            "searchWhenChanged": true,
+            "labelField": "label",
+            "showClearButton": true,
+            "selectFirstChoice": false,
+            "initialValue": "*",
+            "suffix": "\"",
+            "prefix": "label=\"",
+            "valueField": "label",
+            "value": "$form.search_tk_kafka_infra_nodes_label$",
+            "managerid": "search_kafka_infra_nodes_search_label",
+            "el": $('#input_kafka_infra_nodes_search_label')
+        }, {tokens: true}).render();
+
+        input_kafka_infra_nodes_search_label.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_kafka_infra_nodes_search_label);
+        });
+
+        var input_kafka_infra_nodes_search_role = new DropdownInput({
+            "id": "input_kafka_infra_nodes_search_role",
+            "choices": [
+                {"label": "ANY", "value": "*"},
+                {"label": "zookeeper", "value": "zookeeper"},
+                {"label": "kafka_broker", "value": "kafka_broker"},
+                {"label": "kafka_connect", "value": "kafka_connect"},
+                {"label": "schema-registry", "value": "schema-registry"},
+                {"label": "ksql-server", "value": "ksql-server"},
+                {"label": "kafka_rest", "value": "kafka_rest"},
+                {"label": "kafka_linkedin_monitor", "value": "kafka_linkedin_monitor"}
+            ],
+            "searchWhenChanged": true,
+            "default": "*",
+            "prefix": "role=\"",
+            "initialValue": "*",
+            "selectFirstChoice": false,
+            "suffix": "\"",
+            "showClearButton": true,
+            "value": "$form.search_tk_kafka_infra_nodes_role$",
+            "el": $('#input_kafka_infra_nodes_search_role')
+        }, {tokens: true}).render();
+
+        input_kafka_infra_nodes_search_role.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_kafka_infra_nodes_search_role);
+        });
+
+        var input_kafka_infra_nodes_search_monitoring_state = new DropdownInput({
+            "id": "input_kafka_infra_nodes_search_monitoring_state",
+            "choices": [
+                {"label": "ANY", "value": "*"},
+                {"label": "enabled", "value": "enabled"},
+                {"label": "disabled", "value": "disabled"}
+            ],
+            "searchWhenChanged": true,
+            "default": "*",
+            "prefix": "monitoring_state=\"",
+            "initialValue": "*",
+            "selectFirstChoice": false,
+            "suffix": "\"",
+            "showClearButton": true,
+            "value": "$form.search_tk_kafka_infra_nodes_monitoring_state$",
+            "el": $('#input_kafka_infra_nodes_search_monitoring_state')
+        }, {tokens: true}).render();
+
+        input_kafka_infra_nodes_search_monitoring_state.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_kafka_infra_nodes_search_monitoring_state);
+        });
+
+        var input_kafka_infra_nodes_modify_minimal_nodes_number = new TextInput({
+            "id": "input_kafka_infra_nodes_modify_minimal_nodes_number",
+            "searchWhenChanged": true,
+            "value": "$form.modify_tk_kafka_infra_nodes_minimal_nodes_number$",
+            "el": $('#input_kafka_infra_nodes_modify_minimal_nodes_number')
+        }, {tokens: true}).render();
+
+        input_kafka_infra_nodes_modify_minimal_nodes_number.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_kafka_infra_nodes_modify_minimal_nodes_number);
+        });
+
+        var input_kafka_infra_nodes_modify_grace_period = new TextInput({
+            "id": "input_kafka_infra_nodes_modify_grace_period",
+            "searchWhenChanged": true,
+            "value": "$form.modify_tk_kafka_infra_nodes_grace_period$",
+            "el": $('#input_kafka_infra_nodes_modify_grace_period')
+        }, {tokens: true}).render();
+
+        input_kafka_infra_nodes_modify_grace_period.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_kafka_infra_nodes_modify_grace_period);
+        });
+
+        var input_kafka_infra_nodes_modify_monitoring_state = new DropdownInput({
+            "id": "input_kafka_infra_nodes_modify_monitoring_state",
+            "choices": [
+                {"label": "enabled", "value": "enabled"},
+                {"label": "disabled", "value": "disabled"}
+            ],
+            "searchWhenChanged": true,
+            "default": "enabled",
+            "initialValue": "enabled",
+            "selectFirstChoice": true,
+            "showClearButton": false,
+            "value": "$form.modify_tk_kafka_infra_nodes_monitoring_state$",
+            "el": $('#input_kafka_infra_nodes_modify_monitoring_state')
+        }, {tokens: true}).render();
+
+        input_kafka_infra_nodes_modify_monitoring_state.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_kafka_infra_nodes_modify_monitoring_state);
+        });
+
+        var input_kafka_infra_nodes_delete = new TextInput({
+            "id": "input_kafka_infra_nodes_delete",
+            "searchWhenChanged": true,
+            "value": "$form.tk_kafka_infra_nodes_keyid$",
+            "el": $('#input_kafka_infra_nodes_delete')
+        }, {tokens: true}).render();
+
+        input_kafka_infra_nodes_delete.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_kafka_infra_nodes_delete);
         });
 
         //
@@ -1335,9 +1767,17 @@ var search_connect_main_table = new SearchManager({
             FormUtils.handleValueChange(input_kafka_topics_search_monitoring_state);
         });
 
-        var input_kafka_topics_modify_monitoring_state = new TextInput({
+        var input_kafka_topics_modify_monitoring_state = new DropdownInput({
             "id": "input_kafka_topics_modify_monitoring_state",
+            "choices": [
+                {"label": "enabled", "value": "enabled"},
+                {"label": "disabled", "value": "disabled"}
+            ],
             "searchWhenChanged": true,
+            "default": "enabled",
+            "initialValue": "enabled",
+            "selectFirstChoice": false,
+            "showClearButton": false,
             "value": "$form.modify_tk_kafka_topics_monitoring_state$",
             "el": $('#input_kafka_topics_modify_monitoring_state')
         }, {tokens: true}).render();
@@ -1476,9 +1916,17 @@ var search_connect_main_table = new SearchManager({
             FormUtils.handleValueChange(input_connect_modify_grace_period);
         });
 
-        var input_connect_modify_monitoring_state = new TextInput({
+        var input_connect_modify_monitoring_state = new DropdownInput({
             "id": "input_connect_modify_monitoring_state",
+            "choices": [
+                {"label": "enabled", "value": "enabled"},
+                {"label": "disabled", "value": "disabled"}
+            ],
             "searchWhenChanged": true,
+            "default": "enabled",
+            "initialValue": "enabled",
+            "selectFirstChoice": false,
+            "showClearButton": false,
             "value": "$form.modify_tk_connect_monitoring_state$",
             "el": $('#input_connect_modify_monitoring_state')
         }, {tokens: true}).render();
@@ -1851,6 +2299,7 @@ var search_connect_main_table = new SearchManager({
             var tk_role = tokens.get("tk_kafka_infra_role");
             var tk_kafka_infra_env = tokens.get("tk_kafka_infra_env");
             var tk_kafka_infra_label = tokens.get("tk_kafka_infra_label");
+            var tk_lasttime = tokens.get("tk_kafka_infra_lasttime");
             var modify_tk_kafka_infra_grace_period = tokens.get("modify_tk_kafka_infra_grace_period");
             var modify_tk_kafka_infra_monitoring_state = tokens.get("modify_tk_kafka_infra_monitoring_state");
 
@@ -1864,7 +2313,8 @@ var search_connect_main_table = new SearchManager({
                 "env": tk_kafka_infra_env,
                 "label": tk_kafka_infra_label,
                 "grace_period": modify_tk_kafka_infra_grace_period,
-                "monitoring_state": modify_tk_kafka_infra_monitoring_state
+                "monitoring_state": modify_tk_kafka_infra_monitoring_state,
+                "lasttime": tk_lasttime
             };
 
             if (!modify_key || !modify_key.length) {
@@ -1909,6 +2359,155 @@ var search_connect_main_table = new SearchManager({
                                 search_kafka_infra_main_table.startSearch();
                                 search_kafka_infra_search_env.startSearch();
                                 search_kafka_infra_search_label.startSearch();
+
+                                // clear the forms
+                                // $("#input_selected_key input[type=text]").val("");
+
+                                // modifications
+
+                            });
+
+                    }
+
+                });
+
+            }
+
+        });
+
+        //
+        // KAFKA INFRA NODES
+        //
+
+        //
+        // DELETE BUTTON
+        //
+
+        // Call this function when the Delete Record button is clicked
+        $("#btn_remove_content_kafka_infra_nodes").click(function() {
+            var tokens = mvc.Components.get("default");
+            var form_keyid = tokens.get("tk_kafka_infra_nodes_keyid");
+
+            if (!form_keyid || !form_keyid.length) {
+                // Show an error message
+                bootbox.alert("<h3 style=\"color: indianred;\">Error: the KeyID value is empty ! Please first click on any entry in the table</h3>");
+            }
+            else
+            {
+
+                bootbox.confirm("<h3 style=\"color: indianred;\">Confirm deletion?</h3>", function(result){
+
+                    if (result) {
+
+                    // Delete the record that corresponds to the key ID using
+                    // the del method to send a DELETE request
+                    // to the storage/collections/data/{collection}/ endpoint
+                    service.del("storage/collections/data/kv_kafka_infra_nodes_inventory/" + encodeURIComponent(form_keyid))
+                        .done(function() {
+                            // Run the search again to update the table
+                            search_kafka_infra_nodes_no_components.startSearch();
+                            search_kafka_infra_nodes_no_components_enabled.startSearch();
+                            search_kafka_infra_nodes_no_components_disabled.startSearch();
+                            search_kafka_infra_nodes_main_table.startSearch();
+                            search_kafka_infra_nodes_search_env.startSearch();
+                            search_kafka_infra_nodes_search_label.startSearch();
+
+                            // clear the forms
+
+                            // keyID
+                            $("#input_kafka_infra_nodes_delete input[type=text]").val("");
+
+                            // modifications
+
+                        });
+
+                    }
+
+                });
+
+            }
+
+        });
+
+        //
+        // MODIFY BUTTON
+        //
+
+        $("#btn_modify_content_kafka_infra_nodes").click(function() {
+            submitTokens();
+
+            // When the Submit button is clicked, get all the form fields by accessing token values
+            var tokens = mvc.Components.get("default");
+            var modify_key = tokens.get("tk_kafka_infra_nodes_keyid");
+            var tk_role = tokens.get("tk_kafka_infra_nodes_role");
+            var tk_kafka_infra_nodes_env = tokens.get("tk_kafka_infra_nodes_env");
+            var tk_kafka_infra_nodes_label = tokens.get("tk_kafka_infra_nodes_label");
+            var tk_kafka_infra_nodes_current_nodes_number = tokens.get("tk_kafka_infra_nodes_current_nodes_number");
+            var modify_tk_kafka_infra_nodes_minimal_nodes_number = tokens.get("modify_tk_kafka_infra_nodes_minimal_nodes_number");
+            var modify_tk_kafka_infra_nodes_grace_period = tokens.get("modify_tk_kafka_infra_nodes_grace_period");
+            var modify_tk_kafka_infra_nodes_monitoring_state = tokens.get("modify_tk_kafka_infra_nodes_monitoring_state");
+
+            // Create the endpoint URL
+            var myendpoint_URl = "storage/collections/data/kv_kafka_infra_nodes_inventory/" + modify_key;
+
+            // Create a dictionary to store the field names and values
+            var record = {
+                "role": tk_role,
+                "env": tk_kafka_infra_nodes_env,
+                "label": tk_kafka_infra_nodes_label,
+                "current_nodes_number": tk_kafka_infra_nodes_current_nodes_number,
+                "minimal_nodes_number": modify_tk_kafka_infra_nodes_minimal_nodes_number,
+                "grace_period": modify_tk_kafka_infra_nodes_grace_period,
+                "monitoring_state": modify_tk_kafka_infra_nodes_monitoring_state
+            };
+
+            if (!modify_key || !modify_key.length) {
+                // Show an error message
+                bootbox.alert("<h3 style=\"color: indianred;\">Error: the KeyID value is empty !</h3>");
+            }
+
+            else if (!modify_tk_kafka_infra_nodes_minimal_nodes_number || !modify_tk_kafka_infra_nodes_minimal_nodes_number.length || !isNumeric(modify_tk_kafka_infra_nodes_minimal_nodes_number)) {
+                // Show an error message
+                bootbox.alert("<h3 style=\"color: indianred;\">Error: the minimal_nodes_number value is empty or invalid !</h3>");
+            }
+
+            else if (!modify_tk_kafka_infra_nodes_grace_period || !modify_tk_kafka_infra_nodes_grace_period.length || !isNumeric(modify_tk_kafka_infra_nodes_grace_period)) {
+                // Show an error message
+                bootbox.alert("<h3 style=\"color: indianred;\">Error: the grace_period value is empty or invalid !</h3>");
+            }
+
+            else if (!modify_tk_kafka_infra_nodes_monitoring_state || !modify_tk_kafka_infra_nodes_monitoring_state.length) {
+                // Show an error message
+                bootbox.alert("<h3 style=\"color: indianred;\">Error: the monitoring_state value is empty !</h3>");
+            }
+
+            else
+            {
+
+                bootbox.confirm("<h3 style=\"color: indianred;\">Confirm modification?</h3>", function(result){
+
+                    if (result) {
+
+                        // Get the value of the key ID field
+
+                    // Use the request method to send a REST POST request
+                    // to the storage/collections/data/{collection}/entry_key endpoint
+                    service.request(
+                        myendpoint_URl,
+                        "POST",
+                        null,
+                        null,
+                        JSON.stringify(record),
+                        {"Content-Type": "application/json"},
+                        null)
+                            .done(function() {
+                                 // Run the search again to update the table
+                                search_kafka_infra_nodes_no_components.startSearch();
+                                search_kafka_infra_nodes_no_components_enabled.startSearch();
+                                search_kafka_infra_nodes_no_components_disabled.startSearch();
+                                search_kafka_infra_nodes_main_table.startSearch();
+                                search_kafka_infra_nodes_search_env.startSearch();
+                                search_kafka_infra_nodes_search_label.startSearch();
 
                                 // clear the forms
                                 // $("#input_selected_key input[type=text]").val("");
