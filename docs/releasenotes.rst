@@ -1,6 +1,11 @@
 Release notes
 #############
 
+Version 1.1.1
+=============
+
+- fix: Static index called in report Kafka monitoring - tasks status report
+
 Version 1.1.0
 =============
 
