@@ -4,7 +4,21 @@ Release notes
 Version 1.1.0
 =============
 
-- feature: Multi-environment / Multi-dc support via env and label tagging at Telegraf metric level, allows embedded management of any number of environment and/or additional sub-divising notion (multi-env, multi-dc...)
+**CAUTION: Breaking changes, telegraf modification is required to provide global tags for env and label dimensions!**
+
+https://da-itsi-telegraf-kafka.readthedocs.io/en/latest/kafka_monitoring.html#telegraf-output-configuration
+
+**Upgrade path:**
+
+- Upgrade telegraf configuration to provide the env and label tags
+- Upgrade the application
+
+**Features/fixes:**
+
+- feature: Multi-environment / Multi-dc support via env and label tagging at Telegraf metric level, allows embedded management of any number of environment and/or additional sub-dividing notion (multi-env, multi-dc...)
+- feature: New kvstore collection to allow monitoring of services in a container environment philosophy based on the number of active nodes per role rather than their identity
+- feature: Update of the Alerting Management User Interface
+- feature: New OOTB Alerting based on active nodes numbers per role
 - feature: Refreshed Overview page with layers icons, additional overview in page views
 - feature: New applications icons
 - fix: Various fixes and improvements
