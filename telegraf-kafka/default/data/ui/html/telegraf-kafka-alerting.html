@@ -239,9 +239,6 @@ styles in <div> tags, similar to Bootstrap's grid system.
                     <div class="input input-text" id="input_kafka_infra_nodes_modify_minimal_nodes_number">
                         <label>minimal_nodes_number:</label>
                     </div>
-                    <div class="input input-text" id="input_kafka_infra_nodes_modify_grace_period">
-                        <label>grace_period:</label>
-                    </div>
                     <div class="input input-dropdown" id="input_kafka_infra_nodes_modify_monitoring_state">
                         <label>monitoring_state:</label>
                     </div>
@@ -779,7 +776,7 @@ var search_kafka_infra_nodes_main_table = new SearchManager({
             "sample_ratio": 1,
             "earliest_time": "-15m",
             "cancelOnUnload": true,
-            "search": "| inputlookup kafka_infra_nodes_inventory | eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_kafka_infra_nodes_env$ $search_tk_kafka_infra_nodes_label$ $search_tk_kafka_infra_nodes_role$ $search_tk_kafka_infra_nodes_monitoring_state$ | fields keyid, env, label, role, current_nodes_number, minimal_nodes_number, monitoring_state, grace_period | sort 0 role, env, label, role",
+            "search": "| inputlookup kafka_infra_nodes_inventory | eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_kafka_infra_nodes_env$ $search_tk_kafka_infra_nodes_label$ $search_tk_kafka_infra_nodes_role$ $search_tk_kafka_infra_nodes_monitoring_state$ | fields keyid, env, label, role, current_nodes_number, minimal_nodes_number, monitoring_state | sort 0 role, env, label, role",
             "latest_time": "now",
             "status_buckets": 0,
             "app": utils.getCurrentApp(),
@@ -1220,7 +1217,6 @@ var search_connect_main_table = new SearchManager({
                 setToken("tk_kafka_infra_nodes_label", TokenUtils.replaceTokenNames("$row.label$", _.extend(submittedTokenModel.toJSON(), e.data)));
                 setToken("tk_kafka_infra_nodes_current_nodes_number", TokenUtils.replaceTokenNames("$row.current_nodes_number$", _.extend(submittedTokenModel.toJSON(), e.data)));
                 setToken("form.modify_tk_kafka_infra_nodes_minimal_nodes_number", TokenUtils.replaceTokenNames("$row.minimal_nodes_number$", _.extend(submittedTokenModel.toJSON(), e.data)));
-                setToken("form.modify_tk_kafka_infra_nodes_grace_period", TokenUtils.replaceTokenNames("$row.grace_period$", _.extend(submittedTokenModel.toJSON(), e.data)));
                 setToken("form.modify_tk_kafka_infra_nodes_monitoring_state", TokenUtils.replaceTokenNames("$row.monitoring_state$", _.extend(submittedTokenModel.toJSON(), e.data)));
             }
         });
@@ -1638,17 +1634,6 @@ var search_connect_main_table = new SearchManager({
 
         input_kafka_infra_nodes_modify_minimal_nodes_number.on("change", function(newValue) {
             FormUtils.handleValueChange(input_kafka_infra_nodes_modify_minimal_nodes_number);
-        });
-
-        var input_kafka_infra_nodes_modify_grace_period = new TextInput({
-            "id": "input_kafka_infra_nodes_modify_grace_period",
-            "searchWhenChanged": true,
-            "value": "$form.modify_tk_kafka_infra_nodes_grace_period$",
-            "el": $('#input_kafka_infra_nodes_modify_grace_period')
-        }, {tokens: true}).render();
-
-        input_kafka_infra_nodes_modify_grace_period.on("change", function(newValue) {
-            FormUtils.handleValueChange(input_kafka_infra_nodes_modify_grace_period);
         });
 
         var input_kafka_infra_nodes_modify_monitoring_state = new DropdownInput({
@@ -2444,7 +2429,6 @@ var search_connect_main_table = new SearchManager({
             var tk_kafka_infra_nodes_label = tokens.get("tk_kafka_infra_nodes_label");
             var tk_kafka_infra_nodes_current_nodes_number = tokens.get("tk_kafka_infra_nodes_current_nodes_number");
             var modify_tk_kafka_infra_nodes_minimal_nodes_number = tokens.get("modify_tk_kafka_infra_nodes_minimal_nodes_number");
-            var modify_tk_kafka_infra_nodes_grace_period = tokens.get("modify_tk_kafka_infra_nodes_grace_period");
             var modify_tk_kafka_infra_nodes_monitoring_state = tokens.get("modify_tk_kafka_infra_nodes_monitoring_state");
 
             // Create the endpoint URL
@@ -2457,7 +2441,6 @@ var search_connect_main_table = new SearchManager({
                 "label": tk_kafka_infra_nodes_label,
                 "current_nodes_number": tk_kafka_infra_nodes_current_nodes_number,
                 "minimal_nodes_number": modify_tk_kafka_infra_nodes_minimal_nodes_number,
-                "grace_period": modify_tk_kafka_infra_nodes_grace_period,
                 "monitoring_state": modify_tk_kafka_infra_nodes_monitoring_state
             };
 
@@ -2469,11 +2452,6 @@ var search_connect_main_table = new SearchManager({
             else if (!modify_tk_kafka_infra_nodes_minimal_nodes_number || !modify_tk_kafka_infra_nodes_minimal_nodes_number.length || !isNumeric(modify_tk_kafka_infra_nodes_minimal_nodes_number)) {
                 // Show an error message
                 bootbox.alert("<h3 style=\"color: indianred;\">Error: the minimal_nodes_number value is empty or invalid !</h3>");
-            }
-
-            else if (!modify_tk_kafka_infra_nodes_grace_period || !modify_tk_kafka_infra_nodes_grace_period.length || !isNumeric(modify_tk_kafka_infra_nodes_grace_period)) {
-                // Show an error message
-                bootbox.alert("<h3 style=\"color: indianred;\">Error: the grace_period value is empty or invalid !</h3>");
             }
 
             else if (!modify_tk_kafka_infra_nodes_monitoring_state || !modify_tk_kafka_infra_nodes_monitoring_state.length) {
