@@ -1,0 +1,103 @@
+<dashboard stylesheet="telegraf-kafka:common.css" hideEdit="True" isVisible="True">
+    <label>Topics</label>
+    <search id="main_populate">
+        <query>| savedsearch telegraf-kafka-kafka-topics</query>
+        <earliest>-4h</earliest>
+        <latest>now</latest>
+    </search>
+    <row>
+        <panel>
+            <html>
+                <div class="dashseparator">
+                    <div class="box">
+                        <img src="../../static/app/telegraf-kafka/icons/kafka-logo-no-text.png"/>
+                        <span style="font-size: 22px; font-weight: bold; color: #999999; margin-top: 5px;">KAFKA TOPICS</span>
+                    </div>
+                </div>
+            </html>
+        </panel>
+    </row>
+    <row>
+        <panel>
+            <input type="multiselect" token="env" searchWhenChanged="true">
+                <label>Env:</label>
+                <!-- Populating Data Model Search -->
+                <search base="main_populate">
+                    <query>dedup env | sort 0 env</query>
+                </search>
+                <valuePrefix>env="</valuePrefix>
+                <valueSuffix>"</valueSuffix>
+                <delimiter> OR </delimiter>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>env</fieldForLabel>
+                <fieldForValue>env</fieldForValue>
+            </input>
+            <input type="multiselect" token="label" searchWhenChanged="true">
+                <label>Label:</label>
+                <!-- Populating Data Model Search -->
+                <search base="main_populate">
+                    <query>search $env$ | dedup label | sort 0 label</query>
+                </search>
+                <valuePrefix>label="</valuePrefix>
+                <valueSuffix>"</valueSuffix>
+                <delimiter> OR </delimiter>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>label</fieldForLabel>
+                <fieldForValue>label</fieldForValue>
+            </input>
+            <input type="multiselect" token="kafka_topic" searchWhenChanged="true">
+                <label>Kafka topic(s):</label>
+                <!-- Populating Data Model Search -->
+                <search base="main_populate">
+                    <query>search $env$ $label$ | dedup kafka_topic | sort 0 kafka_topic</query>
+                </search>
+                <valuePrefix>topic="</valuePrefix>
+                <valueSuffix>"</valueSuffix>
+                <delimiter> OR </delimiter>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>kafka_topic</fieldForLabel>
+                <fieldForValue>kafka_topic</fieldForValue>
+            </input>
+            <table>
+                <search>
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name=kafka_partition.LogEndOffset OR metric_name=kafka_partition.LogStartOffset OR metric_name=kafka_partition.NumLogSegments OR metric_name=kafka_partition.Size OR metric_name=kafka_partition.UnderReplicatedPartitions $env$ $label$ $kafka_topic$ by env, label, jolokia_agent_url, topic, partition, metric_name
+                        | eval {metric_name}=value
+                        | stats first(kafka_partition.*) as "*" by env, label, jolokia_agent_url, topic, partition
+                        | fields env, label, jolokia_agent_url, topic, partition, LogStartOffset, LogEndOffset, NumLogSegments, Size, UnderReplicatedPartitions
+                        | stats dc(partition) as "# Partitions", dc(jolokia_agent_url) as "# Brokers", sum(UnderReplicatedPartitions) as "# UnderReplicatedPartitions", sum(Size) as "Size MB" by env, label, topic
+                        | eval "Size MB"=round('Size MB'/1024/1024, 3)
+                        | append [ | savedsearch "telegraf-kafka-kafka-brokers" earliest=-24h latest=now | stats dc(jolokia_agent_url) as no_brokers by env, label ]
+                        | eventstats max(no_brokers) as no_brokers | where isnotnull(topic)
+                        | eval "Brokers spread %" = round('# Brokers' / no_brokers * 100, 2) | fields - no_brokers
+                        | fields env, label, topic, "# Partitions", "# Brokers", "Brokers spread %", "# UnderReplicatedPartitions", "Size MB"</query>
+                    <earliest>-1h</earliest>
+                    <latest>now</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="count">20</option>
+                <option name="dataOverlayMode">none</option>
+                <option name="drilldown">row</option>
+                <option name="percentagesRow">false</option>
+                <option name="rowNumbers">false</option>
+                <option name="totalsRow">false</option>
+                <option name="wrap">true</option>
+                <drilldown>
+                    <link target="_blank">/app/telegraf-kafka/overview_topic_details?env=$row.env$&amp;label=$row.label$&amp;topic=$row.topic$</link>
+                </drilldown>
+            </table>
+        </panel>
+    </row>
+    <row>
+        <panel>
+            <html>
+                <div class="dashseparator">
+                    <div class="box">
+                    </div>
+                </div>
+            </html>
+        </panel>
+    </row>
+</dashboard>

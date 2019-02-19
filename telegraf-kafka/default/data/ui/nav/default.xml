@@ -1,5 +1,7 @@
 <nav search_view="search" color="#778899">
     <view name="overview" default="true"/>
+    <view name="overview_brokers"/>
+    <view name="overview_topics" />
 
     <!--
     ####################################################################################################################

@@ -73,3 +73,21 @@
 .custom-sub-nav button.active{
         background: #BBDAF6;
 }
+
+
+/* custom link with icon */
+
+.customlink img {
+	float: left;
+	width: 28px;
+	height: 28px;
+}
+
+.customlink h3 {
+	position: relative;
+	top: 9px;
+	left: 10px;
+	font-size: 12px;
+	font-weight: normal;
+	font-style: italic;
+}
