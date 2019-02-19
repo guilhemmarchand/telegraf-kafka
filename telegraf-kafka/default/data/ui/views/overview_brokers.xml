@@ -75,7 +75,7 @@
     </row>
     <row>
         <panel id="brokers">
-            <title>Brokers</title>
+            <title>Brokers (click on the row to open entity view for the selected broker)</title>
             <table>
                 <search>
                     <query>| mstats avg(_value) as value where `telegraf_kafka_index`metric_name="kafka_topics.BytesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesOutPerSec.OneMinuteRate" env="*" label="*" jolokia_agent_url="*" by env, label, metric_name, jolokia_agent_url span=10s
@@ -110,6 +110,14 @@
                     <option name="fillColor">#CCDDFF</option>
                     <option name="lineWidth">1</option>
                     <option name="height">25</option>
+                </format>
+                <format type="color" field="KBytes in">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="KBytes out">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
                 </format>
                 <drilldown>
                     <link target="_blank">/app/telegraf-kafka/telegraf-kafka-kafka-brokers?form.env=$row.env$&amp;form.label=$row.label$&amp;form.jolokia_agent_url=$row.jolokia_agent_url$</link>

@@ -19,6 +19,7 @@
     </row>
     <row>
         <panel>
+            <title>Topics (click on the row to view topic details for the selected topic)</title>
             <input type="multiselect" token="env" searchWhenChanged="true">
                 <label>Env:</label>
                 <!-- Populating Data Model Search -->
@@ -64,15 +65,17 @@
             <table>
                 <search>
                     <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name=kafka_partition.LogEndOffset OR metric_name=kafka_partition.LogStartOffset OR metric_name=kafka_partition.NumLogSegments OR metric_name=kafka_partition.Size OR metric_name=kafka_partition.UnderReplicatedPartitions $env$ $label$ $kafka_topic$ by env, label, jolokia_agent_url, topic, partition, metric_name
-                        | eval {metric_name}=value
-                        | stats first(kafka_partition.*) as "*" by env, label, jolokia_agent_url, topic, partition
-                        | fields env, label, jolokia_agent_url, topic, partition, LogStartOffset, LogEndOffset, NumLogSegments, Size, UnderReplicatedPartitions
-                        | stats dc(partition) as "# Partitions", dc(jolokia_agent_url) as "# Brokers", sum(UnderReplicatedPartitions) as "# UnderReplicatedPartitions", sum(Size) as "Size MB" by env, label, topic
-                        | eval "Size MB"=round('Size MB'/1024/1024, 3)
-                        | append [ | savedsearch "telegraf-kafka-kafka-brokers" earliest=-24h latest=now | stats dc(jolokia_agent_url) as no_brokers by env, label ]
-                        | eventstats max(no_brokers) as no_brokers | where isnotnull(topic)
-                        | eval "Brokers spread %" = round('# Brokers' / no_brokers * 100, 2) | fields - no_brokers
-                        | fields env, label, topic, "# Partitions", "# Brokers", "Brokers spread %", "# UnderReplicatedPartitions", "Size MB"</query>
+| eval {metric_name}=value
+| stats first(kafka_partition.*) as "*" by env, label, jolokia_agent_url, topic, partition
+| fields env, label, jolokia_agent_url, topic, partition, LogStartOffset, LogEndOffset, NumLogSegments, Size, UnderReplicatedPartitions
+| stats dc(partition) as "# Partitions", dc(jolokia_agent_url) as "# Brokers", count as "# Replicas", sum(UnderReplicatedPartitions) as "# UnderReplicatedPartitions", sum(Size) as "Size MB" by env, label, topic
+| eval "Size MB"=round('Size MB'/1024/1024, 3), "# Replicas" = ('# Replicas'+'# UnderReplicatedPartitions')/'# Partitions'
+| append [ | savedsearch "telegraf-kafka-kafka-brokers" earliest=-24h latest=now | stats dc(jolokia_agent_url) as no_brokers by env, label ]
+| eventstats max(no_brokers) as no_brokers | where isnotnull(topic)
+| eval "Brokers spread %" = round('# Brokers' / no_brokers * 100, 2) | fields - no_brokers
+| append [ mstats avg(_value) as msg_sec where `telegraf_kafka_index` metric_name="kafka_topic.MessagesInPerSec.OneMinuteRate" $env$ $label$ $kafka_topic$ by env, label, topic | eval msg_sec = round(msg_sec, 2) ]
+| stats first(*) as "*" by env, label, topic | rename msg_sec as "Producer Message/sec"
+| fields env, label, topic, "# Partitions", "# Brokers", "# Replicas", "Brokers spread %", "# UnderReplicatedPartitions", "Size MB", "Producer Message/sec"</query>
                     <earliest>-1h</earliest>
                     <latest>now</latest>
                     <sampleRatio>1</sampleRatio>
@@ -84,8 +87,24 @@
                 <option name="rowNumbers">false</option>
                 <option name="totalsRow">false</option>
                 <option name="wrap">true</option>
+                <format type="color" field="# Partitions">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="# UnderReplicatedPartitions">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="Size MB">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="Producer Message/sec">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
                 <drilldown>
-                    <link target="_blank">/app/telegraf-kafka/overview_topic_details?env=$row.env$&amp;label=$row.label$&amp;topic=$row.topic$</link>
+                    <link>/app/telegraf-kafka/overview_topic_details?env=$row.env$&amp;label=$row.label$&amp;topic=$row.topic$</link>
                 </drilldown>
             </table>
         </panel>

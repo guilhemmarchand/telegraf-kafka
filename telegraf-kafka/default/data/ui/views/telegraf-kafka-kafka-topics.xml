@@ -333,8 +333,7 @@
             <single>
                 <search>
                     <query>| mcatalog values(partition) as partition where `telegraf_kafka_index` metric_name="kafka_partition.Size" $env$ $label$ $kafka_topic$ by jolokia_agent_url, topic
-| stats dc(partition) as dcount_partition by jolokia_agent_url, topic
-| stats sum(dcount_partition) as dcount_partition</query>
+| stats dc(partition) as dcount</query>
                 </search>
                 <option name="drilldown">none</option>
                 <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>

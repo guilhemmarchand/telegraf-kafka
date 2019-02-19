@@ -1,9 +1,45 @@
 <dashboard stylesheet="common.css,hover.css" script="active_button.js" hideEdit="True" isVisible="True">
     <label>Overview</label>
 
+    <search id="main_populate">
+        <query>| inputlookup kafka_infra_inventory | search `overview_page_filters`
+| stats count by env, label | fields env, label</query>
+    </search>
+
+    <fieldset submitButton="false">
+        <input type="multiselect" token="env" searchWhenChanged="true">
+            <label>Env:</label>
+            <!-- Populating Data Model Search -->
+            <search base="main_populate">
+                <query>dedup env | sort 0 env</query>
+            </search>
+            <valuePrefix>env="</valuePrefix>
+            <valueSuffix>"</valueSuffix>
+            <delimiter> OR </delimiter>
+            <choice value="*">ANY</choice>
+            <initialValue>*</initialValue>
+            <fieldForLabel>env</fieldForLabel>
+            <fieldForValue>env</fieldForValue>
+        </input>
+        <input type="multiselect" token="label" searchWhenChanged="true">
+            <label>Label:</label>
+            <!-- Populating Data Model Search -->
+            <search base="main_populate">
+                <query>search $env$ | dedup label | sort 0 label</query>
+            </search>
+            <valuePrefix>label="</valuePrefix>
+            <valueSuffix>"</valueSuffix>
+            <delimiter> OR </delimiter>
+            <choice value="*">ANY</choice>
+            <initialValue>*</initialValue>
+            <fieldForLabel>label</fieldForLabel>
+            <fieldForValue>label</fieldForValue>
+        </input>
+    </fieldset>
+
     <!-- Retrieve all metrics available for all components -->
     <search id="all_kafka_components_mcatalog">
-        <query>| mcatalog values(server) as server values(jolokia_agent_url) as jolokia_agent_url where `telegraf_kafka_index` metric_name=* `overview_page_filters` by metric_name</query>
+        <query>| mcatalog values(server) as server values(jolokia_agent_url) as jolokia_agent_url where `telegraf_kafka_index` metric_name=* $env$ $label$ by metric_name</query>
         <earliest>-5m</earliest>
         <latest>now</latest>
     </search>
@@ -89,7 +125,7 @@
     <!-- base search for Zookeeper -->
 
     <search id="server_activity_summary" depends="$zookeeper_detected$">
-        <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.avg_latency" OR metric_name="zookeeper.outstanding_requests" OR metric_name="zookeeper.pending_syncs" `overview_page_filters` by metric_name span=1s
+        <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.avg_latency" OR metric_name="zookeeper.outstanding_requests" OR metric_name="zookeeper.pending_syncs" $env$ $label$ by metric_name span=1s
             | eval {metric_name}=value
             | stats first(zookeeper.*) as "*" by _time
             | stats avg(*) as "*"
@@ -103,7 +139,7 @@
     <!-- base search for Kafka brokers -->
 
     <search id="broker_activity_summary" depends="$kafka_broker_detected$">
-        <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topics.MessagesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesOutPerSec.OneMinuteRate" `overview_page_filters` by metric_name
+        <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topics.MessagesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesOutPerSec.OneMinuteRate" $env$ $label$ by metric_name
             | eval {metric_name}=value
             | stats first(kafka_topics.*.OneMinuteRate) as "*"
             | eval KBytesInPerSec=round(BytesInPerSec/1024, 2), KBytesOutPerSec=round(BytesOutPerSec/1024, 2), MessagesInPerSec=round(MessagesInPerSec, 2)
@@ -117,7 +153,7 @@
     <!-- base search for Kafka Connect -->
 
     <search id="connect_state_summary" depends="$kafka_connect_detected$">
-        <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.worker.task-startup-failure-total" OR metric_name="kafka_connect.worker.connector-startup-failure-total" OR metric_name="kafka_connect.worker.time-since-last-rebalance-ms" OR metric_name="kafka_connect.worker.task-count" `overview_page_filters` by metric_name, env, label, jolokia_agent_url
+        <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.worker.task-startup-failure-total" OR metric_name="kafka_connect.worker.connector-startup-failure-total" OR metric_name="kafka_connect.worker.time-since-last-rebalance-ms" OR metric_name="kafka_connect.worker.task-count" $env$ $label$ by metric_name, env, label, jolokia_agent_url
             | eval {metric_name}=value
             | stats first(kafka_connect.*) as "*" by env, label, jolokia_agent_url
             | stats min(worker.time-since-last-rebalance-ms) as worker.time-since-last-rebalance-ms, sum(*) as "*"
@@ -130,7 +166,7 @@
     </search>
 
     <search id="connect_tasks_summary" depends="$kafka_connect_detected$">
-        <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" `overview_page_filters` by metric_name, env, label, task, connector
+        <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" $env$ $label$ by metric_name, env, label, task, connector
             | eval {metric_name}=value
             | stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*" by env, label, connector
             | eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2) | fields env, label, connector connector-task.status | rename connector-task.status as integer_status
@@ -145,7 +181,7 @@
     <!-- base search for Confluent schema registry -->
 
     <search id="schema_registry_summary" depends="$schema_registry_detected$">
-        <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_schema-registry.jetty-metrics.connections-active" OR  metric_name="kafka_schema-registry.jetty-metrics.connections-opened-rate" OR metric_name="kafka_schema-registry.jetty-metrics.connections-closed-rate" `overview_page_filters` by metric_name
+        <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_schema-registry.jetty-metrics.connections-active" OR  metric_name="kafka_schema-registry.jetty-metrics.connections-opened-rate" OR metric_name="kafka_schema-registry.jetty-metrics.connections-closed-rate" $env$ $label$ by metric_name
             | eval {metric_name}=value
             | stats first(kafka_schema-registry.*) as "*"</query>
         <earliest>-90s</earliest>
@@ -155,7 +191,7 @@
     </search>
 
     <search id="schema_registry_summary_jersey" depends="$schema_registry_detected$">
-        <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.request-error-rate" `overview_page_filters` by metric_name
+        <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.request-error-rate" $env$ $label$ by metric_name
             | eval {metric_name}=value
             | stats first(kafka_schema-registry.*) as "*"</query>
         <earliest>-90s</earliest>
@@ -167,7 +203,7 @@
     <!-- base search for Confluence ksql-server -->
 
     <search id="ksql_server_queries_activity_summary" depends="$ksql_server_detected$">
-        <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_ksql-server.num-persistent-queries" OR metric_name="kafka_ksql-server.num-active-queries" OR metric_name="kafka_ksql-server.num-idle-queries" `overview_page_filters` by metric_name
+        <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_ksql-server.num-persistent-queries" OR metric_name="kafka_ksql-server.num-active-queries" OR metric_name="kafka_ksql-server.num-idle-queries" $env$ $label$ by metric_name
             | eval {metric_name}=value
             | stats first(kafka_ksql-server.*) as "*"
             | fields num-active-queries, num-persistent-queries, num-idle-queries</query>
@@ -178,7 +214,7 @@
     </search>
 
     <search id="ksql_server_stats_activity_summary" depends="$ksql_server_detected$">
-        <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name=kafka_ksql-server.messages-consumed-per-sec OR metric_name=kafka_ksql-server.messages-produced-per-sec OR metric_name="kafka_ksql-server.error-rate" `overview_page_filters` by metric_name
+        <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name=kafka_ksql-server.messages-consumed-per-sec OR metric_name=kafka_ksql-server.messages-produced-per-sec OR metric_name="kafka_ksql-server.error-rate" $env$ $label$ by metric_name
             | eval {metric_name}=value
             | stats first(kafka_ksql-server.*) as "*"
             | eval messages-consumed-per-sec=round('messages-consumed-per-sec', 2), messages-produced-per-sec=round('messages-produced-per-sec', 2)
@@ -192,7 +228,7 @@
     <!-- base search for Confluent kafka-rest -->
 
     <search id="kafka_rest_summary" depends="$kafka_rest_detected$">
-        <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_kafka-rest.jetty-metrics.connections-active" OR  metric_name="kafka_kafka-rest.jetty-metrics.connections-opened-rate" OR metric_name="kafka_kafka-rest.jetty-metrics.connections-closed-rate" `overview_page_filters` by metric_name
+        <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_kafka-rest.jetty-metrics.connections-active" OR  metric_name="kafka_kafka-rest.jetty-metrics.connections-opened-rate" OR metric_name="kafka_kafka-rest.jetty-metrics.connections-closed-rate" $env$ $label$ by metric_name
             | eval {metric_name}=value
             | stats first(kafka_kafka-rest.*) as "*"</query>
         <earliest>-90s</earliest>
@@ -202,7 +238,7 @@
     </search>
 
     <search id="kafka_rest_summary_jersey" depends="$kafka_rest_detected$">
-        <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_kafka-rest.jersey-metrics.request-error-rate" `overview_page_filters` by metric_name
+        <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_kafka-rest.jersey-metrics.request-error-rate" $env$ $label$ by metric_name
             | eval {metric_name}=value
             | stats first(kafka_kafka-rest.*) as "*"</query>
         <earliest>-90s</earliest>
@@ -234,7 +270,7 @@
         <panel>
             <single>
                 <search depends="$zookeeper_detected$">
-                    <query>| savedsearch telegraf-kafka-zookeeper-servers | search `overview_page_filters` | stats count</query>
+                    <query>| savedsearch telegraf-kafka-zookeeper-servers | search $env$ $label$ | stats count</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                 </search>
@@ -337,7 +373,7 @@
         <panel>
             <single>
                 <search depends="$kafka_broker_detected$">
-                    <query>| savedsearch telegraf-kafka-kafka-brokers | search `overview_page_filters` | stats count</query>
+                    <query>| savedsearch telegraf-kafka-kafka-brokers | search $env$ $label$ | stats count</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                 </search>
@@ -354,7 +390,7 @@
         <panel>
             <single>
                 <search depends="$kafka_broker_detected$">
-                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_controller.OfflinePartitionsCount.Value" `overview_page_filters` by jolokia_agent_url
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_controller.OfflinePartitionsCount.Value" $env$ $label$ by jolokia_agent_url
                         | stats sum(value) as value</query>
                     <earliest>-90s</earliest>
                     <latest>now</latest>
@@ -373,7 +409,7 @@
         <panel>
             <single>
                 <search depends="$kafka_broker_detected$">
-                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_replica_manager.UnderReplicatedPartitions.Value" `overview_page_filters` by jolokia_agent_url
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_replica_manager.UnderReplicatedPartitions.Value" $env$ $label$ by jolokia_agent_url
                         | stats sum(value) as value</query>
                     <earliest>-90s</earliest>
                     <latest>now</latest>
@@ -475,7 +511,7 @@
     </row>
 
     <search depends="$show_brokers_overview$" id="brokers_main_populate">
-        <query>| savedsearch telegraf-kafka-kafka-brokers | search `overview_page_filters`</query>
+        <query>| savedsearch telegraf-kafka-kafka-brokers | search $env$ $label$</query>
         <earliest>$brokers_time.earliest$</earliest>
         <latest>$brokers_time.latest$</latest>
     </search>
@@ -600,7 +636,7 @@
     </row>
 
     <search depends="$show_topics_overview$" id="main_populate_topics">
-        <query>| savedsearch telegraf-kafka-kafka-topics | search `overview_page_filters`</query>
+        <query>| savedsearch telegraf-kafka-kafka-topics | search $env$ $label$</query>
         <earliest>$topics_time.earliest$</earliest>
         <latest>$topics_time.latest$</latest>
     </search>
@@ -665,7 +701,7 @@
             <title>Messages/sec</title>
             <chart>
                 <search depends="$show_topics_overview$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.MessagesInPerSec.OneMinuteRate" `overview_page_filters` $topics_env$ $topics_label$ $topics_topic$ span=10s by topic
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.MessagesInPerSec.OneMinuteRate" $env$ $label$ $topics_env$ $topics_label$ $topics_topic$ span=10s by topic
 | eval value=round(value, 3)
 | timechart `telegraf_kafka_span` avg(_value) as "Avg" limit=20 useother=false by topic</query>
                     <earliest>$topics_time.earliest$</earliest>
@@ -687,7 +723,7 @@
             <title>Traffic Kbps/In</title>
             <chart>
                 <search depends="$show_topics_overview$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesInPerSec.OneMinuteRate" `overview_page_filters` $topics_env$ $topics_label$ $topics_topic$ span=10s by topic
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesInPerSec.OneMinuteRate" $env$ $label$ $topics_env$ $topics_label$ $topics_topic$ span=10s by topic
 | eval value=round(value/1024, 3)
 | timechart `telegraf_kafka_span` avg(value) as "Avg" useother=false by topic</query>
                     <earliest>$topics_time.earliest$</earliest>
@@ -706,7 +742,7 @@
             <title>Traffic Kbps/Out</title>
             <chart>
                 <search depends="$show_topics_overview$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesOutPerSec.OneMinuteRate" `overview_page_filters` $topics_env$ $topics_label$ $topics_topic$ span=10s by topic
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesOutPerSec.OneMinuteRate" $env$ $label$ $topics_env$ $topics_label$ $topics_topic$ span=10s by topic
 | eval value=round(value/1024, 3)
 | timechart `telegraf_kafka_span` avg(value) as "Avg" useother=false by topic</query>
                     <earliest>$topics_time.earliest$</earliest>
@@ -756,7 +792,7 @@
         <panel>
             <single>
                 <search depends="$kafka_connect_detected$">
-                    <query>| savedsearch telegraf-kafka-kafka-connect-workers | search `overview_page_filters` | stats count</query>
+                    <query>| savedsearch telegraf-kafka-kafka-connect-workers | search $env$ $label$ | stats count</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                 </search>
@@ -827,7 +863,7 @@
                 <option name="underLabel">WORKER TASKS COUNT (TOTAL TASKS FOR ALL WORKERS)</option>
                 <option name="useColors">1</option>
                 <drilldown>
-                    <link target="_blank">search?q=| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.worker.task-startup-failure-total" OR metric_name="kafka_connect.worker.connector-startup-failure-total" OR metric_name="kafka_connect.worker.time-since-last-rebalance-ms" OR metric_name="kafka_connect.worker.task-count" `overview_page_filters` by metric_name, env, label, jolokia_agent_url
+                    <link target="_blank">search?q=| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.worker.task-startup-failure-total" OR metric_name="kafka_connect.worker.connector-startup-failure-total" OR metric_name="kafka_connect.worker.time-since-last-rebalance-ms" OR metric_name="kafka_connect.worker.task-count" $env$ $label$ by metric_name, env, label, jolokia_agent_url
 | eval {metric_name}=value
 | stats first(kafka_connect.*) as "*" by env, label, jolokia_agent_url
                         | eval duration=tostring(round('worker.time-since-last-rebalance-ms'/1000, 0), "duration")</link>
@@ -880,7 +916,7 @@
                 <option name="underLabel">SOURCE CONNECTORS (ACTIVE AND MONITORED)</option>
                 <option name="useColors">1</option>
                 <drilldown>
-                  <link target="_blank">search?q=| mstats latest(_value) as value WHERE index="telegraf_kafka" metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" `overview_page_filters` by metric_name, env, label, task, connector
+                  <link target="_blank">search?q=| mstats latest(_value) as value WHERE index="telegraf_kafka" metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" $env$ $label$ by metric_name, env, label, task, connector
 | eval {metric_name}=value
 | stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*" by env, label, connector, task
 | eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2)
@@ -911,7 +947,7 @@
                 <option name="underLabel">AGGREGATED STATE</option>
                 <option name="drilldown">all</option>
                 <drilldown>
-                  <link target="_blank">search?q=| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" `overview_page_filters` by metric_name, task, connector
+                  <link target="_blank">search?q=| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" $env$ $label$ by metric_name, task, connector
 | eval {metric_name}=value
 | stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*" by connector
 | eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2) | fields connector connector-task.status | rename connector-task.status as integer_status
@@ -934,7 +970,7 @@
                 <option name="underLabel">SINK CONNECTORS (ACTIVE AND MONITORED)</option>
                 <option name="useColors">1</option>
                 <drilldown>
-                  <link target="_blank">search?q=| mstats latest(_value) as value WHERE index="telegraf_kafka" metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" `overview_page_filters` by metric_name, env, label, task, connector
+                  <link target="_blank">search?q=| mstats latest(_value) as value WHERE index="telegraf_kafka" metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" $env$ $label$ by metric_name, env, label, task, connector
 | eval {metric_name}=value
 | stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*" by env, label, connector, task
 | eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2)
@@ -965,7 +1001,7 @@
                 <option name="underLabel">AGGREGATED STATE</option>
                 <option name="drilldown">all</option>
                 <drilldown>
-                  <link target="_blank">search?q=| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" `overview_page_filters` by metric_name, task, connector
+                  <link target="_blank">search?q=| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" $env$ $label$ by metric_name, task, connector
 | eval {metric_name}=value
 | stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*" by connector
 | eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2) | fields connector connector-task.status | rename connector-task.status as integer_status
@@ -1020,7 +1056,7 @@
             <table>
             <title>Kafka Connect source connector tasks status</title>
                 <search depends="$show_source_tasks$">
-                    <query>| savedsearch "Kafka monitoring - tasks status report" | search `overview_page_filters` | where role="kafka_source_task"</query>
+                    <query>| savedsearch "Kafka monitoring - tasks status report" | search $env$ $label$ | where role="kafka_source_task"</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                 </search>
@@ -1033,7 +1069,7 @@
             <table>
             <title>Kafka Connect sink connector tasks status</title>
                 <search depends="$show_sink_tasks$">
-                    <query>| savedsearch "Kafka monitoring - tasks status report" | search `overview_page_filters` | where role="kafka_sink_task"</query>
+                    <query>| savedsearch "Kafka monitoring - tasks status report" | search $env$ $label$ | where role="kafka_sink_task"</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                 </search>
@@ -1074,7 +1110,7 @@
         <panel>
             <single>
                 <search depends="$schema_registry_detected$">
-                    <query>| savedsearch telegraf-kafka-schema-registry | search `overview_page_filters` | stats count</query>
+                    <query>| savedsearch telegraf-kafka-schema-registry | search $env$ $label$ | stats count</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                 </search>
@@ -1195,7 +1231,7 @@
         <panel>
             <single>
                 <search depends="$ksql_server_detected$">
-                    <query>| savedsearch telegraf-kafka-ksql-server | search `overview_page_filters` | stats count</query>
+                    <query>| savedsearch telegraf-kafka-ksql-server | search $env$ $label$ | stats count</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                 </search>
@@ -1317,7 +1353,7 @@
         <panel>
             <single>
                 <search depends="$kafka_rest_detected$">
-                    <query>| savedsearch telegraf-kafka-kafka-rest | search `overview_page_filters` | stats count</query>
+                    <query>| savedsearch telegraf-kafka-kafka-rest | search $env$ $label$ | stats count</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                 </search>

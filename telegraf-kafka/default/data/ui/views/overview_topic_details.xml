@@ -18,7 +18,14 @@
                 <div class="customlink">
                     <img src="../../static/app/telegraf-kafka/icons/link.png"/>
                     <a href="telegraf-kafka-kafka-topics?form.kafka_topic=$topic$">
-                        <h3>Open entity view for topic $topic$</h3>
+                        <h3>Topic entity view</h3>
+                        <br />
+                    </a>
+                </div>
+                <div class="customlink">
+                    <img src="../../static/app/telegraf-kafka/icons/back-arrow.png"/>
+                    <a href="overview_topics">
+                        <h3>Back to topics</h3>
                     </a>
                 </div>
             </html>

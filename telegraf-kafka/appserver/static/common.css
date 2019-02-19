@@ -91,3 +91,15 @@
 	font-weight: normal;
 	font-style: italic;
 }
+
+.customlink a {
+    display: inline-block;
+    transition: .3s;
+    font-weight:bold;
+    text-decoration:none;
+}
+
+.customlink a:hover {
+    -webkit-transform: scale(1.2);
+    transform: scale(1.2);
+}
