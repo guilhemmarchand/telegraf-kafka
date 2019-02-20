@@ -75,16 +75,16 @@
     </row>
     <row>
         <panel id="brokers">
-            <title>Brokers (click on the row to open entity view for the selected broker)</title>
+            <title>Brokers (click on the row to open broker detailed view for the selected broker)</title>
             <table>
                 <search>
                     <query>| mstats avg(_value) as value where `telegraf_kafka_index`metric_name="kafka_topics.BytesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesOutPerSec.OneMinuteRate" env="*" label="*" jolokia_agent_url="*" by env, label, metric_name, jolokia_agent_url span=10s
-                        | eval {metric_name}=value
-                        | stats first(kafka_topics.*.OneMinuteRate) as "*" by _time, env, label, jolokia_agent_url
-                        | eval KBytesInPerSec=round(BytesInPerSec/1024, 2), KBytesOutPerSec=round(BytesOutPerSec/1024, 2)
-                        | rex field=jolokia_agent_url "//(?&lt;kafka_broker&gt;[^:]*)\:"
-                        | fields env, label, _time, kafka_broker, jolokia_agent_url, KBytesInPerSec, KBytesOutPerSec
-                        | stats latest(KBytesInPerSec) as "KBytes in", sparkline(avg(KBytesInPerSec),) As sparkline_in, latest(KBytesOutPerSec) as "KBytes out", sparkline(avg(KBytesOutPerSec),) As sparkline_out by env, label, kafka_broker, jolokia_agent_url</query>
+| eval {metric_name}=value
+| stats first(kafka_topics.*.OneMinuteRate) as "*" by _time, env, label, jolokia_agent_url
+| eval KBytesInPerSec=round(BytesInPerSec/1024, 2), KBytesOutPerSec=round(BytesOutPerSec/1024, 2)
+| rex field=jolokia_agent_url "//(?&lt;kafka_broker&gt;[^:]*)\:"
+| fields env, label, _time, kafka_broker, jolokia_agent_url, KBytesInPerSec, KBytesOutPerSec
+| stats latest(KBytesInPerSec) as "KBytes in", sparkline(avg(KBytesInPerSec),) As sparkline_in, latest(KBytesOutPerSec) as "KBytes out", sparkline(avg(KBytesOutPerSec),) As sparkline_out by env, label, kafka_broker, jolokia_agent_url</query>
                     <earliest>-60m@m</earliest>
                     <latest>now</latest>
                     <sampleRatio>1</sampleRatio>
@@ -120,7 +120,7 @@
                     <scale type="minMidMax"></scale>
                 </format>
                 <drilldown>
-                    <link target="_blank">/app/telegraf-kafka/telegraf-kafka-kafka-brokers?form.env=$row.env$&amp;form.label=$row.label$&amp;form.jolokia_agent_url=$row.jolokia_agent_url$</link>
+                    <link>/app/telegraf-kafka/overview_broker_details?env=$row.env$&amp;label=$row.label$&amp;kafka_broker=$row.kafka_broker$&amp;jolokia_agent_url=$row.jolokia_agent_url$</link>
                 </drilldown>
             </table>
         </panel>
@@ -129,36 +129,36 @@
             <table>
                 <search>
                     <query>| mstats latest(_value) as value where `telegraf_kafka_index`
-                        metric_name="kafka_topics.MessagesInPerSec.MeanRate" OR metric_name="kafka_topics.MessagesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.MessagesInPerSec.FiveMinuteRate" OR metric_name="kafka_topics.MessagesInPerSec.FifteenMinuteRate"
-                        OR metric_name="kafka_topics.BytesInPerSec.MeanRate" OR metric_name="kafka_topics.BytesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesInPerSec.FiveMinuteRate" OR metric_name="kafka_topics.BytesInPerSec.FifteenMinuteRate"
-                        OR metric_name="kafka_topics.BytesOutPerSec.MeanRate" OR metric_name="kafka_topics.BytesOutPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesOutPerSec.FiveMinuteRate" OR metric_name="kafka_topics.BytesOutPerSec.FifteenMinuteRate"
-                        OR metric_name="kafka_topics.BytesRejectedPerSec.MeanRate" OR metric_name="kafka_topics.BytesRejectedPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesRejectedPerSec.FiveMinuteRate" OR metric_name="kafka_topics.BytesRejectedPerSec.FifteenMinuteRate"
-                        OR metric_name="kafka_topics.FailedFetchRequestsPerSec.MeanRate" OR metric_name="kafka_topics.FailedFetchRequestsPerSec.OneMinuteRate" OR metric_name="kafka_topics.FailedFetchRequestsPerSec.FiveMinuteRate" OR metric_name="kafka_topics.FailedFetchRequestsPerSec.FifteenMinuteRate"
-                        OR metric_name="kafka_topics.FailedProduceRequestsPerSec.MeanRate" OR metric_name="kafka_topics.FailedProduceRequestsPerSec.OneMinuteRate" OR metric_name="kafka_topics.FailedProduceRequestsPerSec.FiveMinuteRate" OR metric_name="kafka_topics.FailedProduceRequestsPerSec.FifteenMinuteRate" $env$ $label$ $jolokia_agent_url$ by metric_name, jolokia_agent_url
-                        | rex field=metric_name "[^\.]*\.(?&lt;rate&gt;[^\.]*)\."
-                        | eval {metric_name}=value
-                        | stats first(kafka_topics.*) as "*" by rate, jolokia_agent_url
-                        | eval Mean=case(isnotnull('FailedProduceRequestsPerSec.MeanRate'), 'FailedProduceRequestsPerSec.MeanRate', isnotnull('FailedFetchRequestsPerSec.MeanRate'), 'FailedFetchRequestsPerSec.MeanRate', isnotnull('BytesRejectedPerSec.MeanRate'), 'BytesRejectedPerSec.MeanRate', isnotnull('BytesInPerSec.MeanRate'), 'BytesInPerSec.MeanRate', isnotnull('BytesOutPerSec.MeanRate'), 'BytesOutPerSec.MeanRate', isnotnull('MessagesInPerSec.MeanRate'), 'MessagesInPerSec.MeanRate')
-                        | eval 1min=case(isnotnull('FailedProduceRequestsPerSec.OneMinuteRate'), 'FailedProduceRequestsPerSec.OneMinuteRate', isnotnull('FailedFetchRequestsPerSec.OneMinuteRate'), 'FailedFetchRequestsPerSec.OneMinuteRate', isnotnull('BytesRejectedPerSec.OneMinuteRate'), 'BytesRejectedPerSec.OneMinuteRate', isnotnull('BytesInPerSec.OneMinuteRate'), 'BytesInPerSec.OneMinuteRate', isnotnull('BytesOutPerSec.OneMinuteRate'), 'BytesOutPerSec.OneMinuteRate', isnotnull('MessagesInPerSec.OneMinuteRate'), 'MessagesInPerSec.OneMinuteRate')
-                        | eval 5min=case(isnotnull('FailedProduceRequestsPerSec.FiveMinuteRate'), 'FailedProduceRequestsPerSec.FiveMinuteRate', isnotnull('FailedFetchRequestsPerSec.FiveMinuteRate'), 'FailedFetchRequestsPerSec.FiveMinuteRate', isnotnull('BytesRejectedPerSec.FiveMinuteRate'), 'BytesRejectedPerSec.FiveMinuteRate', isnotnull('BytesInPerSec.FiveMinuteRate'), 'BytesInPerSec.FiveMinuteRate', isnotnull('BytesOutPerSec.FiveMinuteRate'), 'BytesOutPerSec.FiveMinuteRate', isnotnull('MessagesInPerSec.FiveMinuteRate'), 'MessagesInPerSec.FiveMinuteRate')
-                        | eval 15min=case(isnotnull('FailedProduceRequestsPerSec.FifteenMinuteRate'), 'FailedProduceRequestsPerSec.FifteenMinuteRate', isnotnull('FailedFetchRequestsPerSec.FifteenMinuteRate'), 'FailedFetchRequestsPerSec.FifteenMinuteRate', isnotnull('BytesRejectedPerSec.FifteenMinuteRate'), 'BytesRejectedPerSec.FifteenMinuteRate', isnotnull('BytesInPerSec.FifteenMinuteRate'), 'BytesInPerSec.FifteenMinuteRate', isnotnull('BytesOutPerSec.FifteenMinuteRate'), 'BytesOutPerSec.FifteenMinuteRate', isnotnull('MessagesInPerSec.FifteenMinuteRate'), 'MessagesInPerSec.FifteenMinuteRate')
-                        | fields rate, jolokia_agent_url, Mean, 1min, 5min, 15min
-                        | stats avg(*) as "*" by rate
-                        | fields rate, Mean, 1min, 5min, 15min
-                        | foreach Mean, 1min, 5min, 15min [ eval "&lt;&lt;FIELD&gt;&gt;" = if(rate="BytesInPerSec" OR rate="BytesOutPerSec", round('&lt;&lt;FIELD&gt;&gt;'/1024, 2), '&lt;&lt;FIELD&gt;&gt;') ]
-                        | rex field=rate mode=sed "s/BytesInPerSec/KBytesInPerSec/g"
-                        | rex field=rate mode=sed "s/BytesOutPerSec/KBytesOutPerSec/g"
-                        | eval order=case(rate="MessagesInPerSec", 0, rate="KBytesInPerSec", 1, rate="KBytesOutPerSec", 2, rate="BytesRejectedPerSec", 3, rate="FailedFetchRequestsPerSec", 4, rate="FailedProduceRequestsPerSec", 5)
-                        | sort order | fields - order
-                        | foreach Mean, 1min, 5min, 15min [ eval "&lt;&lt;FIELD&gt;&gt;" = round('&lt;&lt;FIELD&gt;&gt;', 2) ]
-                        | rename 1min as "1 min", 5min as "5 min", 15min as "15 min"
-                        | rex field=rate mode=sed "s/MessagesInPerSec/Messages in \/sec/g"
-                        | rex field=rate mode=sed "s/KBytesInPerSec/KBytes in \/sec/g"
-                        | rex field=rate mode=sed "s/KBytesOutPerSec/KBytes out \/sec/g"
-                        | rex field=rate mode=sed "s/BytesRejectedPerSec/Bytes rejected \/sec/g"
-                        | rex field=rate mode=sed "s/FailedFetchRequestsPerSec/Failed fetch request \/sec/g"
-                        | rex field=rate mode=sed "s/FailedProduceRequestsPerSec/Failed produce request \/sec/g"
-                        | rename rate as Rate</query>
+metric_name="kafka_topics.MessagesInPerSec.MeanRate" OR metric_name="kafka_topics.MessagesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.MessagesInPerSec.FiveMinuteRate" OR metric_name="kafka_topics.MessagesInPerSec.FifteenMinuteRate"
+OR metric_name="kafka_topics.BytesInPerSec.MeanRate" OR metric_name="kafka_topics.BytesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesInPerSec.FiveMinuteRate" OR metric_name="kafka_topics.BytesInPerSec.FifteenMinuteRate"
+OR metric_name="kafka_topics.BytesOutPerSec.MeanRate" OR metric_name="kafka_topics.BytesOutPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesOutPerSec.FiveMinuteRate" OR metric_name="kafka_topics.BytesOutPerSec.FifteenMinuteRate"
+OR metric_name="kafka_topics.BytesRejectedPerSec.MeanRate" OR metric_name="kafka_topics.BytesRejectedPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesRejectedPerSec.FiveMinuteRate" OR metric_name="kafka_topics.BytesRejectedPerSec.FifteenMinuteRate"
+OR metric_name="kafka_topics.FailedFetchRequestsPerSec.MeanRate" OR metric_name="kafka_topics.FailedFetchRequestsPerSec.OneMinuteRate" OR metric_name="kafka_topics.FailedFetchRequestsPerSec.FiveMinuteRate" OR metric_name="kafka_topics.FailedFetchRequestsPerSec.FifteenMinuteRate"
+OR metric_name="kafka_topics.FailedProduceRequestsPerSec.MeanRate" OR metric_name="kafka_topics.FailedProduceRequestsPerSec.OneMinuteRate" OR metric_name="kafka_topics.FailedProduceRequestsPerSec.FiveMinuteRate" OR metric_name="kafka_topics.FailedProduceRequestsPerSec.FifteenMinuteRate" $env$ $label$ $jolokia_agent_url$ by metric_name, jolokia_agent_url
+| rex field=metric_name "[^\.]*\.(?&lt;rate&gt;[^\.]*)\."
+| eval {metric_name}=value
+| stats first(kafka_topics.*) as "*" by rate, jolokia_agent_url
+| eval Mean=case(isnotnull('FailedProduceRequestsPerSec.MeanRate'), 'FailedProduceRequestsPerSec.MeanRate', isnotnull('FailedFetchRequestsPerSec.MeanRate'), 'FailedFetchRequestsPerSec.MeanRate', isnotnull('BytesRejectedPerSec.MeanRate'), 'BytesRejectedPerSec.MeanRate', isnotnull('BytesInPerSec.MeanRate'), 'BytesInPerSec.MeanRate', isnotnull('BytesOutPerSec.MeanRate'), 'BytesOutPerSec.MeanRate', isnotnull('MessagesInPerSec.MeanRate'), 'MessagesInPerSec.MeanRate')
+| eval 1min=case(isnotnull('FailedProduceRequestsPerSec.OneMinuteRate'), 'FailedProduceRequestsPerSec.OneMinuteRate', isnotnull('FailedFetchRequestsPerSec.OneMinuteRate'), 'FailedFetchRequestsPerSec.OneMinuteRate', isnotnull('BytesRejectedPerSec.OneMinuteRate'), 'BytesRejectedPerSec.OneMinuteRate', isnotnull('BytesInPerSec.OneMinuteRate'), 'BytesInPerSec.OneMinuteRate', isnotnull('BytesOutPerSec.OneMinuteRate'), 'BytesOutPerSec.OneMinuteRate', isnotnull('MessagesInPerSec.OneMinuteRate'), 'MessagesInPerSec.OneMinuteRate')
+| eval 5min=case(isnotnull('FailedProduceRequestsPerSec.FiveMinuteRate'), 'FailedProduceRequestsPerSec.FiveMinuteRate', isnotnull('FailedFetchRequestsPerSec.FiveMinuteRate'), 'FailedFetchRequestsPerSec.FiveMinuteRate', isnotnull('BytesRejectedPerSec.FiveMinuteRate'), 'BytesRejectedPerSec.FiveMinuteRate', isnotnull('BytesInPerSec.FiveMinuteRate'), 'BytesInPerSec.FiveMinuteRate', isnotnull('BytesOutPerSec.FiveMinuteRate'), 'BytesOutPerSec.FiveMinuteRate', isnotnull('MessagesInPerSec.FiveMinuteRate'), 'MessagesInPerSec.FiveMinuteRate')
+| eval 15min=case(isnotnull('FailedProduceRequestsPerSec.FifteenMinuteRate'), 'FailedProduceRequestsPerSec.FifteenMinuteRate', isnotnull('FailedFetchRequestsPerSec.FifteenMinuteRate'), 'FailedFetchRequestsPerSec.FifteenMinuteRate', isnotnull('BytesRejectedPerSec.FifteenMinuteRate'), 'BytesRejectedPerSec.FifteenMinuteRate', isnotnull('BytesInPerSec.FifteenMinuteRate'), 'BytesInPerSec.FifteenMinuteRate', isnotnull('BytesOutPerSec.FifteenMinuteRate'), 'BytesOutPerSec.FifteenMinuteRate', isnotnull('MessagesInPerSec.FifteenMinuteRate'), 'MessagesInPerSec.FifteenMinuteRate')
+| fields rate, jolokia_agent_url, Mean, 1min, 5min, 15min
+| stats avg(*) as "*" by rate
+| fields rate, Mean, 1min, 5min, 15min
+| foreach Mean, 1min, 5min, 15min [ eval "&lt;&lt;FIELD&gt;&gt;" = if(rate="BytesInPerSec" OR rate="BytesOutPerSec", round('&lt;&lt;FIELD&gt;&gt;'/1024, 2), '&lt;&lt;FIELD&gt;&gt;') ]
+| rex field=rate mode=sed "s/BytesInPerSec/KBytesInPerSec/g"
+| rex field=rate mode=sed "s/BytesOutPerSec/KBytesOutPerSec/g"
+| eval order=case(rate="MessagesInPerSec", 0, rate="KBytesInPerSec", 1, rate="KBytesOutPerSec", 2, rate="BytesRejectedPerSec", 3, rate="FailedFetchRequestsPerSec", 4, rate="FailedProduceRequestsPerSec", 5)
+| sort order | fields - order
+| foreach Mean, 1min, 5min, 15min [ eval "&lt;&lt;FIELD&gt;&gt;" = round('&lt;&lt;FIELD&gt;&gt;', 2) ]
+| rename 1min as "1 min", 5min as "5 min", 15min as "15 min"
+| rex field=rate mode=sed "s/MessagesInPerSec/Messages in \/sec/g"
+| rex field=rate mode=sed "s/KBytesInPerSec/KBytes in \/sec/g"
+| rex field=rate mode=sed "s/KBytesOutPerSec/KBytes out \/sec/g"
+| rex field=rate mode=sed "s/BytesRejectedPerSec/Bytes rejected \/sec/g"
+| rex field=rate mode=sed "s/FailedFetchRequestsPerSec/Failed fetch request \/sec/g"
+| rex field=rate mode=sed "s/FailedProduceRequestsPerSec/Failed produce request \/sec/g"
+| rename rate as Rate</query>
                     <earliest>-5min</earliest>
                     <latest>now</latest>
                     <refresh>30s</refresh>
