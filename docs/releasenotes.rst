@@ -1,6 +1,13 @@
 Release notes
 #############
 
+Version 1.1.2
+=============
+
+- feature: New Brokers/Brokers details, Topics/Topics details UIs inspired from Yahoo kafka-manager
+- feature: Allows environment and label selection from Overview, propagates tokens across all UIs
+- fix: Incorrect number of partitions reported within Brokers entity view when multiple Brokers are selected
+
 Version 1.1.1
 =============
 
