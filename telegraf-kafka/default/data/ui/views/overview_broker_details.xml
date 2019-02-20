@@ -24,7 +24,7 @@
                 </div>
                 <div class="customlink">
                     <img src="../../static/app/telegraf-kafka/icons/back-arrow.png"/>
-                    <a href="overview_brokers">
+                    <a href="overview_brokers?form.env=$env$&amp;form.label=$label$">
                         <h3>Back to brokers</h3>
                     </a>
                 </div>

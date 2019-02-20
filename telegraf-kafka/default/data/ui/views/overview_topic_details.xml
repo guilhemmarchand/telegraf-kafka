@@ -17,14 +17,14 @@
             <html>
                 <div class="customlink">
                     <img src="../../static/app/telegraf-kafka/icons/link.png"/>
-                    <a href="telegraf-kafka-kafka-topics?form.kafka_topic=$topic$">
+                    <a href="telegraf-kafka-kafka-topics?form.env=$env$&amp;form.label=$label$&amp;form.kafka_topic=$topic$">
                         <h3>Topic entity view</h3>
                         <br />
                     </a>
                 </div>
                 <div class="customlink">
                     <img src="../../static/app/telegraf-kafka/icons/back-arrow.png"/>
-                    <a href="overview_topics">
+                    <a href="overview_topics?form.env=$env$&amp;form.label=$label$">
                         <h3>Back to topics</h3>
                     </a>
                 </div>

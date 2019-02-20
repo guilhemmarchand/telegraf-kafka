@@ -333,7 +333,7 @@
             <html>
                 <div class="mainbutton_container_nomargin">
                     <div class="mainbutton_highmargin">
-                        <a class="button2_lowpadding glow" href="telegraf-kafka-zookeeper">  OPEN ENTITY DASHBOARD VIEW  </a>
+                        <a class="button2_lowpadding glow" href="telegraf-kafka-zookeeper?form.env=$form.env$&amp;form.label=$form.label$">  OPEN ENTITY DASHBOARD VIEW  </a>
                     </div>
                 </div>
             </html>
@@ -479,7 +479,7 @@
         <panel>
             <html>
                 <div class="mainbutton_highmargin">
-                    <a class="button2_lowpadding glow" href="telegraf-kafka-kafka-brokers">  OPEN ENTITY DASHBOARD VIEW  </a>
+                    <a class="button2_lowpadding glow" href="telegraf-kafka-kafka-brokers?form.env=$form.env$&amp;form.label=$form.label$">  OPEN ENTITY DASHBOARD VIEW  </a>
                 </div>
             </html>
         </panel>
@@ -495,7 +495,7 @@
         <panel>
             <html>
                 <div class="mainbutton_highmargin">
-                    <a class="button2_lowpadding glow" href="telegraf-kafka-kafka-topics">  OPEN TOPIC DASHBOARD VIEW  </a>
+                    <a class="button2_lowpadding glow" href="telegraf-kafka-kafka-topics?form.env=$form.env$&amp;form.label=$form.label$">  OPEN TOPIC DASHBOARD VIEW  </a>
                 </div>
             </html>
         </panel>
@@ -526,10 +526,10 @@
                     <latestTime>now</latestTime>
                 </default>
             </input>
-            <input type="multiselect" token="brokers_env" searchWhenChanged="true">
+            <input type="multiselect" token="env" searchWhenChanged="true">
                 <label>Env:</label>
                 <!-- Populating Data Model Search -->
-                <search base="brokers_main_populate">
+                <search base="main_populate">
                     <query>dedup env | sort 0 env</query>
                 </search>
                 <valuePrefix>env="</valuePrefix>
@@ -540,11 +540,11 @@
                 <fieldForLabel>env</fieldForLabel>
                 <fieldForValue>env</fieldForValue>
             </input>
-            <input type="multiselect" token="brokers_label" searchWhenChanged="true">
+            <input type="multiselect" token="label" searchWhenChanged="true">
                 <label>Label:</label>
                 <!-- Populating Data Model Search -->
-                <search base="brokers_main_populate">
-                    <query>search $brokers_env$ | dedup label | sort 0 label</query>
+                <search base="main_populate">
+                    <query>search $env$ | dedup label | sort 0 label</query>
                 </search>
                 <valuePrefix>label="</valuePrefix>
                 <valueSuffix>"</valueSuffix>
@@ -558,7 +558,7 @@
                 <label>Kafka broker(s):</label>
                 <!-- Populating Data Model Search -->
                 <search base="brokers_main_populate">
-                    <query>search $brokers_env$ $brokers_label$ | dedup jolokia_agent_url | sort jolokia_agent_url</query>
+                    <query>search $env$ $label$ | dedup jolokia_agent_url | sort jolokia_agent_url</query>
                 </search>
                 <valuePrefix>jolokia_agent_url="</valuePrefix>
                 <valueSuffix>"</valueSuffix>
@@ -576,7 +576,7 @@
             <title>All topics messages per sec</title>
             <chart>
                 <search depends="$show_brokers_overview$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topics.MessagesInPerSec.OneMinuteRate" $brokers_env$ $brokers_label$ $brokers_jolokia_agent_url$ span=10s by jolokia_agent_url
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topics.MessagesInPerSec.OneMinuteRate" $env$ $label$ $brokers_jolokia_agent_url$ span=10s by jolokia_agent_url
 | timechart limit=20 useother=f `telegraf_kafka_span` avg(_value) as MessagesInPerSec by jolokia_agent_url</query>
                     <earliest>$brokers_time.earliest$</earliest>
                     <latest>$brokers_time.latest$</latest>
@@ -597,7 +597,7 @@
             <title>All topics KBytesInPerSec</title>
             <chart>
                 <search depends="$show_brokers_overview$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topics.BytesInPerSec.OneMinuteRate" $brokers_env$ $brokers_label$ $brokers_jolokia_agent_url$ span=10s by jolokia_agent_url
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topics.BytesInPerSec.OneMinuteRate" $env$ $label$ $brokers_jolokia_agent_url$ span=10s by jolokia_agent_url
 | eval value=value/1024
 | timechart limit=20 useother=f `telegraf_kafka_span` avg(value) as KBytesInPerSec by jolokia_agent_url</query>
                     <earliest>$brokers_time.earliest$</earliest>
@@ -617,7 +617,7 @@
             <title>All topics KBytesOutPerSec</title>
             <chart>
                 <search depends="$show_brokers_overview$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topics.BytesOutPerSec.OneMinuteRate" $brokers_env$ $brokers_label$ $brokers_jolokia_agent_url$ span=10s by jolokia_agent_url
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topics.BytesOutPerSec.OneMinuteRate" $env$ $label$ $brokers_jolokia_agent_url$ span=10s by jolokia_agent_url
 | eval value=value/1024
 | timechart limit=20 useother=f `telegraf_kafka_span` avg(value) as KBytesOutPerSec by jolokia_agent_url</query>
                     <earliest>$brokers_time.earliest$</earliest>
@@ -651,10 +651,10 @@
                     <latestTime>now</latestTime>
                 </default>
             </input>
-            <input type="multiselect" token="topics_env" searchWhenChanged="true">
+            <input type="multiselect" token="env" searchWhenChanged="true">
                 <label>Env:</label>
                 <!-- Populating Data Model Search -->
-                <search base="main_populate_topics">
+                <search base="main_populate">
                     <query>dedup env | sort 0 env</query>
                 </search>
                 <valuePrefix>env="</valuePrefix>
@@ -665,11 +665,11 @@
                 <fieldForLabel>env</fieldForLabel>
                 <fieldForValue>env</fieldForValue>
             </input>
-            <input type="multiselect" token="topics_label" searchWhenChanged="true">
+            <input type="multiselect" token="label" searchWhenChanged="true">
                 <label>Label:</label>
                 <!-- Populating Data Model Search -->
-                <search base="main_populate_topics">
-                    <query>search $topics_env$ | dedup label | sort 0 label</query>
+                <search base="main_populate">
+                    <query>search $env$ | dedup label | sort 0 label</query>
                 </search>
                 <valuePrefix>label="</valuePrefix>
                 <valueSuffix>"</valueSuffix>
@@ -683,7 +683,7 @@
                 <label>Kafka topic(s):</label>
                 <!-- Populating Data Model Search -->
                 <search base="main_populate_topics">
-                    <query>search $topics_env$ $topics_label$ | dedup kafka_topic | sort 0 kafka_topic</query>
+                    <query>search $env$ $label$ | dedup kafka_topic | sort 0 kafka_topic</query>
                 </search>
                 <valuePrefix>topic="</valuePrefix>
                 <valueSuffix>"</valueSuffix>
@@ -701,7 +701,7 @@
             <title>Messages/sec</title>
             <chart>
                 <search depends="$show_topics_overview$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.MessagesInPerSec.OneMinuteRate" $env$ $label$ $topics_env$ $topics_label$ $topics_topic$ span=10s by topic
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.MessagesInPerSec.OneMinuteRate" $env$ $label$ $topics_topic$ span=10s by topic
 | eval value=round(value, 3)
 | timechart `telegraf_kafka_span` avg(_value) as "Avg" limit=20 useother=false by topic</query>
                     <earliest>$topics_time.earliest$</earliest>
@@ -723,7 +723,7 @@
             <title>Traffic Kbps/In</title>
             <chart>
                 <search depends="$show_topics_overview$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesInPerSec.OneMinuteRate" $env$ $label$ $topics_env$ $topics_label$ $topics_topic$ span=10s by topic
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesInPerSec.OneMinuteRate" $env$ $label$ $topics_topic$ span=10s by topic
 | eval value=round(value/1024, 3)
 | timechart `telegraf_kafka_span` avg(value) as "Avg" useother=false by topic</query>
                     <earliest>$topics_time.earliest$</earliest>
@@ -742,7 +742,7 @@
             <title>Traffic Kbps/Out</title>
             <chart>
                 <search depends="$show_topics_overview$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesOutPerSec.OneMinuteRate" $env$ $label$ $topics_env$ $topics_label$ $topics_topic$ span=10s by topic
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.BytesOutPerSec.OneMinuteRate" $env$ $label$ $topics_topic$ span=10s by topic
 | eval value=round(value/1024, 3)
 | timechart `telegraf_kafka_span` avg(value) as "Avg" useother=false by topic</query>
                     <earliest>$topics_time.earliest$</earliest>
@@ -877,7 +877,7 @@
             <html>
                 <div class="mainbutton_container_nomargin">
                     <div class="mainbutton_highmargin">
-                        <a class="button2_lowpadding glow" href="telegraf-kafka-kafka-connect">  OPEN ENTITY DASHBOARD VIEW  </a>
+                        <a class="button2_lowpadding glow" href="telegraf-kafka-kafka-connect?form.env=$form.env$&amp;form.label=$form.label$">  OPEN ENTITY DASHBOARD VIEW  </a>
                     </div>
                 </div>
             </html>
@@ -1017,7 +1017,7 @@
             <html>
                 <div class="mainbutton_container_nomargin">
                     <div class="mainbutton_highmargin">
-                        <a class="button2_lowpadding glow" href="telegraf-kafka-kafka-connect-source-task">  SOURCE TASK DASHBOARD VIEW  </a>
+                        <a class="button2_lowpadding glow" href="telegraf-kafka-kafka-connect-source-task?form.env=$form.env$&amp;form.label=$form.label$">  SOURCE TASK DASHBOARD VIEW  </a>
                     </div>
                 </div>
             </html>
@@ -1035,7 +1035,7 @@
             <html>
                 <div class="mainbutton_container_nomargin">
                     <div class="mainbutton_highmargin">
-                        <a class="button2_lowpadding glow" href="telegraf-kafka-kafka-connect-sink-task">  SINK TASK DASHBOARD VIEW  </a>
+                        <a class="button2_lowpadding glow" href="telegraf-kafka-kafka-connect-sink-task?form.env=$form.env$&amp;form.label=$form.label$">  SINK TASK DASHBOARD VIEW  </a>
                     </div>
                 </div>
             </html>
@@ -1191,7 +1191,7 @@
             <html>
                 <div class="mainbutton_container_nomargin">
                     <div class="mainbutton_highmargin">
-                        <a class="button2_lowpadding glow" href="telegraf-kafka-confluent-shema-registry">  OPEN ENTITY DASHBOARD VIEW  </a>
+                        <a class="button2_lowpadding glow" href="telegraf-kafka-confluent-shema-registry?form.env=$form.env$&amp;form.label=$form.label$">  OPEN ENTITY DASHBOARD VIEW  </a>
                     </div>
                 </div>
             </html>
@@ -1313,7 +1313,7 @@
             <html>
                 <div class="mainbutton_container_nomargin">
                     <div class="mainbutton_highmargin">
-                        <a class="button2_lowpadding glow" href="telegraf-kafka-confluent-ksql-server">  OPEN ENTITY DASHBOARD VIEW  </a>
+                        <a class="button2_lowpadding glow" href="telegraf-kafka-confluent-ksql-server?form.env=$form.env$&amp;form.label=$form.label$">  OPEN ENTITY DASHBOARD VIEW  </a>
                     </div>
                 </div>
             </html>
@@ -1434,7 +1434,7 @@
             <html>
                 <div class="mainbutton_container_nomargin">
                     <div class="mainbutton_highmargin">
-                        <a class="button2_lowpadding glow" href="telegraf-kafka-confluent-kafka-rest">  OPEN ENTITY DASHBOARD VIEW  </a>
+                        <a class="button2_lowpadding glow" href="telegraf-kafka-confluent-kafka-rest?form.env=$form.env$&amp;form.label=$form.label$">  OPEN ENTITY DASHBOARD VIEW  </a>
                     </div>
                 </div>
             </html>
