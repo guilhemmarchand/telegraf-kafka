@@ -1,6 +1,12 @@
 Release notes
 #############
 
+Version 1.1.3
+=============
+
+- fix: Properly order partitions in new Brokers detailed UI
+- fix: Allows selection of special topics in entity topic view
+
 Version 1.1.2
 =============
 

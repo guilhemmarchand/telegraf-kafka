@@ -168,6 +168,9 @@ OR metric_name="kafka_topics.FailedProduceRequestsPerSec.MeanRate" OR metric_nam
                 <search>
                     <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name=kafka_partition.UnderReplicatedPartitions env=$env$ label=$label$ jolokia_agent_url="$jolokia_agent_url$" by env, label, jolokia_agent_url, topic, partition, metric_name
 | stats dc(partition) as "Partitions on broker", values(partition) as "Partitions" by topic
+| mvexpand Partitions
+| sort limit=0 Partitions
+| stats first(*) as "*", list(Partitions) as Partitions by topic
 | mvcombine Partitions | rex field=Partitions mode=sed "s/ /,/g" | eval Partitions = "(" . Partitions . ")"
 | append [ | mstats latest(_value) as value where `telegraf_kafka_index` metric_name=kafka_partition.UnderReplicatedPartitions env=$env$ label=$label$ by env, label, jolokia_agent_url, topic, partition, metric_name
 | eval {metric_name}=value
