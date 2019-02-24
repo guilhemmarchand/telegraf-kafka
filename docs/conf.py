@@ -46,7 +46,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'telegraf-kafka'
-copyright = u'2018, Guilhem Marchand'
+copyright = u'2018-2019, Guilhem Marchand'
 author = u'Guilhem Marchand'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -54,7 +54,7 @@ author = u'Guilhem Marchand'
 # built documents.
 #
 # The short X.Y version.
-version = u'1.0'
+version = u'1.1'
 # The full version, including alpha/beta/rc tags.
 release = u'1'
 

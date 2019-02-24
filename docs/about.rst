@@ -19,9 +19,9 @@ About
 
 * LinkedIn Kafka monitor to provide end to end monitoring (https://github.com/linkedin/kafka-monitor)
 
-**The Splunk application is backport of the ITSI module for Telegraf Kafka for non ITSI users.**
+* Kafka Consumers lag monitoring with Burrow (https://github.com/linkedin/Burrow)
 
-https://da-itsi-telegraf-kafka.readthedocs.io
+**An ITSI module is also available:** https://da-itsi-telegraf-kafka.readthedocs.io
 
 .. image:: img/draw.io/overview_diagram.png
    :alt: overview_diagram

@@ -10,6 +10,36 @@ The Splunk application home page provides an overview of the Kafka infrastructur
    :alt: coremain.png
    :align: center
 
+Overview Brokers
+################
+
+The Brokers overview page inspired from Yahoo Kafka manager exposes the Kafka brokers and main metrics:
+
+.. image:: img/overview_brokers.png
+   :alt: overview_brokers.png
+   :align: center
+
+Broker drilldown page:
+
+.. image:: img/overview_brokers_detailed.png
+   :alt: overview_brokers_detailed.png
+   :align: center
+
+Overview Topics
+################
+
+The Topics overview page inspired from Yahoo Kafka manager exposes the Kafka topics and main metrics:
+
+.. image:: img/overview_topics.png
+   :alt: overview_topics.png
+   :align: center
+
+Topic drilldown page:
+
+.. image:: img/overview_topics_details.png
+   :alt: overview_topics_details.png
+   :align: center
+
 Zookeeper dashboard view
 ########################
 
@@ -148,4 +178,15 @@ LinkedIn Kafka monitor view
 
 .. image:: img/dashboard_kafka_monitor_pic3.png
    :alt: dashboard_kafka_monitor_pic3.png
+   :align: center
+
+Burrow Kafka Consumers lagging view
+###################################
+
+.. image:: img/dashboard_burrow_pic1.png
+   :alt: dashboard_burrow_pic1.png
+   :align: center
+
+.. image:: img/dashboard_burrow_pic2.png
+   :alt: dashboard_burrow_pic2.png
    :align: center

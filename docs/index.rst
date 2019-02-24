@@ -6,7 +6,7 @@
 Welcome to the Splunk application for Kafka monitoring with Telegraf documentation
 ==================================================================================
 
-The Splunk application for Kafka monitoring with Telegraf provides performance management, reporting and alerting for Kafka components metrics ingested in the Splunk metric store:
+**The Splunk application for Kafka monitoring with Telegraf provides performance management, reporting and alerting for Kafka components metrics ingested in the Splunk metric store:**
 
 .. image:: img/coremain.png
    :alt: coremain.png
@@ -16,7 +16,7 @@ The Splunk application for Kafka monitoring with Telegraf provides performance m
    :alt: main1.png
    :align: center
 
-The application provides builtin and native monitoring for Apache Kafka components, as well as the Confluent stack components:
+**The application provides builtin and native monitoring for Apache Kafka components, as well as the Confluent stack components:**
 
 * Zookeeper
 * Apache Kafka Brokers
@@ -25,6 +25,9 @@ The application provides builtin and native monitoring for Apache Kafka componen
 * Confluent ksql-server
 * Confluent kafka-rest
 * Kafka SLA and end to end monitoring with the Linkedin Kafka monitor
+* Kafka Consumers lag monitoring with Burrow
+
+**Fully multi-tenant compatible, the application can manage different environments, data-centers, etc specially using tags at metrics low level.**
 
 **It is recommended to read the unified guide for Kafka and Confluent monitoring first:**
 

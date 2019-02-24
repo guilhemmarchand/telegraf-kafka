@@ -1,4 +1,4 @@
-<dashboard stylesheet="common.css,hover.css" script="active_button.js" hideEdit="True" isVisible="True">
+<dashboard stylesheet="common.css,hover.css,overview.css" script="active_button.js,overview.js" hideEdit="True" isVisible="True">
     <label>Overview</label>
 
     <search id="main_populate">
@@ -1179,6 +1179,52 @@
                   <link target="_self">/app/telegraf-kafka/telegraf-burrow?form.env=$form.env$&amp;form.label=$form.label$</link>
                 </drilldown>
             </single>
+        </panel>
+    </row>
+
+    <row depends="$burrow_detected$">
+        <panel>
+            <html>
+                <div class="mainbutton_container_nomargin">
+                    <div class="mainbutton_highmargin">
+                        <a class="button2_lowpadding glow" href="telegraf-burrow?form.env=$form.env$&amp;form.label=$form.label$">  OPEN BURROW DASHBOARD VIEW  </a>
+                    </div>
+                </div>
+            </html>
+        </panel>
+        <panel>
+            <html>
+                <div class="custom-sub-nav" style="text-align: center;">
+                    <div class="mainbutton_highmargin">
+                        <button class="button2_lowpadding glow" data-token-name="show_consumers_status" data-alt-label="HIDE CONSUMERS STATUS" data-token-value="fields *">SHOW CONSUMERS STATUS</button>
+                    </div>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+    <row depends="$show_consumers_status$">
+        <panel>
+            <table id="table_consumers">
+            <title>Kafka Consumers Lag Burrow Monitoring</title>
+                <search depends="$show_consumers_status$">
+                    <query>| mstats latest(_value) as value where metric_name="burrow_group.lag" OR metric_name="burrow_group.status_code" `telegraf_kafka_index` group!="" $env$ $label$ by env, label, cluster, group, metric_name span=10s
+| eval {metric_name}=value
+| stats first(burrow_group.*) as "*" by _time, env, label, cluster, group
+| stats max(_time) as lastTime, avg(lag) as avg_lag, max(lag) as max_lag, latest(lag) as current, sparkline(avg(lag),) As sparkline, latest(status_code) as status_code by env, label, cluster, group
+| lookup burrow_status status_code OUTPUT status, description
+| rangemap field=status_code low=1-1 elevated=2-2 default=severe
+| eval avg_lag=round(avg_lag, 3), delta_lastTime=now()-lastTime, lastTime=strftime(lastTime, "%H:%M:%S")
+| eval status=if(delta_lastTime>120, "UNKNOWN", status), description=if(delta_lastTime>120, "The delta in seconds between the last state received and now has exceeded 120 seconds", description)
+| fields env, label, cluster, group, avg_lag, max_lag, current, sparkline, status, range, lastTime, description | rename description as "status description"</query>
+                    <earliest>-60m</earliest>
+                    <latest>now</latest>
+                </search>
+                <option name="drilldown">row</option>
+                <drilldown>
+                    <link>/app/telegraf-kafka/telegraf-burrow-detailed?env=$row.env$&amp;label=$row.label$&amp;cluster=$row.cluster$&amp;group=$row.group$</link>
+                </drilldown>
+            </table>
         </panel>
     </row>
 
