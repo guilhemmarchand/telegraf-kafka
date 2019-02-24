@@ -460,7 +460,104 @@ styles in <div> tags, similar to Bootstrap's grid system.
             </div>
         </div>
     </div>
-    
+
+    <!--
+    Burrow
+    -->
+
+    <div id="row_burrow" class="dashboard-row dashboard-row_burrow">
+        <div id="panel_burrow" class="dashboard-cell" style="width: 100%;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title"></h2>
+                <div class="fieldset" style="text-align: left;">
+                    <div class="dashseparator">
+                        <h1><br />Kafka consumer group monitoring with Burrow<br /></h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="row_burrow_single" class="dashboard-row dashboard-row_burrow_single">
+        <div id="panel_burrow_single" class="dashboard-cell" style="width: 100%;">
+            <div class="dashboard-panel clearfix">
+
+                <div class="panel-element-row">
+                    <div id="element_burrow_single1" class="dashboard-element single" style="width: 33.33%">
+                        <div class="panel-body"></div>
+                    </div>
+                    <div id="element_burrow_single2" class="dashboard-element single" style="width: 33.33%">
+                        <div class="panel-body"></div>
+                    </div>
+                    <div id="element_burrow_single3" class="dashboard-element single" style="width: 33.33%">
+                        <div class="panel-body"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="row_burrow_search" class="dashboard-row dashboard-row_burrow_search">
+        <div id="panel_togglepanel_true_search_burrow" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_search_burrow">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Search and filter</h2>
+                <div class="fieldset">
+                    <div class="input input-text" id="input_burrow_search_env">
+                        <label>env:</label>
+                    </div>
+                    <div class="input input-text" id="input_burrow_search_label">
+                        <label>label:</label>
+                    </div>
+                    <div class="input input-text" id="input_burrow_search_cluster">
+                        <label>cluster:</label>
+                    </div>
+                    <div class="input input-dropdown" id="input_burrow_search_monitoring_state">
+                        <label>Monitoring state:</label>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="row_burrow_modify" class="dashboard-row dashboard-row_burrow_modify">
+        <div id="panel_togglepanel_true_modify_burrow" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_modify_burrow">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Modify entries</h2>
+                <div class="fieldset">
+                    <div class="input input-dropdown" id="input_burrow_modify_monitoring_state">
+                        <label>monitoring_state:</label>
+                    </div>
+                    <div class="form-submit" id="btn_modify_content_burrow">
+                        <button class="btn btn-primary submit">Modify this entry</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div id="row_burrow_delete" class="dashboard-row dashboard-row_burrow_delete">
+        <div id="panel_togglepanel_true_show_burrow" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_show_burrow">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Collection content (click on a row to populate for modification/suppression)</h2>
+                <div class="fieldset">
+                    <div class="input input-text" id="input_burrow_delete">
+                        <label>keyid:</label>
+                    </div>
+                    <div class="form-submit" id="btn_remove_content_burrow">
+                        <button class="btn btn-primary submit">Delete this entry</button>
+                    </div>
+                </div>
+                <div class="panel-element-row">
+                    <div id="element_burrow_main_table" class="dashboard-element table" style="width: 100%">
+                        <div class="panel-body"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 </div>
 
 <!--
@@ -1036,6 +1133,122 @@ var search_connect_main_table = new SearchManager({
         }, {tokens: true, tokenNamespace: "submitted"});
 
         //
+        // KAFKA BURROW
+        //
+
+var search_burrow_no_consumers = new SearchManager({
+            "id": "search_burrow_no_consumers",
+            "sample_ratio": null,
+            "earliest_time": "-24h@h",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_burrow_consumers_monitoring | stats count",
+            "latest_time": "now",
+            "status_buckets": 0,
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true, tokenNamespace: "submitted"});
+
+var search_burrow_no_consumers_enabled = new SearchManager({
+            "id": "search_burrow_no_consumers_enabled",
+            "sample_ratio": null,
+            "earliest_time": "-24h@h",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_burrow_consumers_monitoring | where monitoring_state=\"enabled\" | stats count",
+            "latest_time": "now",
+            "status_buckets": 0,
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true, tokenNamespace: "submitted"});
+
+var search_burrow_no_consumers_disabled = new SearchManager({
+            "id": "search_burrow_no_consumers_disabled",
+            "sample_ratio": null,
+            "earliest_time": "-24h@h",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_burrow_consumers_monitoring | where monitoring_state!=\"enabled\" | stats count",
+            "latest_time": "now",
+            "status_buckets": 0,
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true, tokenNamespace: "submitted"});
+
+var search_burrow_search_env = new SearchManager({
+            "id": "search_burrow_search_env",
+            "earliest_time": "-24h@h",
+            "status_buckets": 0,
+            "sample_ratio": null,
+            "latest_time": "now",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_burrow_consumers_monitoring | fillnull value=\"unknown\" env | stats count by env | fields env | dedup env | sort 0 env",
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true});
+
+var search_burrow_search_label = new SearchManager({
+            "id": "search_burrow_search_label",
+            "earliest_time": "-24h@h",
+            "status_buckets": 0,
+            "sample_ratio": null,
+            "latest_time": "now",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_burrow_consumers_monitoring | fillnull value=\"unknown\" label | stats count by label | fields label | dedup label | sort 0 label",
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true});
+
+var search_burrow_search_cluster = new SearchManager({
+            "id": "search_burrow_search_cluster",
+            "earliest_time": "-24h@h",
+            "status_buckets": 0,
+            "sample_ratio": null,
+            "latest_time": "now",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_burrow_consumers_monitoring | stats count by cluster | fields cluster | dedup cluster | sort 0 cluster",
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true});
+
+var search_burrow_main_table = new SearchManager({
+            "id": "search_burrow_main_table",
+            "sample_ratio": 1,
+            "earliest_time": "-15m",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_burrow_consumers_monitoring | eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_burrow_env$ $search_tk_burrow_label$ $search_tk_burrow_cluster$ $search_tk_burrow_monitoring_state$ | fields keyid, env, label, cluster, group, monitoring_state | sort 0 env, label, cluster, group",
+            "latest_time": "now",
+            "status_buckets": 0,
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true, tokenNamespace: "submitted"});
+
+        //
         // SPLUNK LAYOUT
         //
 
@@ -1360,6 +1573,80 @@ var search_connect_main_table = new SearchManager({
                 setToken("form.modify_tk_connect_monitoring_state", TokenUtils.replaceTokenNames("$row.monitoring_state$", _.extend(submittedTokenModel.toJSON(), e.data)));
             }
         });
+
+        //
+        // KAFKA BURROW
+        //
+
+        var element_burrow_single1 = new SingleElement({
+            "id": "element_burrow_single1",
+            "rangeColors": "[\"0x53a051\",\"0x0877a6\",\"0xf8be34\",\"0xf1813f\",\"0xdc4e41\"]",
+            "underLabel": "TOTAL CONSUMERS DISCOVERED",
+            "drilldown": "none",
+            "managerid": "search_burrow_no_consumers",
+            "el": $('#element_burrow_single1')
+        }, {tokens: true, tokenNamespace: "submitted"}).render();
+
+        var element_burrow_single2 = new SingleElement({
+            "id": "element_burrow_single2",
+            "rangeColors": "[\"0x53a051\",\"0x0877a6\",\"0xf8be34\",\"0xf1813f\",\"0xdc4e41\"]",
+            "underLabel": "TOTAL CONSUMERS MONITORED",
+            "drilldown": "none",
+            "managerid": "search_burrow_no_consumers_enabled",
+            "el": $('#element_burrow_single2')
+        }, {tokens: true, tokenNamespace: "submitted"}).render();
+
+        var element_burrow_single3 = new SingleElement({
+            "id": "element_burrow_single3",
+            "underLabel": "UN-MONITORED CONSUMERS",
+            "showSparkline": "1",
+            "trellis.enabled": "0",
+            "rangeValues": "[0]",
+            "rangeColors": "[\"0x53a051\",\"0xf1813f\"]",
+            "colorMode": "none",
+            "trellis.scales.shared": "1",
+            "useThousandSeparators": "1",
+            "showTrendIndicator": "1",
+            "trendDisplayMode": "absolute",
+            "trellis.size": "medium",
+            "drilldown": "none",
+            "numberPrecision": "0",
+            "trendColorInterpretation": "standard",
+            "useColors": "1",
+            "colorBy": "value",
+            "unitPosition": "after",
+            "managerid": "search_burrow_no_consumers_disabled",
+            "el": $('#element_burrow_single3')
+        }, {tokens: true, tokenNamespace: "submitted"}).render();
+
+        var element_burrow_main_table = new TableElement({
+            "id": "element_burrow_main_table",
+            "count": 10,
+            "dataOverlayMode": "none",
+            "drilldown": "row",
+            "percentagesRow": "false",
+            "rowNumbers": "false",
+            "totalsRow": "false",
+            "wrap": "true",
+            "managerid": "search_burrow_main_table",
+            "el": $('#element_burrow_main_table')
+        }, {tokens: true, tokenNamespace: "submitted"}).render();
+
+        element_burrow_main_table.on("click", function(e) {
+            if (e.field !== undefined) {
+                e.preventDefault();
+                setToken("form.tk_burrow_keyid", TokenUtils.replaceTokenNames("$row.keyid$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("tk_burrow_env", TokenUtils.replaceTokenNames("$row.env$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("tk_burrow_label", TokenUtils.replaceTokenNames("$row.label$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("tk_burrow_cluster", TokenUtils.replaceTokenNames("$row.cluster$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("tk_burrow_group", TokenUtils.replaceTokenNames("$row.group$", _.extend(submittedTokenModel.toJSON(), e.data)));
+                setToken("form.modify_tk_burrow_monitoring_state", TokenUtils.replaceTokenNames("$row.monitoring_state$", _.extend(submittedTokenModel.toJSON(), e.data)));
+            }
+        });
+
+        //
+        //
+        //
 
         // Initialize time tokens to default
         if (!defaultTokenModel.has('earliest') && !defaultTokenModel.has('latest')) {
@@ -1932,6 +2219,131 @@ var search_connect_main_table = new SearchManager({
         });
 
         //
+        // BURROW
+        //
+
+        var input_burrow_search_env = new DropdownInput({
+            "id": "input_burrow_search_env",
+            "choices": [
+                {"value": "*", "label": "ANY"}
+            ],
+            "default": "*",
+            "searchWhenChanged": true,
+            "labelField": "env",
+            "showClearButton": true,
+            "selectFirstChoice": false,
+            "initialValue": "*",
+            "suffix": "\"",
+            "prefix": "env=\"",
+            "valueField": "env",
+            "value": "$form.search_tk_burrow_env$",
+            "managerid": "search_burrow_search_env",
+            "el": $('#input_burrow_search_env')
+        }, {tokens: true}).render();
+
+        input_burrow_search_env.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_burrow_search_env);
+        });
+
+        var input_burrow_search_label = new DropdownInput({
+            "id": "input_burrow_search_label",
+            "choices": [
+                {"value": "*", "label": "ANY"}
+            ],
+            "default": "*",
+            "searchWhenChanged": true,
+            "labelField": "label",
+            "showClearButton": true,
+            "selectFirstChoice": false,
+            "initialValue": "*",
+            "suffix": "\"",
+            "prefix": "label=\"",
+            "valueField": "label",
+            "value": "$form.search_tk_burrow_label$",
+            "managerid": "search_burrow_search_label",
+            "el": $('#input_burrow_search_label')
+        }, {tokens: true}).render();
+
+        input_burrow_search_label.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_burrow_search_label);
+        });
+
+        var input_burrow_search_cluster = new DropdownInput({
+            "id": "input_burrow_search_cluster",
+            "choices": [
+                {"value": "*", "label": "ANY"}
+            ],
+            "default": "*",
+            "searchWhenChanged": true,
+            "labelField": "cluster",
+            "showClearButton": true,
+            "selectFirstChoice": false,
+            "initialValue": "*",
+            "suffix": "\"",
+            "prefix": "cluster=\"",
+            "valueField": "cluster",
+            "value": "$form.search_tk_burrow_cluster$",
+            "managerid": "search_burrow_search_cluster",
+            "el": $('#input_burrow_search_cluster')
+        }, {tokens: true}).render();
+
+        input_burrow_search_cluster.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_burrow_search_cluster);
+        });
+
+        var input_burrow_search_monitoring_state = new DropdownInput({
+            "id": "input_burrow_search_monitoring_state",
+            "choices": [
+                {"label": "ANY", "value": "*"},
+                {"label": "enabled", "value": "enabled"},
+                {"label": "disabled", "value": "disabled"}
+            ],
+            "searchWhenChanged": true,
+            "default": "*",
+            "prefix": "monitoring_state=\"",
+            "initialValue": "*",
+            "selectFirstChoice": false,
+            "suffix": "\"",
+            "showClearButton": true,
+            "value": "$form.search_tk_burrow_monitoring_state$",
+            "el": $('#input_burrow_search_monitoring_state')
+        }, {tokens: true}).render();
+
+        input_burrow_search_monitoring_state.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_burrow_search_monitoring_state);
+        });
+
+        var input_burrow_modify_monitoring_state = new DropdownInput({
+            "id": "input_burrow_modify_monitoring_state",
+            "choices": [
+                {"label": "enabled", "value": "enabled"},
+                {"label": "disabled", "value": "disabled"}
+            ],
+            "searchWhenChanged": true,
+            "default": "enabled",
+            "initialValue": "enabled",
+            "selectFirstChoice": false,
+            "showClearButton": false,
+            "value": "$form.modify_tk_burrow_monitoring_state$",
+            "el": $('#input_burrow_modify_monitoring_state')
+        }, {tokens: true}).render();
+
+        input_burrow_modify_monitoring_state.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_burrow_modify_monitoring_state);
+        });
+
+        var input_burrow_delete = new TextInput({
+            "id": "input_burrow_delete",
+            "searchWhenChanged": true,
+            "value": "$form.tk_burrow_keyid$",
+            "el": $('#input_burrow_delete')
+        }, {tokens: true}).render();
+
+        input_burrow_delete.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_burrow_delete);
+        });
+
+        //
         // others
         //
 
@@ -2486,6 +2898,143 @@ var search_connect_main_table = new SearchManager({
                                 search_kafka_infra_nodes_main_table.startSearch();
                                 search_kafka_infra_nodes_search_env.startSearch();
                                 search_kafka_infra_nodes_search_label.startSearch();
+
+                                // clear the forms
+                                // $("#input_selected_key input[type=text]").val("");
+
+                                // modifications
+
+                            });
+
+                    }
+
+                });
+
+            }
+
+        });
+
+        //
+        // BURROW
+        //
+
+        //
+        // DELETE BUTTON
+        //
+
+        // Call this function when the Delete Record button is clicked
+        $("#btn_remove_content_burrow").click(function() {
+            var tokens = mvc.Components.get("default");
+            var form_keyid = tokens.get("tk_burrow_keyid");
+
+            if (!form_keyid || !form_keyid.length) {
+                // Show an error message
+                bootbox.alert("<h3 style=\"color: indianred;\">Error: the KeyID value is empty ! Please first click on any entry in the table</h3>");
+            }
+            else
+            {
+
+                bootbox.confirm("<h3 style=\"color: indianred;\">Confirm deletion?</h3>", function(result){
+
+                    if (result) {
+
+                    // Delete the record that corresponds to the key ID using
+                    // the del method to send a DELETE request
+                    // to the storage/collections/data/{collection}/ endpoint
+                    service.del("storage/collections/data/kv_kafka_burrow_consumers_monitoring/" + encodeURIComponent(form_keyid))
+                        .done(function() {
+                            // Run the search again to update the table
+                            search_burrow_no_consumers.startSearch();
+                            search_burrow_no_consumers_enabled.startSearch();
+                            search_burrow_no_consumers_disabled.startSearch();
+                            search_burrow_main_table.startSearch();
+                            search_burrow_search_env.startSearch();
+                            search_burrow_search_label.startSearch();
+                            search_burrow_search_cluster.startSearch();
+
+                            // clear the forms
+
+                            // keyID
+                            $("#input_burrow_delete input[type=text]").val("");
+
+                            // modifications
+
+                        });
+
+                    }
+
+                });
+
+            }
+
+        });
+
+        //
+        // MODIFY BUTTON
+        //
+
+        $("#btn_modify_content_burrow").click(function() {
+            submitTokens();
+
+            // When the Submit button is clicked, get all the form fields by accessing token values
+            var tokens = mvc.Components.get("default");
+            var modify_key = tokens.get("tk_burrow_keyid");
+            var tk_burrow_env = tokens.get("tk_burrow_env");
+            var tk_burrow_label = tokens.get("tk_burrow_label");
+            var tk_burrow_cluster = tokens.get("tk_burrow_cluster");
+            var tk_burrow_group = tokens.get("tk_burrow_group");
+            var modify_tk_burrow_monitoring_state = tokens.get("modify_tk_burrow_monitoring_state");
+
+            // Create the endpoint URL
+            var myendpoint_URl = "storage/collections/data/kv_kafka_burrow_consumers_monitoring/" + modify_key;
+
+            // Create a dictionary to store the field names and values
+            var record = {
+                "env": tk_burrow_env,
+                "label": tk_burrow_label,
+                "cluster": tk_burrow_cluster,
+                "group": tk_burrow_group,
+                "monitoring_state": modify_tk_burrow_monitoring_state
+            };
+
+            if (!modify_key || !modify_key.length) {
+                // Show an error message
+                bootbox.alert("<h3 style=\"color: indianred;\">Error: the KeyID value is empty !</h3>");
+            }
+
+            else if (!modify_tk_burrow_monitoring_state || !modify_tk_burrow_monitoring_state.length) {
+                // Show an error message
+                bootbox.alert("<h3 style=\"color: indianred;\">Error: the monitoring_state value is empty !</h3>");
+            }
+
+            else
+            {
+
+                bootbox.confirm("<h3 style=\"color: indianred;\">Confirm modification?</h3>", function(result){
+
+                    if (result) {
+
+                        // Get the value of the key ID field
+
+                    // Use the request method to send a REST POST request
+                    // to the storage/collections/data/{collection}/entry_key endpoint
+                    service.request(
+                        myendpoint_URl,
+                        "POST",
+                        null,
+                        null,
+                        JSON.stringify(record),
+                        {"Content-Type": "application/json"},
+                        null)
+                            .done(function() {
+                                 // Run the search again to update the table
+                                search_burrow_no_consumers.startSearch();
+                                search_burrow_no_consumers_enabled.startSearch();
+                                search_burrow_no_consumers_disabled.startSearch();
+                                search_burrow_main_table.startSearch();
+                                search_burrow_search_env.startSearch();
+                                search_burrow_search_label.startSearch();
+                                search_burrow_search_cluster.startSearch();
 
                                 // clear the forms
                                 // $("#input_selected_key input[type=text]").val("");

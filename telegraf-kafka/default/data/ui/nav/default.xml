@@ -2,7 +2,7 @@
     <view name="overview" default="true"/>
     <view name="overview_brokers"/>
     <view name="overview_topics" />
-
+    <view name="telegraf-burrow" />
     <!--
     ####################################################################################################################
     Analysis Workspace

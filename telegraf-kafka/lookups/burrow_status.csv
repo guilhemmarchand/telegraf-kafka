@@ -1,0 +1,8 @@
+description,status,"status_code"
+"Unknown value",UNKNOWN,0
+"The group or partition is in a good state",OK,1
+"The group is not found for this cluster","NOT_FOUND",2
+"The group or partition is in a warning state. For example, the offsets are moving but lag is increasing",WARN,3
+"The group is in an error state. For example, the offsets have stopped for one or more partitions but lag is non-zero",ERR,4
+"The partition has stopped. For example, the offsets have not been committed in a long period of time",STOP,5
+"The partition has stalled. For example, the offsets are being committed, but they are not changing and the lag is non-zero",STALL,6

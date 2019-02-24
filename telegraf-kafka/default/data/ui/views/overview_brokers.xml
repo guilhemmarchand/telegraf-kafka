@@ -78,7 +78,7 @@
             <title>Brokers (click on the row to open broker detailed view for the selected broker)</title>
             <table>
                 <search>
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index`metric_name="kafka_topics.BytesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesOutPerSec.OneMinuteRate" $env$ $label$ by env, label, metric_name, jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index`metric_name="kafka_topics.BytesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesOutPerSec.OneMinuteRate" $env$ $label$ $jolokia_agent_url$ by env, label, metric_name, jolokia_agent_url span=10s
 | eval {metric_name}=value
 | stats first(kafka_topics.*.OneMinuteRate) as "*" by _time, env, label, jolokia_agent_url
 | eval KBytesInPerSec=round(BytesInPerSec/1024, 2), KBytesOutPerSec=round(BytesOutPerSec/1024, 2)

@@ -1,0 +1,244 @@
+<form script="telegraf-kafka:burrow.js" stylesheet="telegraf-kafka:common.css,telegraf-kafka:burrow.css">
+    <label>Burrow</label>
+    <search id="main_populate">
+        <query>| savedsearch telegraf-kafka-burrow-partition</query>
+        <earliest>-60min</earliest>
+        <latest>now</latest>
+    </search>
+    <search id="burrow_status">
+        <query>| inputlookup burrow_status</query>
+    </search>
+    <fieldset submitButton="false">
+        <input type="time" token="time" searchWhenChanged="true">
+            <label>Time range:</label>
+            <default>
+                <earliest>-4h@m</earliest>
+                <latest>now</latest>
+            </default>
+        </input>
+        <input type="multiselect" token="env" searchWhenChanged="true">
+            <label>Env:</label>
+            <!-- Populating Data Model Search -->
+            <search base="main_populate">
+                <query>dedup env | sort 0 env</query>
+            </search>
+            <valuePrefix>env="</valuePrefix>
+            <valueSuffix>"</valueSuffix>
+            <delimiter> OR </delimiter>
+            <choice value="*">ANY</choice>
+            <initialValue>*</initialValue>
+            <fieldForLabel>env</fieldForLabel>
+            <fieldForValue>env</fieldForValue>
+        </input>
+        <input type="multiselect" token="label" searchWhenChanged="true">
+            <label>Label:</label>
+            <!-- Populating Data Model Search -->
+            <search base="main_populate">
+                <query>search $env$ | dedup label | sort 0 label</query>
+            </search>
+            <valuePrefix>label="</valuePrefix>
+            <valueSuffix>"</valueSuffix>
+            <delimiter> OR </delimiter>
+            <choice value="*">ANY</choice>
+            <initialValue>*</initialValue>
+            <fieldForLabel>label</fieldForLabel>
+            <fieldForValue>label</fieldForValue>
+        </input>
+        <input type="multiselect" token="cluster" searchWhenChanged="true">
+            <label>Kafka cluster(s):</label>
+            <!-- Populating Data Model Search -->
+            <search base="main_populate">
+                <query>search $env$ $label$ | dedup cluster | sort cluster</query>
+            </search>
+            <valuePrefix>cluster="</valuePrefix>
+            <valueSuffix>"</valueSuffix>
+            <delimiter> OR </delimiter>
+            <choice value="*">ANY</choice>
+            <initialValue>*</initialValue>
+            <fieldForLabel>cluster</fieldForLabel>
+            <fieldForValue>cluster</fieldForValue>
+        </input>
+    </fieldset>
+    <row>
+        <panel>
+            <html>
+                <div class="dashseparator">
+                    <div class="box">
+                        <img src="../../static/app/telegraf-kafka/icons/kafka-logo-no-text.png"/>
+                        <span style="font-size: 22px; font-weight: bold; color: #999999; margin-top: 5px;">Burrow: group consumers</span>
+                    </div>
+                </div>
+            </html>
+        </panel>
+    </row>
+    <row>
+        <panel>
+            <title>Burrow consumer groups (click on row to open group consumer details)</title>
+            <input type="multiselect" token="group_status" searchWhenChanged="true">
+                <label>Status:</label>
+                <search base="burrow_status">
+                    <query>dedup status | sort status</query>
+                </search>
+                <valuePrefix>status="</valuePrefix>
+                <valueSuffix>"</valueSuffix>
+                <delimiter> OR </delimiter>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>status</fieldForLabel>
+                <fieldForValue>status</fieldForValue>
+            </input>
+            <input type="multiselect" token="group" searchWhenChanged="true">
+                <label>Consumer group(s):</label>
+                <!-- Populating Data Model Search -->
+                <search base="main_populate">
+                    <query>search $env$ $label$ $cluster$ | dedup group | sort group</query>
+                </search>
+                <valuePrefix>group="</valuePrefix>
+                <valueSuffix>"</valueSuffix>
+                <delimiter> OR </delimiter>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>group</fieldForLabel>
+                <fieldForValue>group</fieldForValue>
+            </input>
+            <table id="table1">
+                <search>
+                    <query>| mstats latest(_value) as value where metric_name="burrow_group.lag" OR metric_name="burrow_group.status_code" `telegraf_kafka_index` group!="" $env$ $label$ $cluster$ $group$ by env, label, cluster, group, metric_name span=10s
+| eval {metric_name}=value
+| stats first(burrow_group.*) as "*" by _time, env, label, cluster, group
+| stats max(_time) as lastTime, avg(lag) as avg_lag, max(lag) as max_lag, latest(lag) as current, sparkline(avg(lag),) As sparkline, latest(status_code) as status_code by env, label, cluster, group
+| lookup burrow_status status_code OUTPUT status, description | search ($group_status$)
+| rangemap field=status_code low=1-1 elevated=2-2 default=severe
+| eval avg_lag=round(avg_lag, 3), delta_lastTime=now()-lastTime, lastTime=strftime(lastTime, "%H:%M:%S")
+| eval status=if(delta_lastTime>120, "UNKNOWN", status), description=if(delta_lastTime>120, "The delta in seconds between the last state received and now has exceeded 120 seconds", description)
+| fields env, label, cluster, group, avg_lag, max_lag, current, sparkline, status, range, lastTime, description | rename description as "status description"</query>
+                    <earliest>$time.earliest$</earliest>
+                    <latest>$time.latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="count">20</option>
+                <option name="dataOverlayMode">none</option>
+                <option name="drilldown">row</option>
+                <option name="percentagesRow">false</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="rowNumbers">false</option>
+                <option name="totalsRow">false</option>
+                <option name="wrap">true</option>
+                <format type="color" field="avg_lag">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="max_lag">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="current">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format field="sparkline" type="sparkline">
+                    <option name="lineColor">#5379af</option>
+                    <option name="fillColor">#CCDDFF</option>
+                    <option name="lineWidth">1</option>
+                    <option name="height">25</option>
+                </format>
+                <drilldown>
+                    <link>/app/telegraf-kafka/telegraf-burrow-detailed?env=$row.env$&amp;label=$row.label$&amp;cluster=$row.cluster$&amp;group=$row.group$</link>
+                </drilldown>
+            </table>
+        </panel>
+    </row>
+    <row>
+        <panel>
+            <html>
+                <div class="dashseparator">
+                    <div class="box">
+                        <img src="../../static/app/telegraf-kafka/icons/kafka-logo-no-text.png"/>
+                        <span style="font-size: 22px; font-weight: bold; color: #999999; margin-top: 5px;">Burrow: partitions</span>
+                    </div>
+                </div>
+            </html>
+        </panel>
+    </row>
+    <row>
+        <panel>
+            <title>Burrow consumer partitions (click on a row to open timechart lag)</title>
+            <input type="multiselect" token="partition_status" searchWhenChanged="true">
+                <label>Status:</label>
+                <search base="burrow_status">
+                    <query>dedup status | sort status</query>
+                </search>
+                <valuePrefix>status="</valuePrefix>
+                <valueSuffix>"</valueSuffix>
+                <delimiter> OR </delimiter>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>status</fieldForLabel>
+                <fieldForValue>status</fieldForValue>
+            </input>
+            <input type="multiselect" token="topic" searchWhenChanged="true">
+                <label>Topic(s):</label>
+                <!-- Populating Data Model Search -->
+                <search base="main_populate">
+                    <query>search $env$ $label$ $cluster$ $group$ | dedup topic | sort topic</query>
+                </search>
+                <valuePrefix>topic="</valuePrefix>
+                <valueSuffix>"</valueSuffix>
+                <delimiter> OR </delimiter>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>topic</fieldForLabel>
+                <fieldForValue>topic</fieldForValue>
+            </input>
+            <table id="table2">
+                <search>
+                    <query>| mstats latest(_value) as value where metric_name="burrow_partition.lag" OR metric_name="burrow_partition.status_code" `telegraf_kafka_index` group!="" $env$ $label$ $cluster$ $group$ $topic$ by env, label, cluster, group, topic, partition, metric_name span=10s
+| eval {metric_name}=value
+| stats first(burrow_partition.*) as "*" by _time, env, label, cluster, group, topic, partition
+| stats max(_time) as lastTime, avg(lag) as avg_lag, max(lag) as max_lag, latest(lag) as current, sparkline(avg(lag),) As sparkline, latest(status_code) as status_code by env, label, cluster, group, topic, partition
+| lookup burrow_status status_code OUTPUT status, description | search ($partition_status$)
+| rangemap field=status_code low=1-1 elevated=2-2 default=severe
+| eval avg_lag=round(avg_lag, 3), delta_lastTime=now()-lastTime, lastTime=strftime(lastTime, "%H:%M:%S")
+| eval status=if(delta_lastTime>120, "UNKNOWN", status), description=if(delta_lastTime>120, "The delta in seconds between the last state received and now has exceeded 120 seconds", description)
+| fields env, label, cluster, group, topic, partition, avg_lag, max_lag, current, sparkline, status, range, lastTime, description | rename description as "status description"</query>
+                    <earliest>$time.earliest$</earliest>
+                    <latest>$time.latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="count">20</option>
+                <option name="dataOverlayMode">none</option>
+                <option name="drilldown">row</option>
+                <option name="percentagesRow">false</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="rowNumbers">false</option>
+                <option name="totalsRow">false</option>
+                <option name="wrap">true</option>
+                <format type="color" field="avg_lag">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="max_lag">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="current">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format field="sparkline" type="sparkline">
+                    <option name="lineColor">#5379af</option>
+                    <option name="fillColor">#CCDDFF</option>
+                    <option name="lineWidth">1</option>
+                    <option name="height">25</option>
+                </format>
+                <drilldown>
+                  <link target="_blank">search?q=%7C%20mstats%20avg(_value)%20prestats=t%20where%20metric_name=%22burrow_partition.lag%22%20index=%22telegraf_kafka%22%20env=$row.env$%20label=$row.label$%20cluster=$row.cluster$%20group=$row.group$%20topic=$row.topic$%20partition=$row.partition$%20by%20topic,%20partition%20span=10s%0A%7C%20stats%20avg(_value)%20as%20value%20by%20_time,%20topic,%20partition%0A%7C%20eval%20key%20=%20topic%20.%20%22:%22%20.%20partition%0A%7C%20timechart%20span=1m%20avg(value)%20as%20%22avg_lag%22%20by%20key&amp;display.page.search.tab=visualizations&amp;display.general.type=visualizations&amp;earliest=-4h@m&amp;latest=now</link>
+                </drilldown>
+            </table>
+        </panel>
+    </row>
+</form>

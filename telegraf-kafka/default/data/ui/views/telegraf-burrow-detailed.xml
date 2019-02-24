@@ -1,0 +1,259 @@
+<form script="telegraf-kafka:burrow.js" stylesheet="telegraf-kafka:common.css,telegraf-kafka:burrow.css">
+    <label>Burrow</label>
+    <search id="main_populate">
+        <query>| savedsearch telegraf-kafka-burrow-partition | search (group="$group$") </query>
+        <earliest>-60min</earliest>
+        <latest>now</latest>
+    </search>
+    <fieldset submitButton="false"></fieldset>
+    <row>
+        <panel>
+            <html>
+                <div class="dashseparator">
+                    <div class="box">
+                        <img src="../../static/app/telegraf-kafka/icons/kafka-logo-no-text.png"/>
+                        <span style="font-size: 22px; font-weight: bold; color: #999999; margin-top: 5px;">Burrow - group consumer: $group$</span>
+                    </div>
+                </div>
+            </html>
+        </panel>
+    </row>
+    <row>
+        <panel>
+            <html>
+                <div class="customlink">
+                    <img src="../../static/app/telegraf-kafka/icons/back-arrow.png"/>
+                    <a href="telegraf-burrow?form.env=$env$&amp;form.label=$label$&amp;form.cluster=$cluster$">
+                        <h3>Back to Burrow consumers</h3>
+                    </a>
+                </div>
+            </html>
+        </panel>
+    </row>
+    <row>
+        <panel>
+            <table id="table1">
+                <search>
+                    <query>| mstats latest(_value) as value where metric_name="burrow_group.lag" OR metric_name="burrow_group.status_code" `telegraf_kafka_index` group="$group$" by group, metric_name span=10s
+| eval {metric_name}=value
+| stats first(burrow_group.*) as "*" by _time, group
+| stats max(_time) as lastTime, avg(lag) as avg_lag, max(lag) as max_lag, latest(lag) as current, sparkline(avg(lag),) As sparkline, latest(status_code) as status_code by group
+| lookup burrow_status status_code OUTPUT status, description
+| rangemap field=status_code low=1-1 elevated=2-2 default=severe
+| eval avg_lag=round(avg_lag, 3), delta_lastTime=now()-lastTime, lastTime=strftime(lastTime, "%H:%M:%S")
+| eval status=if(delta_lastTime>120, "UNKNOWN", status), description=if(delta_lastTime>120, "The delta in seconds between the last state received and now has exceeded 120 seconds", description)
+| appendcols [ | mcatalog values(topic) as topics where metric_name="burrow_partition.lag" `telegraf_kafka_index` group="$group$" by group ]
+| fields group, topics, avg_lag, max_lag, current, sparkline, status, range, lastTime, description | rename description as "status description"
+| rename topics as "consuming from topics"</query>
+                    <earliest>$time.earliest$</earliest>
+                    <latest>$time.latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="count">20</option>
+                <option name="dataOverlayMode">none</option>
+                <option name="drilldown">none</option>
+                <option name="percentagesRow">false</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="rowNumbers">false</option>
+                <option name="totalsRow">false</option>
+                <option name="wrap">true</option>
+                <format type="color" field="avg_lag">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="max_lag">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="current">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format field="sparkline" type="sparkline">
+                    <option name="lineColor">#5379af</option>
+                    <option name="fillColor">#CCDDFF</option>
+                    <option name="lineWidth">1</option>
+                    <option name="height">25</option>
+                </format>
+            </table>
+        </panel>
+    </row>
+    <row>
+        <panel>
+            <input type="time" token="time" searchWhenChanged="true">
+                <label>Time range:</label>
+                <default>
+                    <earliest>-4h@m</earliest>
+                    <latest>now</latest>
+                </default>
+            </input>
+        </panel>
+    </row>
+    <row>
+        <panel>
+            <chart>
+                <title>Group consumer lag over time</title>
+                <search>
+                    <query>| mstats max(_value) as value where `telegraf_kafka_index` metric_name="burrow_group.lag" group="$group$" span=10s
+| timechart span=1m avg(value) as "average lag", max(value) as "max lag"</query>
+                    <earliest>$time.earliest$</earliest>
+                    <latest>$time.latest$</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+                <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">visible</option>
+                <option name="charting.axisTitleY2.visibility">visible</option>
+                <option name="charting.axisX.abbreviation">none</option>
+                <option name="charting.axisX.scale">linear</option>
+                <option name="charting.axisY.abbreviation">none</option>
+                <option name="charting.axisY.scale">linear</option>
+                <option name="charting.axisY2.abbreviation">none</option>
+                <option name="charting.axisY2.enabled">0</option>
+                <option name="charting.axisY2.scale">inherit</option>
+                <option name="charting.chart">line</option>
+                <option name="charting.chart.bubbleMaximumSize">50</option>
+                <option name="charting.chart.bubbleMinimumSize">10</option>
+                <option name="charting.chart.bubbleSizeBy">area</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+                <option name="charting.chart.stackMode">default</option>
+                <option name="charting.chart.style">shiny</option>
+                <option name="charting.drilldown">none</option>
+                <option name="charting.layout.splitSeries">0</option>
+                <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+                <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+                <option name="charting.legend.mode">standard</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.lineWidth">2</option>
+                <option name="trellis.enabled">0</option>
+                <option name="trellis.scales.shared">1</option>
+                <option name="trellis.size">medium</option>
+            </chart>
+        </panel>
+    </row>
+    <row>
+        <panel>
+            <input type="multiselect" token="topic" searchWhenChanged="true">
+                <label>Topic(s):</label>
+                <!-- Populating Data Model Search -->
+                <search base="main_populate">
+                    <query>dedup topic | sort topic</query>
+                </search>
+                <valuePrefix>topic="</valuePrefix>
+                <valueSuffix>"</valueSuffix>
+                <delimiter> OR </delimiter>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>topic</fieldForLabel>
+                <fieldForValue>topic</fieldForValue>
+            </input>
+            <input type="dropdown" token="bytopic_statsmode" searchWhenChanged="true">
+                <label>mode:</label>
+                <default>avg</default>
+                <choice value="max">Max</choice>
+                <choice value="avg">Avg</choice>
+                <choice value="min">Min</choice>
+                <choice value="median">Median</choice>
+                <choice value="mode">Mode</choice>
+                <choice value="range">Range</choice>
+            </input>
+            <chart>
+                <title>By topic lag over time</title>
+                <search>
+                    <query>| mstats max(_value) as value where `telegraf_kafka_index` metric_name="burrow_partition.lag" group="$group$" ($topic$) by topic span=10s
+| timechart useother=f limit=45 span=1m $bytopic_statsmode$(value) as lag by topic</query>
+                    <earliest>$time.earliest$</earliest>
+                    <latest>$time.latest$</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+                <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">visible</option>
+                <option name="charting.axisTitleY2.visibility">visible</option>
+                <option name="charting.axisX.abbreviation">none</option>
+                <option name="charting.axisX.scale">linear</option>
+                <option name="charting.axisY.abbreviation">none</option>
+                <option name="charting.axisY.scale">linear</option>
+                <option name="charting.axisY2.abbreviation">none</option>
+                <option name="charting.axisY2.enabled">0</option>
+                <option name="charting.axisY2.scale">inherit</option>
+                <option name="charting.chart">line</option>
+                <option name="charting.chart.bubbleMaximumSize">50</option>
+                <option name="charting.chart.bubbleMinimumSize">10</option>
+                <option name="charting.chart.bubbleSizeBy">area</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+                <option name="charting.chart.stackMode">default</option>
+                <option name="charting.chart.style">shiny</option>
+                <option name="charting.drilldown">none</option>
+                <option name="charting.layout.splitSeries">0</option>
+                <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+                <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+                <option name="charting.legend.mode">standard</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.lineWidth">2</option>
+                <option name="trellis.enabled">0</option>
+                <option name="trellis.scales.shared">1</option>
+                <option name="trellis.size">medium</option>
+            </chart>
+        </panel>
+    </row>
+    <row>
+        <panel>
+            <title>Topics / Partitions</title>
+            <table id="table2">
+                <search>
+                    <query>| mstats latest(_value) as value where metric_name="burrow_partition.lag" OR metric_name="burrow_partition.status_code" OR metric_name="burrow_partition.offset" `telegraf_kafka_index` group="$group$" ($topic$) by topic, partition, metric_name span=10s
+| eval {metric_name}=value
+| stats first(burrow_partition.*) as "*" by _time, topic, partition
+| stats max(_time) as lastTime, latest(offset) as last_offset, avg(lag) as avg_lag, max(lag) as max_lag, latest(lag) as current, sparkline(avg(lag),) As sparkline, latest(status_code) as status_code by topic, partition
+| lookup burrow_status status_code OUTPUT status, description
+| rangemap field=status_code low=1-1 elevated=2-2 default=severe
+| eval avg_lag=round(avg_lag, 3), delta_lastTime=now()-lastTime, lastTime=strftime(lastTime, "%H:%M:%S")
+| eval status=if(delta_lastTime>120, "UNKNOWN", status), description=if(delta_lastTime>120, "The delta in seconds between the last state received and now has exceeded 120 seconds", description)
+| fields topic, partition, last_offset, avg_lag, max_lag, current, sparkline, status, range, lastTime, description | rename description as "status description"</query>
+                    <earliest>$time.earliest$</earliest>
+                    <latest>$time.latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="count">20</option>
+                <option name="dataOverlayMode">none</option>
+                <option name="drilldown">row</option>
+                <option name="percentagesRow">false</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="rowNumbers">false</option>
+                <option name="totalsRow">false</option>
+                <option name="wrap">true</option>
+                <format type="color" field="avg_lag">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="max_lag">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="current">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format field="sparkline" type="sparkline">
+                    <option name="lineColor">#5379af</option>
+                    <option name="fillColor">#CCDDFF</option>
+                    <option name="lineWidth">1</option>
+                    <option name="height">25</option>
+                </format>
+            </table>
+        </panel>
+    </row>
+</form>

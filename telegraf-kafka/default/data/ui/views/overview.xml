@@ -122,6 +122,19 @@
         </progress>
     </search>
 
+    <!-- Detect Burrow -->
+    <search id="detect_burrow" base="all_kafka_components_mcatalog">
+        <query>where metric_name="burrow_group.status_code"</query>
+        <progress>
+            <condition match="$job.resultCount$ == 0">
+                <unset token="burrow_detected"></unset>
+            </condition>
+            <condition>
+                <set token="burrow_detected">true</set>
+            </condition>
+        </progress>
+    </search>
+
     <!-- base search for Zookeeper -->
 
     <search id="server_activity_summary" depends="$zookeeper_detected$">
@@ -241,6 +254,23 @@
         <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_kafka-rest.jersey-metrics.request-error-rate" $env$ $label$ by metric_name
             | eval {metric_name}=value
             | stats first(kafka_kafka-rest.*) as "*"</query>
+        <earliest>-90s</earliest>
+        <latest>now</latest>
+        <refresh>90s</refresh>
+        <refreshType>delay</refreshType>
+    </search>
+
+    <!-- base search for Burrow -->
+
+    <search id="burrow" depends="$burrow_detected$">
+        <query>| mstats latest(_value) as value where metric_name="burrow_group.lag" OR metric_name="burrow_group.status_code" `telegraf_kafka_index` group!="" $env$ $label$ by env, label, cluster, group, metric_name span=10s
+| eval {metric_name}=value
+| stats first(burrow_group.*) as "*" by _time, env, label, cluster, group
+| stats max(_time) as lastTime, avg(lag) as avg_lag, max(lag) as max_lag, latest(lag) as current, latest(status_code) as status_code by env, label, cluster, group
+| lookup burrow_status status_code OUTPUT status, description
+| rangemap field=status_code low=1-1 elevated=2-2 default=severe
+| eval avg_lag=round(avg_lag, 3), delta_lastTime=now()-lastTime, lastTime=strftime(lastTime, "%H:%M:%S")
+| fields env, label, cluster, group, avg_lag, max_lag, current, status, range, lastTime</query>
         <earliest>-90s</earliest>
         <latest>now</latest>
         <refresh>90s</refresh>
@@ -1082,6 +1112,81 @@
             <html>
                 <div style="text-align: left; font-style: italic;">
                     <h2 style="color: #779ecb;">NO ACTIVE KAFKA CONNECT WORKER DETECTED</h2>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+    <!--
+
+    BURROW
+
+    -->
+
+    <row>
+        <panel>
+            <html>
+                <div class="dashseparator">
+                    <div class="box">
+                      <img src="../../static/app/telegraf-kafka/icons/kafka-logo-no-text.png"/>
+                      <span style="font-size: 22px; font-weight: bold; color: #999999; margin-top: 5px;">KAFKA CONSUMERS MONITORING WITH BURROW</span>
+                    </div>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+    <row depends="$burrow_detected$">
+        <panel>
+            <single>
+                <search base="burrow" depends="$burrow_detected$">
+                    <query>stats count</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">KAFKA GROUP CONSUMERS MONITORED</option>
+                <option name="useColors">1</option>
+                <drilldown>
+                  <link target="_self">/app/telegraf-kafka/telegraf-burrow?form.env=$form.env$&amp;form.label=$form.label$</link>
+                </drilldown>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="burrow">
+                    <query>| append [ | inputlookup kafka_burrow_consumers_monitoring | where monitoring_state="enabled" ]
+| stats first(*) as "*" by env, label, cluster, group
+| where monitoring_state="enabled"
+| eventstats count(eval(range="severe")) as count_severe, count(eval(range="elevated")) as count_elevated
+| stats first(count_severe) as count_severe, first(count_elevated) as count_elevated
+| eval status=if(count_severe>count_elevated, 2, 1), status=if(count_severe=0 AND count_elevated=0, 0, status)
+| rangemap field=status low=0-0 elevated=1-1 severe=2-2 default=severe
+| eval status_human=case(range="low", "OK", range="elevated", "WARN", range="severe", "ERR")
+| fields status_human, range</query>
+                </search>
+                <option name="colorBy">value</option>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0</option>
+                <option name="useColors">0</option>
+                <option name="underLabel">AGGREGATED STATE</option>
+                <option name="drilldown">all</option>
+                <drilldown>
+                  <link target="_self">/app/telegraf-kafka/telegraf-burrow?form.env=$form.env$&amp;form.label=$form.label$</link>
+                </drilldown>
+            </single>
+        </panel>
+    </row>
+
+    <row rejects="$burrow_detected$">
+        <panel>
+            <html>
+                <div style="text-align: left; font-style: italic;">
+                    <h2 style="color: #779ecb;">NO ACTIVE BURROW DETECTED</h2>
                 </div>
             </html>
         </panel>
