@@ -1,6 +1,15 @@
 Release notes
 #############
 
+Version 1.1.4
+=============
+
+Burrow integration: Kafka Consumer Lag monitoring
+
+- feature: Integration of Burrow, new Burrow consumer lag monitoring UIs
+- feature: Management of Kafka consumers state within the alerting framework
+- feature: Integration of Burrow consumers state within the Overview UI
+
 Version 1.1.3
 =============
 
