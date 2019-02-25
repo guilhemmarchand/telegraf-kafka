@@ -30,7 +30,7 @@ Initial deployment
 Upgrades
 ========
 
-Upgrading the Splunk application is pretty much the same operation, use one of the techniques that matches your conditions / requirements.
+Upgrading the Splunk application is pretty much the same operation than the initial deployment.
 
 Upgrades of the components
 ==========================
