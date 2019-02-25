@@ -190,3 +190,11 @@ Burrow Kafka Consumers lagging view
 .. image:: img/dashboard_burrow_pic2.png
    :alt: dashboard_burrow_pic2.png
    :align: center
+
+.. image:: img/dashboard_burrow_pic3.png
+   :alt: dashboard_burrow_pic3.png
+   :align: center
+
+.. image:: img/dashboard_burrow_pic4.png
+   :alt: dashboard_burrow_pic4.png
+   :align: center
