@@ -7,7 +7,7 @@ About
 
 * Purposes:
 
-**The Splunk application for Kafka monitoring with Telegraf leverages the best components to provide a key layer monitoring for your Kafka infrastructure :**
+**The Splunk application for Kafka Smart Monitoring leverages the best components to provide a key layer monitoring for your Kafka infrastructure :**
 
 * Telegraf from Influxdata (https://github.com/influxdata/telegraf)
 

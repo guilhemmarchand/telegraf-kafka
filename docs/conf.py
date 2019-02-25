@@ -270,7 +270,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'telegraf-kafka', u'telegraf-kafka Documentation',
-     author, 'telegraf-kafka', 'Splunk application for Kafka monitoring with Telegraf.',
+     author, 'telegraf-kafka', 'Splunk application for Kafka Smart Monitoring.',
      'Miscellaneous'),
 ]
 

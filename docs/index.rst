@@ -3,10 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to the Splunk application for Kafka monitoring with Telegraf documentation
-==================================================================================
+Welcome to the Splunk application for Kafka Smart Monitoring documentation
+==========================================================================
 
-**The Splunk application for Kafka monitoring with Telegraf provides performance management, reporting and alerting for Kafka components metrics ingested in the Splunk metric store:**
+**The Splunk application for Kafka Smart Monitoring with provides performance management, reporting and alerting for Kafka components metrics ingested in the Splunk metric store:**
 
 .. image:: img/coremain.png
    :alt: coremain.png
