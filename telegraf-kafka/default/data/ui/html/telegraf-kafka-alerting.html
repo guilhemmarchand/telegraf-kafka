@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Telegraf Kafka monitoring - Management of embedded alerting</title>
+    <title>Kafka Smart Monitoring - Management of embedded alerting framework</title>
     <link rel="shortcut icon" href="/en-US/static/@92F74F933102622F25D139967C9C020242623D8C2AE766D55E7680F38A7DA428.10/img/favicon.ico" />
     <link rel="stylesheet" type="text/css" href="{{SPLUNKWEB_URL_PREFIX}}/static/build/css/bootstrap-enterprise.css" />
     <link rel="stylesheet" type="text/css" href="{{SPLUNKWEB_URL_PREFIX}}/static/build/css/splunkjs-dashboard.css" />
@@ -38,8 +38,8 @@ styles in <div> tags, similar to Bootstrap's grid system.
 </header>
 <div class="dashboard-body container-fluid main-section-body" data-role="main">
     <div class="dashboard-header clearfix">
-        <h2>Telegraf Kafka monitoring - Management of embedded alerting</h2>
-        <p class="description">Use this interface to manage kafka Infrastructure alerting</p>
+        <h2>Kafka Smart Monitoring - Management of embedded alerting framework</h2>
+        <p class="description">Use this interface to manage kafka Infrastructure alerting for Kafka</p>
     </div>
 
     <div id="row_maintenance_state" class="dashboard-row dashboard-row_maintenance_state">
@@ -2401,41 +2401,87 @@ var search_burrow_main_table = new SearchManager({
                 "maintenance_mode": "enabled"
             };
 
-            bootbox.confirm("<h3 style=\"color: indianred;\">Please confirm the activation of the maintenance mode ?</h3><br />No alerts will be able to trigger as long as the maintenance mode is activated.", function(result){
+            //
+            // Verify the current status
+            //
 
-                if (result) {
+            // Search everything and return the first 10 results
+            var searchQuery = "| inputlookup kafka_alerting_maintenance";
 
-                    // Flush the collection
-                    service.request(
-                        myendpoint_URl,
-                        "DELETE",
-                        null,
-                        null)
-                            .done(function() {
-                                 // Run the search again to update the table
-                                search_maintenance_state.startSearch();
+            // Set the search parameters--specify a time range
+            var searchParams = {
+              earliest_time: "-5m",
+              latest_time: "now"
+            };
 
-                            });
+            // Run a oneshot search that returns the job's results
 
-                    // Use the request method to send a REST POST request
-                    // to the storage/collections/data/{collection}/entry_key endpoint
-                    service.request(
-                        myendpoint_URl,
-                        "POST",
-                        null,
-                        null,
-                        JSON.stringify(record),
-                        {"Content-Type": "application/json"},
-                        null)
-                            .done(function() {
-                                 // Run the search again to update the table
-                                search_maintenance_state.startSearch();
+            service.oneshotSearch(
+              searchQuery,
+              searchParams,
+              function(err, results) {
+                // Display the results
+                var fields = results.fields;
+                var rows = results.rows;
 
-                            });
+                for(var i = 0; i < rows.length; i++) {
+                  var values = rows[i];
+                  // console.log("Row " + i + ": ");
+
+                  for(var j = 0; j < values.length; j++) {
+                    var field = fields[j];
+                    var current_maintenance_mode = values[j];
+                    // console.log("  " + field + ": " + current_maintenance_mode);
+                  }
+                }
+
+                if (current_maintenance_mode=="enabled") {
+                    // Show an error message
+                    bootbox.alert("<h3 style=\"color: indianred;\">Error: maintenance mode is already enabled.</h3>");
+                }
+
+                else
+                {
+
+                bootbox.confirm("<h3 style=\"color: indianred;\">Please confirm the activation of the maintenance mode ?</h3><br />No alerts will be able to trigger as long as the maintenance mode is activated.", function(result){
+
+                    if (result) {
+
+                        // Flush the collection
+                        service.request(
+                            myendpoint_URl,
+                            "DELETE",
+                            null,
+                            null)
+                                .done(function() {
+                                     // Run the search again to update the table
+                                    search_maintenance_state.startSearch();
+
+                                });
+
+                        // Use the request method to send a REST POST request
+                        // to the storage/collections/data/{collection}/entry_key endpoint
+                        service.request(
+                            myendpoint_URl,
+                            "POST",
+                            null,
+                            null,
+                            JSON.stringify(record),
+                            {"Content-Type": "application/json"},
+                            null)
+                                .done(function() {
+                                     // Run the search again to update the table
+                                    search_maintenance_state.startSearch();
+
+                                });
+
+                        }
+                    });
 
                 }
 
-            });
+              }
+            );
 
         });
 
@@ -2457,41 +2503,86 @@ var search_burrow_main_table = new SearchManager({
                 "maintenance_mode": "disabled"
             };
 
-            bootbox.confirm("<h3 style=\"color: indianred;\">Please confirm the deactivation of the maintenance mode ?</h3><br />All alerts will be now be able to trigger when the maintenance mode is deactivated.", function(result){
+            //
+            // Verify the current status
+            //
 
-                if (result) {
+            // Search everything and return the first 10 results
+            var searchQuery = "| inputlookup kafka_alerting_maintenance";
 
-                    // Flush the collection
-                    service.request(
-                        myendpoint_URl,
-                        "DELETE",
-                        null,
-                        null)
-                            .done(function() {
-                                 // Run the search again to update the table
-                                search_maintenance_state.startSearch();
+            // Set the search parameters--specify a time range
+            var searchParams = {
+              earliest_time: "-5m",
+              latest_time: "now"
+            };
 
-                            });
+            // Run a oneshot search that returns the job's results
 
-                    // Use the request method to send a REST POST request
-                    // to the storage/collections/data/{collection}/entry_key endpoint
-                    service.request(
-                        myendpoint_URl,
-                        "POST",
-                        null,
-                        null,
-                        JSON.stringify(record),
-                        {"Content-Type": "application/json"},
-                        null)
-                            .done(function() {
-                                 // Run the search again to update the table
-                                search_maintenance_state.startSearch();
+            service.oneshotSearch(
+              searchQuery,
+              searchParams,
+              function(err, results) {
+                // Display the results
+                var fields = results.fields;
+                var rows = results.rows;
 
-                            });
+                for(var i = 0; i < rows.length; i++) {
+                  var values = rows[i];
+                  // console.log("Row " + i + ": ");
+
+                  for(var j = 0; j < values.length; j++) {
+                    var field = fields[j];
+                    var current_maintenance_mode = values[j];
+                    // console.log("  " + field + ": " + current_maintenance_mode);
+                  }
+                }
+
+                if (current_maintenance_mode=="disabled") {
+                    // Show an error message
+                    bootbox.alert("<h3 style=\"color: indianred;\">Error: maintenance mode is already disabled.</h3>");
+                }
+
+                else
+                {
+
+                    bootbox.confirm("<h3 style=\"color: indianred;\">Please confirm the deactivation of the maintenance mode ?</h3><br />All alerts will be now be able to trigger when the maintenance mode is deactivated.", function(result){
+                    if (result) {
+
+                        // Flush the collection
+                        service.request(
+                            myendpoint_URl,
+                            "DELETE",
+                            null,
+                            null)
+                                .done(function() {
+                                     // Run the search again to update the table
+                                    search_maintenance_state.startSearch();
+
+                                });
+
+                        // Use the request method to send a REST POST request
+                        // to the storage/collections/data/{collection}/entry_key endpoint
+                        service.request(
+                            myendpoint_URl,
+                            "POST",
+                            null,
+                            null,
+                            JSON.stringify(record),
+                            {"Content-Type": "application/json"},
+                            null)
+                                .done(function() {
+                                     // Run the search again to update the table
+                                    search_maintenance_state.startSearch();
+
+                                });
+
+                        }
+                    });
 
                 }
 
-            });
+              }
+            );
 
         });
 

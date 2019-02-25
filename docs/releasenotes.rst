@@ -10,6 +10,7 @@ Burrow integration: Kafka Consumer Lag monitoring
 - feature: Management of Kafka consumers state within the alerting framework
 - feature: Integration of Burrow consumers state within the Overview UI
 - feature: Schedule Kvstore collection update reports (infra, topics, tasks, consumers) on a per 4 hours basis
+- fix: Prevents user from attempting to disable maintenance mode when already disabled, and vice-versa
 
 Version 1.1.3
 =============
