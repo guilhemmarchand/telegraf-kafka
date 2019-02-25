@@ -962,7 +962,9 @@ See: https://github.com/linkedin/Burrow
    :alt: burrow_diagram.png
    :align: center
 
-Telegraf has a native input for Burrow which polls consumers, topics and partitions lag metrics and statuses over http, use the following telegraf minimal configuration:
+**Burrow is a very powerful application that monitors all consumers (Kafka Connect connectors, Kafka Streams...) to report an advanced state of the service automatically, and various useful lagging metrics.**
+
+**Telegraf has a native input for Burrow which polls consumers, topics and partitions lag metrics and statuses over http, use the following telegraf minimal configuration:**
 
 See: https://github.com/influxdata/telegraf/tree/master/plugins/inputs/burrow
 
