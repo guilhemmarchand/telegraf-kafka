@@ -838,7 +838,6 @@ Full telegraf.conf example
     [[inputs.jolokia2_agent.metric]]
       name         = "ksql-server"
       mbean        = "io.confluent.ksql.metrics:type=*"
-      paths = ["error-rate", "num-persistent-queries", "messages-consumed-per-sec", "messages-produced-per-sec", "num-active-queries" , "num-idle-queries", "messages-consumed-max"]
 
 **Visualization of metrics within the Splunk metrics workspace application:**
 

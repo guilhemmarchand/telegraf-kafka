@@ -98,7 +98,7 @@
 
     <!-- Detect Confluent ksql-server -->
     <search id="detect_confluent_ksql_server" base="all_kafka_components_mcatalog">
-        <query>where metric_name="kafka_ksql-server.messages-consumed-per-sec" OR metric_name="kafka_ksql-server.messages-produced-per-sec"</query>
+        <query>where match(metric_name, "kafka_ksql-server.*(messages-consumed-per-sec|messages-produced-per-sec)")</query>
         <progress>
             <condition match="$job.resultCount$ == 0">
                 <unset token="ksql_server_detected"></unset>
@@ -216,9 +216,10 @@
     <!-- base search for Confluence ksql-server -->
 
     <search id="ksql_server_queries_activity_summary" depends="$ksql_server_detected$">
-        <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_ksql-server.num-persistent-queries" OR metric_name="kafka_ksql-server.num-active-queries" OR metric_name="kafka_ksql-server.num-idle-queries" $env$ $label$ by metric_name
+        <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_ksql-server.*num-persistent-queries" OR metric_name="kafka_ksql-server.*num-active-queries" OR metric_name="kafka_ksql-server.*num-idle-queries" $env$ $label$ by metric_name
+            | rex field=metric_name "_(?&lt;metric_name&gt;num-persistent-queries|num-active-queries|num-idle-queries)"
             | eval {metric_name}=value
-            | stats first(kafka_ksql-server.*) as "*"
+            | stats first(*) as "*"
             | fields num-active-queries, num-persistent-queries, num-idle-queries</query>
         <earliest>-90s</earliest>
         <latest>now</latest>
@@ -227,9 +228,10 @@
     </search>
 
     <search id="ksql_server_stats_activity_summary" depends="$ksql_server_detected$">
-        <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name=kafka_ksql-server.messages-consumed-per-sec OR metric_name=kafka_ksql-server.messages-produced-per-sec OR metric_name="kafka_ksql-server.error-rate" $env$ $label$ by metric_name
+        <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name=kafka_ksql-server.*messages-consumed-per-sec OR metric_name=kafka_ksql-server.*messages-produced-per-sec OR metric_name="kafka_ksql-server.*error-rate" $env$ $label$ by metric_name
+            | rex field=metric_name "_(?&lt;metric_name&gt;messages-consumed-per-sec|messages-produced-per-sec|error-rate)"
             | eval {metric_name}=value
-            | stats first(kafka_ksql-server.*) as "*"
+            | stats first(*) as "*"
             | eval messages-consumed-per-sec=round('messages-consumed-per-sec', 2), messages-produced-per-sec=round('messages-produced-per-sec', 2)
             | fields messages-produced-per-sec, messages-consumed-per-sec, error-rate</query>
         <earliest>-90s</earliest>

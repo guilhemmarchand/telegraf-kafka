@@ -2,9 +2,10 @@
     <label>Confluent ksql-server - Entity health view</label>
 
     <search id="queries_activity_summary">
-        <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_ksql-server.num-persistent-queries" OR metric_name="kafka_ksql-server.num-active-queries" OR metric_name="kafka_ksql-server.num-idle-queries" $env$ $label$ $jolokia_agent_url$ by metric_name
+        <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_ksql-server.*num-persistent-queries" OR metric_name="kafka_ksql-server.*num-active-queries" OR metric_name="kafka_ksql-server.*num-idle-queries" $env$ $label$ $jolokia_agent_url$ by metric_name
+| rex field=metric_name "_(?&lt;metric_name&gt;num-persistent-queries|num-active-queries|num-idle-queries)"
 | eval {metric_name}=value
-| stats first(kafka_ksql-server.*) as "*"
+| stats first(*) as "*"
 | fields num-active-queries, num-persistent-queries, num-idle-queries</query>
         <earliest>-90s</earliest>
         <latest>now</latest>
@@ -13,9 +14,10 @@
     </search>
 
     <search id="stats_activity_summary">
-        <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name=kafka_ksql-server.messages-consumed-per-sec OR metric_name=kafka_ksql-server.messages-produced-per-sec OR metric_name="kafka_ksql-server.error-rate" $env$ $label$ $jolokia_agent_url$ by metric_name
+        <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name=kafka_ksql-server.*messages-consumed-per-sec OR metric_name=kafka_ksql-server.*messages-produced-per-sec OR metric_name="kafka_ksql-server.*error-rate" $env$ $label$ $jolokia_agent_url$ by metric_name
+| rex field=metric_name "_(?&lt;metric_name&gt;messages-consumed-per-sec|messages-produced-per-sec|error-rate)"
 | eval {metric_name}=value
-| stats first(kafka_ksql-server.*) as "*"
+| stats first(*) as "*"
 | eval messages-consumed-per-sec=round('messages-consumed-per-sec', 2), messages-produced-per-sec=round('messages-produced-per-sec', 2)
 | fields messages-produced-per-sec, messages-consumed-per-sec, error-rate</query>
         <earliest>-90s</earliest>
@@ -201,9 +203,10 @@
             <title>Active / Active / Idle queries</title>
             <chart>
                 <search depends="$chart1$">
-                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_ksql-server.num-persistent-queries" OR metric_name="kafka_ksql-server.num-active-queries" OR metric_name="kafka_ksql-server.num-idle-queries" $env$ $label$ $jolokia_agent_url$ by metric_name, jolokia_agent_url span=10s
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_ksql-server.*num-persistent-queries" OR metric_name="kafka_ksql-server.*num-active-queries" OR metric_name="kafka_ksql-server.*num-idle-queries" $env$ $label$ $jolokia_agent_url$ by metric_name, jolokia_agent_url span=10s
+| rex field=metric_name "_(?&lt;metric_name&gt;num-persistent-queries|num-active-queries|num-idle-queries)"
 | eval {metric_name}=value
-| stats first(kafka_ksql-server.*) as "*" by _time, jolokia_agent_url, metric_name
+| stats first(*) as "*" by _time, jolokia_agent_url, metric_name
 | rex field=jolokia_agent_url "//(?&lt;kafka_ksql_server&gt;[^:]*)\:"
 | timechart `telegraf_kafka_span` latest(num-active-queries) as num-active-queries, latest(num-persistent-queries) as num-persistent-queries, latest(num-idle-queries) as num-idle-queries by kafka_ksql_server</query>
                     <earliest>$earliest$</earliest>
@@ -249,7 +252,7 @@
             <title>Error rate</title>
             <chart>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_ksql-server.error-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_ksql-server.*error-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as error-rate by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -271,7 +274,7 @@
             <title>Messages produced per second</title>
             <chart>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_ksql-server.messages-produced-per-sec" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_ksql-server.*messages-produced-per-sec" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as messages-produced-per-sec by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -290,7 +293,7 @@
             <title>Messages consumed per sec</title>
             <chart>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_ksql-server.messages-consumed-per-sec" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_ksql-server.*messages-consumed-per-sec" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=10s
 | timechart `telegraf_kafka_span` avg(_value) as messages-consumed-per-sec by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>

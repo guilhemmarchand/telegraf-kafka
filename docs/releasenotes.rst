@@ -1,6 +1,11 @@
 Release notes
 #############
 
+Version 1.1.6
+=============
+
+- fix: incompatibility for ksql-server with latest Confluent release (5.1.x) due to metric name changes in JMX model
+
 Version 1.1.5
 =============
 
