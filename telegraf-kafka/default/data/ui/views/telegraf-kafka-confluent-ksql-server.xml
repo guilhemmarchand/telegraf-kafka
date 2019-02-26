@@ -3,7 +3,7 @@
 
     <search id="queries_activity_summary">
         <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_ksql-server.*num-persistent-queries" OR metric_name="kafka_ksql-server.*num-active-queries" OR metric_name="kafka_ksql-server.*num-idle-queries" $env$ $label$ $jolokia_agent_url$ by metric_name
-| rex field=metric_name "_(?&lt;metric_name&gt;num-persistent-queries|num-active-queries|num-idle-queries)"
+| rex field=metric_name "(?&lt;metric_name&gt;num-persistent-queries|num-active-queries|num-idle-queries)"
 | eval {metric_name}=value
 | stats first(*) as "*"
 | fields num-active-queries, num-persistent-queries, num-idle-queries</query>
@@ -15,7 +15,7 @@
 
     <search id="stats_activity_summary">
         <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name=kafka_ksql-server.*messages-consumed-per-sec OR metric_name=kafka_ksql-server.*messages-produced-per-sec OR metric_name="kafka_ksql-server.*error-rate" $env$ $label$ $jolokia_agent_url$ by metric_name
-| rex field=metric_name "_(?&lt;metric_name&gt;messages-consumed-per-sec|messages-produced-per-sec|error-rate)"
+| rex field=metric_name "(?&lt;metric_name&gt;messages-consumed-per-sec|messages-produced-per-sec|error-rate)"
 | eval {metric_name}=value
 | stats first(*) as "*"
 | eval messages-consumed-per-sec=round('messages-consumed-per-sec', 2), messages-produced-per-sec=round('messages-produced-per-sec', 2)
@@ -204,7 +204,7 @@
             <chart>
                 <search depends="$chart1$">
                     <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_ksql-server.*num-persistent-queries" OR metric_name="kafka_ksql-server.*num-active-queries" OR metric_name="kafka_ksql-server.*num-idle-queries" $env$ $label$ $jolokia_agent_url$ by metric_name, jolokia_agent_url span=10s
-| rex field=metric_name "_(?&lt;metric_name&gt;num-persistent-queries|num-active-queries|num-idle-queries)"
+| rex field=metric_name "(?&lt;metric_name&gt;num-persistent-queries|num-active-queries|num-idle-queries)"
 | eval {metric_name}=value
 | stats first(*) as "*" by _time, jolokia_agent_url, metric_name
 | rex field=jolokia_agent_url "//(?&lt;kafka_ksql_server&gt;[^:]*)\:"
