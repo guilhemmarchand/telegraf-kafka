@@ -1,6 +1,21 @@
 Release notes
 #############
 
+Version 1.1.5
+=============
+
+Burrow integration: Kafka Consumer Lag monitoring
+
+- feature: Integration of Burrow, new Burrow consumer lag monitoring UIs
+- feature: Management of Kafka consumers state within the alerting framework
+- feature: Integration of Burrow consumers state within the Overview UI
+- feature: Schedule Kvstore collection update reports (infra, topics, tasks, consumers) on a per 4 hours basis
+- fix: Prevents user from attempting to disable maintenance mode when already disabled, and vice-versa
+- fix: Properly sort Connect tasks statuses on Overview page to show Unknown status when tasks are missing but monitored
+
+The Burrow integration provides advanced threshold less lag monitoring for Kafka Consumers, such as Kafka Connect connectors and Kafka Streams.
+
+
 Version 1.1.4
 =============
 

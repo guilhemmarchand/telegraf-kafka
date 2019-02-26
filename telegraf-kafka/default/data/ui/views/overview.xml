@@ -967,7 +967,7 @@
 | fillnull value=5 integer_status
 | rangemap field=integer_status low=1-1 high=2-5 default=severe
 | fields status, range, integer_status
-| sort limit=0 integer_status | append [ makeresults ] | fillnull value="unknown" status | fillnull value="elevated" range | fields - _time</query>
+| sort - limit=0 integer_status | append [ makeresults ] | fillnull value="unknown" status | fillnull value="elevated" range | fields - _time</query>
                 </search>
                 <option name="colorBy">value</option>
                 <option name="colorMode">block</option>
@@ -1021,7 +1021,7 @@
 | fillnull value=5 integer_status
 | rangemap field=integer_status low=1-1 high=2-5 default=severe
 | fields status, range, integer_status
-| sort limit=0 integer_status | append [ makeresults ] | fillnull value="unknown" status | fillnull value="elevated" range | fields - _time</query>
+| sort - limit=0 integer_status | append [ makeresults ] | fillnull value="unknown" status | fillnull value="elevated" range | fields - _time</query>
                 </search>
                 <option name="colorBy">value</option>
                 <option name="colorMode">block</option>
