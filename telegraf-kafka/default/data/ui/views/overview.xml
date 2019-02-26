@@ -1168,6 +1168,8 @@
 | eval status=if(count_severe>count_elevated, 2, 1), status=if(count_severe=0 AND count_elevated=0, 0, status)
 | rangemap field=status low=0-0 elevated=1-1 severe=2-2 default=severe
 | eval status_human=case(range="low", "OK", range="elevated", "WARN", range="severe", "ERR")
+| appendcols [ | makeresults | eval status_none="no consumers monitored yet", range_none="gray" ]
+| eval status_human=if(isnull(status_human), "0 monitored consumers (update collection required)", status_human), range=if(isnull(range), range_none, range)
 | fields status_human, range</query>
                 </search>
                 <option name="colorBy">value</option>
