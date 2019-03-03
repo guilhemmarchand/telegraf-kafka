@@ -511,6 +511,9 @@ styles in <div> tags, similar to Bootstrap's grid system.
                     <div class="input input-text" id="input_burrow_search_cluster">
                         <label>cluster:</label>
                     </div>
+                    <div class="input input-text" id="input_burrow_search_name">
+                        <label>name:</label>
+                    </div>
                     <div class="input input-dropdown" id="input_burrow_search_monitoring_state">
                         <label>Monitoring state:</label>
                     </div>
@@ -1237,7 +1240,7 @@ var search_burrow_main_table = new SearchManager({
             "sample_ratio": 1,
             "earliest_time": "-15m",
             "cancelOnUnload": true,
-            "search": "| inputlookup kafka_burrow_consumers_monitoring | eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_burrow_env$ $search_tk_burrow_label$ $search_tk_burrow_cluster$ $search_tk_burrow_monitoring_state$ | fields keyid, env, label, cluster, group, monitoring_state | sort 0 env, label, cluster, group",
+            "search": "| inputlookup kafka_burrow_consumers_monitoring | eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_burrow_env$ $search_tk_burrow_label$ $search_tk_burrow_cluster$ $search_tk_burrow_monitoring_state$ $search_tk_burrow_name$ | fields keyid, env, label, cluster, group, monitoring_state | sort 0 env, label, cluster, group",
             "latest_time": "now",
             "status_buckets": 0,
             "app": utils.getCurrentApp(),
@@ -2341,6 +2344,20 @@ var search_burrow_main_table = new SearchManager({
 
         input_burrow_delete.on("change", function(newValue) {
             FormUtils.handleValueChange(input_burrow_delete);
+        });
+
+        var input_burrow_search_name = new TextInput({
+            "id": "input_burrow_search_name",
+            "searchWhenChanged": true,
+            "initialValue": "*",
+            "suffix": "\"",
+            "prefix": "group=\"",
+            "value": "$form.search_tk_burrow_name$",
+            "el": $('#input_burrow_search_name')
+        }, {tokens: true}).render();
+
+        input_burrow_search_name.on("change", function(newValue) {
+            FormUtils.handleValueChange(input_burrow_search_name);
         });
 
         //

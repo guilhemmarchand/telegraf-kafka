@@ -1,6 +1,13 @@
 Release notes
 #############
 
+Version 1.1.7
+=============
+
+- feature: Add input text filter for Consumers in UI Monitoring management
+- fix: Non working filters for Consumers / partitions in UI Burrow
+- feature: Map monitoring_state in Consumers status preview in Overview
+
 Version 1.1.6
 =============
 
