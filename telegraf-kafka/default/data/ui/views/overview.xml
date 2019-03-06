@@ -1085,26 +1085,94 @@
 
     <row depends="$show_source_tasks$">
         <panel>
-            <table>
-            <title>Kafka Connect source connector tasks status</title>
+            <input type="multiselect" token="env" searchWhenChanged="true">
+                <label>Env:</label>
+                <!-- Populating Data Model Search -->
+                <search base="main_populate">
+                    <query>dedup env | sort 0 env</query>
+                </search>
+                <valuePrefix>env="</valuePrefix>
+                <valueSuffix>"</valueSuffix>
+                <delimiter> OR </delimiter>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>env</fieldForLabel>
+                <fieldForValue>env</fieldForValue>
+            </input>
+            <input type="multiselect" token="label" searchWhenChanged="true">
+                <label>Label:</label>
+                <!-- Populating Data Model Search -->
+                <search base="main_populate">
+                    <query>search $env$ | dedup label | sort 0 label</query>
+                </search>
+                <valuePrefix>label="</valuePrefix>
+                <valueSuffix>"</valueSuffix>
+                <delimiter> OR </delimiter>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>label</fieldForLabel>
+                <fieldForValue>label</fieldForValue>
+            </input>
+            <table id="table_source_tasks">
+            <title>Kafka Connect source connector tasks status (click on the row to open entity view for that connector)</title>
                 <search depends="$show_source_tasks$">
-                    <query>| savedsearch "Kafka monitoring - tasks status report" | search $env$ $label$ | where role="kafka_source_task"</query>
+                    <query>| savedsearch "Kafka monitoring - tasks status report" | search $env$ $label$ | where role="kafka_source_task" | fields - integer_status</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
+                    <refresh>90s</refresh>
+                    <refreshType>delay</refreshType>
                 </search>
+                <option name="drilldown">row</option>
+                <drilldown>
+                    <link>/app/telegraf-kafka/telegraf-kafka-kafka-connect-source-task?form.env=$row.env$&amp;form.label=$row.label$&amp;form.connector=$row.connector$</link>
+                </drilldown>
             </table>
         </panel>
     </row>
 
     <row depends="$show_sink_tasks$">
         <panel>
-            <table>
-            <title>Kafka Connect sink connector tasks status</title>
+            <input type="multiselect" token="env" searchWhenChanged="true">
+                <label>Env:</label>
+                <!-- Populating Data Model Search -->
+                <search base="main_populate">
+                    <query>dedup env | sort 0 env</query>
+                </search>
+                <valuePrefix>env="</valuePrefix>
+                <valueSuffix>"</valueSuffix>
+                <delimiter> OR </delimiter>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>env</fieldForLabel>
+                <fieldForValue>env</fieldForValue>
+            </input>
+            <input type="multiselect" token="label" searchWhenChanged="true">
+                <label>Label:</label>
+                <!-- Populating Data Model Search -->
+                <search base="main_populate">
+                    <query>search $env$ | dedup label | sort 0 label</query>
+                </search>
+                <valuePrefix>label="</valuePrefix>
+                <valueSuffix>"</valueSuffix>
+                <delimiter> OR </delimiter>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>label</fieldForLabel>
+                <fieldForValue>label</fieldForValue>
+            </input>
+            <table id="table_sink_tasks">
+            <title>Kafka Connect sink connector tasks status (click on the row to open entity view for that connector)</title>
                 <search depends="$show_sink_tasks$">
-                    <query>| savedsearch "Kafka monitoring - tasks status report" | search $env$ $label$ | where role="kafka_sink_task"</query>
+                    <query>| savedsearch "Kafka monitoring - tasks status report" | search $env$ $label$ | where role="kafka_sink_task" | fields - integer_status</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
+                    <refresh>90s</refresh>
+                    <refreshType>delay</refreshType>
                 </search>
+                <option name="drilldown">row</option>
+                <drilldown>
+                    <link>/app/telegraf-kafka/telegraf-kafka-kafka-connect-sink-task?form.env=$row.env$&amp;form.label=$row.label$&amp;form.connector=$row.connector$</link>
+                </drilldown>
             </table>
         </panel>
     </row>

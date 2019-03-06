@@ -1,6 +1,12 @@
 Release notes
 #############
 
+Version 1.1.8
+=============
+
+- feature: Improvements of the Kafka Connect task status overview report
+- feature: Add icon ranges and filters for Kafka Connect task status overview from Overview main dashboard, configure drilldown from table to entity views
+
 Version 1.1.7
 =============
 

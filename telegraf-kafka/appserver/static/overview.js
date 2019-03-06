@@ -38,6 +38,14 @@ require([
             }));
         }
     });
+    mvc.Components.get('table_source_tasks').getVisualization(function(tableView){
+        // Register custom cell renderer, the table will re-render automatically
+        tableView.addCellRenderer(new RangeMapIconRenderer());
+    });
+    mvc.Components.get('table_sink_tasks').getVisualization(function(tableView){
+        // Register custom cell renderer, the table will re-render automatically
+        tableView.addCellRenderer(new RangeMapIconRenderer());
+    });
     mvc.Components.get('table_consumers').getVisualization(function(tableView){
         // Register custom cell renderer, the table will re-render automatically
         tableView.addCellRenderer(new RangeMapIconRenderer());
