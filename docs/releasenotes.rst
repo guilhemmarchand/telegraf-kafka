@@ -1,6 +1,11 @@
 Release notes
 #############
 
+Version 1.1.9
+=============
+
+- fix: Static index reference instead of macro usage in Kafka Connect report
+
 Version 1.1.8
 =============
 
