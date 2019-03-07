@@ -1,6 +1,12 @@
 Release notes
 #############
 
+Version 1.1.10
+==============
+
+- fix: Static index references instead of macro usage in Kafka Connect entity view, Kafka Connect status report and drilldown links
+- fix: Switch to dopdown selector for env/label in Overview to avoid multiselect issues with forwarding tokens to dashboards
+
 Version 1.1.9
 =============
 

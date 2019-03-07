@@ -15,7 +15,7 @@
     </search>
 
     <search id="connect_task_summary">
-        <query>| mstats latest(_value) as value WHERE index="telegraf_kafka" metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" $env$ $label$ $jolokia_agent_url$ by metric_name, env, label, jolokia_agent_url, connector, task
+        <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" $env$ $label$ $jolokia_agent_url$ by metric_name, env, label, jolokia_agent_url, connector, task
 | eval {metric_name}=value
 | stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*" by env, label, jolokia_agent_url, connector, task
 | eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2)

@@ -7,29 +7,27 @@
     </search>
 
     <fieldset submitButton="false">
-        <input type="multiselect" token="env" searchWhenChanged="true">
+        <input type="dropdown" token="env" searchWhenChanged="true">
             <label>Env:</label>
             <!-- Populating Data Model Search -->
             <search base="main_populate">
                 <query>dedup env | sort 0 env</query>
             </search>
-            <valuePrefix>env="</valuePrefix>
-            <valueSuffix>"</valueSuffix>
-            <delimiter> OR </delimiter>
+            <prefix>env="</prefix>
+            <suffix>"</suffix>
             <choice value="*">ANY</choice>
             <initialValue>*</initialValue>
             <fieldForLabel>env</fieldForLabel>
             <fieldForValue>env</fieldForValue>
         </input>
-        <input type="multiselect" token="label" searchWhenChanged="true">
+        <input type="dropdown" token="label" searchWhenChanged="true">
             <label>Label:</label>
             <!-- Populating Data Model Search -->
             <search base="main_populate">
                 <query>search $env$ | dedup label | sort 0 label</query>
             </search>
-            <valuePrefix>label="</valuePrefix>
-            <valueSuffix>"</valueSuffix>
-            <delimiter> OR </delimiter>
+            <prefix>label="</prefix>
+            <suffix>"</suffix>
             <choice value="*">ANY</choice>
             <initialValue>*</initialValue>
             <fieldForLabel>label</fieldForLabel>
@@ -558,29 +556,27 @@
                     <latestTime>now</latestTime>
                 </default>
             </input>
-            <input type="multiselect" token="env" searchWhenChanged="true">
+            <input type="dropdown" token="env" searchWhenChanged="true">
                 <label>Env:</label>
                 <!-- Populating Data Model Search -->
                 <search base="main_populate">
                     <query>dedup env | sort 0 env</query>
                 </search>
-                <valuePrefix>env="</valuePrefix>
-                <valueSuffix>"</valueSuffix>
-                <delimiter> OR </delimiter>
+                <prefix>env="</prefix>
+                <suffix>"</suffix>
                 <choice value="*">ANY</choice>
                 <initialValue>*</initialValue>
                 <fieldForLabel>env</fieldForLabel>
                 <fieldForValue>env</fieldForValue>
             </input>
-            <input type="multiselect" token="label" searchWhenChanged="true">
+            <input type="dropdown" token="label" searchWhenChanged="true">
                 <label>Label:</label>
                 <!-- Populating Data Model Search -->
                 <search base="main_populate">
                     <query>search $env$ | dedup label | sort 0 label</query>
                 </search>
-                <valuePrefix>label="</valuePrefix>
-                <valueSuffix>"</valueSuffix>
-                <delimiter> OR </delimiter>
+                <prefix>label="</prefix>
+                <suffix>"</suffix>
                 <choice value="*">ANY</choice>
                 <initialValue>*</initialValue>
                 <fieldForLabel>label</fieldForLabel>
@@ -683,29 +679,27 @@
                     <latestTime>now</latestTime>
                 </default>
             </input>
-            <input type="multiselect" token="env" searchWhenChanged="true">
+            <input type="dropdown" token="env" searchWhenChanged="true">
                 <label>Env:</label>
                 <!-- Populating Data Model Search -->
                 <search base="main_populate">
                     <query>dedup env | sort 0 env</query>
                 </search>
-                <valuePrefix>env="</valuePrefix>
-                <valueSuffix>"</valueSuffix>
-                <delimiter> OR </delimiter>
+                <prefix>env="</prefix>
+                <suffix>"</suffix>
                 <choice value="*">ANY</choice>
                 <initialValue>*</initialValue>
                 <fieldForLabel>env</fieldForLabel>
                 <fieldForValue>env</fieldForValue>
             </input>
-            <input type="multiselect" token="label" searchWhenChanged="true">
+            <input type="dropdown" token="label" searchWhenChanged="true">
                 <label>Label:</label>
                 <!-- Populating Data Model Search -->
                 <search base="main_populate">
                     <query>search $env$ | dedup label | sort 0 label</query>
                 </search>
-                <valuePrefix>label="</valuePrefix>
-                <valueSuffix>"</valueSuffix>
-                <delimiter> OR </delimiter>
+                <prefix>label="</prefix>
+                <suffix>"</suffix>
                 <choice value="*">ANY</choice>
                 <initialValue>*</initialValue>
                 <fieldForLabel>label</fieldForLabel>
@@ -948,7 +942,7 @@
                 <option name="underLabel">SOURCE CONNECTORS (ACTIVE AND MONITORED)</option>
                 <option name="useColors">1</option>
                 <drilldown>
-                  <link target="_blank">search?q=| mstats latest(_value) as value WHERE index="telegraf_kafka" metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" $env$ $label$ by metric_name, env, label, task, connector
+                  <link target="_blank">search?q=| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" $env$ $label$ by metric_name, env, label, task, connector
 | eval {metric_name}=value
 | stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*" by env, label, connector, task
 | eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2)
@@ -1002,7 +996,7 @@
                 <option name="underLabel">SINK CONNECTORS (ACTIVE AND MONITORED)</option>
                 <option name="useColors">1</option>
                 <drilldown>
-                  <link target="_blank">search?q=| mstats latest(_value) as value WHERE index="telegraf_kafka" metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" $env$ $label$ by metric_name, env, label, task, connector
+                  <link target="_blank">search?q=| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" $env$ $label$ by metric_name, env, label, task, connector
 | eval {metric_name}=value
 | stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*" by env, label, connector, task
 | eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2)
@@ -1085,29 +1079,27 @@
 
     <row depends="$show_source_tasks$">
         <panel>
-            <input type="multiselect" token="env" searchWhenChanged="true">
+            <input type="dropdown" token="env" searchWhenChanged="true">
                 <label>Env:</label>
                 <!-- Populating Data Model Search -->
                 <search base="main_populate">
                     <query>dedup env | sort 0 env</query>
                 </search>
-                <valuePrefix>env="</valuePrefix>
-                <valueSuffix>"</valueSuffix>
-                <delimiter> OR </delimiter>
+                <prefix>env="</prefix>
+                <suffix>"</suffix>
                 <choice value="*">ANY</choice>
                 <initialValue>*</initialValue>
                 <fieldForLabel>env</fieldForLabel>
                 <fieldForValue>env</fieldForValue>
             </input>
-            <input type="multiselect" token="label" searchWhenChanged="true">
+            <input type="dropdown" token="label" searchWhenChanged="true">
                 <label>Label:</label>
                 <!-- Populating Data Model Search -->
                 <search base="main_populate">
                     <query>search $env$ | dedup label | sort 0 label</query>
                 </search>
-                <valuePrefix>label="</valuePrefix>
-                <valueSuffix>"</valueSuffix>
-                <delimiter> OR </delimiter>
+                <prefix>label="</prefix>
+                <suffix>"</suffix>
                 <choice value="*">ANY</choice>
                 <initialValue>*</initialValue>
                 <fieldForLabel>label</fieldForLabel>
@@ -1132,29 +1124,27 @@
 
     <row depends="$show_sink_tasks$">
         <panel>
-            <input type="multiselect" token="env" searchWhenChanged="true">
+            <input type="dropdown" token="env" searchWhenChanged="true">
                 <label>Env:</label>
                 <!-- Populating Data Model Search -->
                 <search base="main_populate">
                     <query>dedup env | sort 0 env</query>
                 </search>
-                <valuePrefix>env="</valuePrefix>
-                <valueSuffix>"</valueSuffix>
-                <delimiter> OR </delimiter>
+                <prefix>env="</prefix>
+                <suffix>"</suffix>
                 <choice value="*">ANY</choice>
                 <initialValue>*</initialValue>
                 <fieldForLabel>env</fieldForLabel>
                 <fieldForValue>env</fieldForValue>
             </input>
-            <input type="multiselect" token="label" searchWhenChanged="true">
+            <input type="dropdown" token="label" searchWhenChanged="true">
                 <label>Label:</label>
                 <!-- Populating Data Model Search -->
                 <search base="main_populate">
                     <query>search $env$ | dedup label | sort 0 label</query>
                 </search>
-                <valuePrefix>label="</valuePrefix>
-                <valueSuffix>"</valueSuffix>
-                <delimiter> OR </delimiter>
+                <prefix>label="</prefix>
+                <suffix>"</suffix>
                 <choice value="*">ANY</choice>
                 <initialValue>*</initialValue>
                 <fieldForLabel>label</fieldForLabel>
