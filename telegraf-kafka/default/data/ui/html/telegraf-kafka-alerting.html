@@ -9,6 +9,8 @@
     <link rel="stylesheet" type="text/css" href="{{SPLUNKWEB_URL_PREFIX}}/static/build/css/splunkjs-dashboard.css" />
     <link rel="stylesheet" type="text/css" media="all" href="{{SPLUNKWEB_URL_PREFIX}}/static/app/telegraf-kafka/boottsrap-btn.css" />
     <link rel="stylesheet" type="text/css" media="all" href="{{SPLUNKWEB_URL_PREFIX}}/static/app/telegraf-kafka/common.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="{{SPLUNKWEB_URL_PREFIX}}/static/app/telegraf-kafka/table_icon.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="{{SPLUNKWEB_URL_PREFIX}}/static/app/telegraf-kafka/hide_footer.css" />
 
     <meta name="referrer" content="never" />
     <meta name="referrer" content="no-referrer" />
@@ -78,20 +80,106 @@ styles in <div> tags, similar to Bootstrap's grid system.
         </div>
     </div>
 
-    <div id="row_kafka_infra" class="dashboard-row dashboard-row_connect">
-        <div id="panel_kafka_infra" class="dashboard-cell" style="width: 100%;">
+    <div id="row_linkinput" class="dashboard-row dashboard-row_linkinput">
+        <div id="panel_linkinput" class="dashboard-cell" style="width: 100%;">
             <div class="dashboard-panel clearfix">
-                <h2 class="panel-title"></h2>
-                <div class="fieldset" style="text-align: left;">
-                    <div class="dashseparator">
-                        <h1>Kafka Infrastructure monitoring<br /><br />Stale metrics monitoring per component entity</h1>
+                <div class="fieldset">
+                    <div class="input input-linklist" id="inputlink1">
+                        <label>&nbsp;</label>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="row-alerts-help" class="dashboard-row dashboard-row-kafka-alerts-help" data-depends="$selection1$">
+        <div id="panel-alerts-help" class="dashboard-cell" style="width: 100%;" data-original-id="panel1">
+            <div class="dashboard-panel clearfix">
+                <div class="panel-element-row">
+                    <div id="element-alerts-help" class="dashboard-element html" style="width: 100%">
+                        <div class="panel-body html">
+                            <h1>Kafka infrastructure monitoring help - Summary configuration of embedded alerts</h1>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="row_kafka_infra_single" class="dashboard-row dashboard-row_connect_single">
+    <div id="row_kafka_alerts_delete" class="dashboard-row dashboard-row_kafka_alerts" data-depends="$selection1$">
+        <div id="panel_show_kafka_alerts" class="dashboard-cell" style="width: 100%;" data-original-id="panel_show_kafka_alerts">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Click on a row to review alert configuration and trigger history for this alert</h2>
+                <div style="margin-left: 10px; margin-bottom: 10px;" id="btn_refresh_kafka_alerts">
+                    <button class="btn btn-primary submit">Refresh this table</button>
+                </div>
+                <div class="panel-element-row">
+                    <div id="element_kafka_alerts_main_table" class="dashboard-element table" style="width: 100%">
+                        <div class="panel-body"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="row-infra-help" class="dashboard-row dashboard-row-kafka-infra-help" data-depends="$selection2$">
+        <div id="panel-infra-help" class="dashboard-cell" style="width: 100%;" data-original-id="panel1">
+            <div class="dashboard-panel clearfix">
+                <div class="panel-element-row">
+                    <div id="element-infra-help" class="dashboard-element html" style="width: 100%">
+                        <div class="panel-body html">
+
+                            <h1>Kafka infrastructure monitoring help - Stale metric monitoring per component</h1>
+
+                            <p>The KVstore collection defines the state of alerting for a given entity, though the following items:
+
+                                <lu>
+                                    <li><b>monitoring_state:</b> only enabled entities will trigger when alerts conditions are met, such as a component being down or unreachable.</li>
+                                    <li><b>grace_period:</b> a minimal grace period in seconds that will be applied before the alert triggers.</li>
+                                </lu>
+
+                            <br />
+
+                            The content of the KVstore collection is automatically maintained by the scheduled report named "Update Kafka Infrastructure components inventory".
+
+                            <br />
+
+                            This report can be used at any time, and will automatically fill the KVstore based lookup named "kafka_infra_nodes_inventory", therefore the monitoring_state and grace_period are preserved unless the KVstore collection is manually flushed.
+
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="row_manage_kafka_infra" class="dashboard-row dashboard-row_maintenance" data-depends="$selection2$">
+        <div id="panel_manage_kafka_infra1" class="dashboard-cell" style="width: 50%;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title"></h2>
+                <div class="fieldset" style="text-align: center;">
+                    <div class="form-submit" id="btn_manage_content_kafka_infra1">
+                        <button class="btn btn-primary submit">Update the collection now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="panel_manage_kafka_infra2" class="dashboard-cell" style="width: 50%;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title"></h2>
+                <div class="fieldset" style="text-align: center;">
+                    <div class="form-submit" id="btn_manage_content_kafka_infra2">
+                        <button class="btn btn-primary submit">Reset the collection now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="row_kafka_infra_single" class="dashboard-row dashboard-row_connect_single" data-depends="$selection2$">
         <div id="panel_kafka_infra_single" class="dashboard-cell" style="width: 100%;">
             <div class="dashboard-panel clearfix">
 
@@ -110,7 +198,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
         </div>
     </div>
     
-    <div id="row_kafka_infra_search" class="dashboard-row dashboard-row_kafka_infra_search">
+    <div id="row_kafka_infra_search" class="dashboard-row dashboard-row_kafka_infra_search" data-depends="$selection2$">
         <div id="panel_togglepanel_true_search_kafka_infra" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_search_kafka_infra">
             <div class="dashboard-panel clearfix">
                 <h2 class="panel-title">Search and filter</h2>
@@ -136,8 +224,8 @@ styles in <div> tags, similar to Bootstrap's grid system.
         </div>
     </div>
 
-    <div id="row_kafka_infra_modify" class="dashboard-row dashboard-row_kafka_infra_modify">
-        <div id="panel_togglepanel_true_modify_kafka_infra" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_modify_kafka_infra">
+    <div id="row_kafka_infra_modify" class="dashboard-row dashboard-row_kafka_infra_modify" data-depends="$selection2$">
+        <div id="panel_modify_kafka_infra" class="dashboard-cell" style="width: 100%;">
             <div class="dashboard-panel clearfix">
                 <h2 class="panel-title">Modify entries</h2>
                 <div class="fieldset">
@@ -151,14 +239,11 @@ styles in <div> tags, similar to Bootstrap's grid system.
                         <button class="btn btn-primary submit">Modify this entry</button>
                     </div>
                 </div>
-
             </div>
         </div>
-    </div>
-    <div id="row_kafka_infra_delete" class="dashboard-row dashboard-row_kafka_infra_delete">
-        <div id="panel_togglepanel_true_show_kafka_infra" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_show_kafka_infra">
+        <div id="panel_delete_kafka_infra" class="dashboard-cell" style="width: 100%;">
             <div class="dashboard-panel clearfix">
-                <h2 class="panel-title">Collection content (click on a row to populate for modification/suppression)</h2>
+                <h2 class="panel-title">Suppress entry:</h2>
                 <div class="fieldset">
                     <div class="input input-text" id="input_kafka_infra_delete">
                         <label>keyid:</label>
@@ -167,6 +252,14 @@ styles in <div> tags, similar to Bootstrap's grid system.
                         <button class="btn btn-primary submit">Delete this entry</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="row_kafka_infra_delete" class="dashboard-row dashboard-row_kafka_infra_delete" data-depends="$selection2$">
+        <div id="panel_togglepanel_true_show_kafka_infra" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_show_kafka_infra">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Collection content (click on a row to populate for modification/suppression)</h2>
                 <div class="panel-element-row">
                     <div id="element_kafka_infra_main_table" class="dashboard-element table" style="width: 100%">
                         <div class="panel-body"></div>
@@ -176,20 +269,67 @@ styles in <div> tags, similar to Bootstrap's grid system.
         </div>
     </div>
 
-    <div id="row_kafka_infra_nodes" class="dashboard-row dashboard-row_connect">
-        <div id="panel_kafka_infra_nodes" class="dashboard-cell" style="width: 100%;">
+    <div id="row-infra-nodenumber-help" class="dashboard-row dashboard-row-kafka-infra-help" data-depends="$selection3$">
+        <div id="panel-infra-nodenumber-help" class="dashboard-cell" style="width: 100%;" data-original-id="panel1">
             <div class="dashboard-panel clearfix">
-                <h2 class="panel-title"></h2>
-                <div class="fieldset" style="text-align: left;">
-                    <div class="dashseparator">
-                        <h1>Kafka Infrastructure monitoring by nodes<br /><br />Stale metrics monitoring per number of active nodes</h1>
+                <div class="panel-element-row">
+                    <div id="element-infra-nodenumber-help" class="dashboard-element html" style="width: 100%">
+                        <div class="panel-body html">
+
+                            <h1>Kafka infrastructure monitoring help - Stale metric monitoring per number of active nodes</h1>
+
+                            <p>The KVstore collection defines the state of alerting for a type of component, though the following items:
+
+                                <lu>
+                                    <li><b>monitoring_state:</b> only enabled entities will trigger when alerts conditions are met, such as a component being down or unreachable.</li>
+                                    <li><b>minimal_nodes_number:</b> the minimal number of nodes that should be active concurrently for a given type of component.</li>
+                                </lu>
+
+                            <br />
+
+                            The stale metric monitoring per number is specially valuable in a container environment where the identity of instances is expected to change with the life cycle of containers.
+
+                            <br />
+
+                            The content of the KVstore collection is automatically maintained by the scheduled report named "Update Kafka Infrastructure components inventory".
+
+                            <br />
+
+                            This report can be used at any time, and will automatically fill the KVstore based lookup named "kafka_infra_nodes_inventory", therefore the monitoring_state and minimal_node_number are preserved unless the KVstore collection is manually flushed.
+
+                            </p>
+
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="row_kafka_infra_nodes_single" class="dashboard-row dashboard-row_connect_single">
+    <div id="row_manage_kafka_infra_nodenumber" class="dashboard-row dashboard-row_maintenance" data-depends="$selection3$">
+        <div id="panel_manage_kafka_infra_nodenumber1" class="dashboard-cell" style="width: 50%;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title"></h2>
+                <div class="fieldset" style="text-align: center;">
+                    <div class="form-submit" id="btn_manage_content_kafka_infra_nodenumber1">
+                        <button class="btn btn-primary submit">Update the collection now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="panel_manage_kafka_infra_nodenumber2" class="dashboard-cell" style="width: 50%;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title"></h2>
+                <div class="fieldset" style="text-align: center;">
+                    <div class="form-submit" id="btn_manage_content_kafka_infra_nodenumber2">
+                        <button class="btn btn-primary submit">Reset the collection now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="row_kafka_infra_nodes_single" class="dashboard-row dashboard-row_connect_single" data-depends="$selection3$">
         <div id="panel_kafka_infra_nodes_single" class="dashboard-cell" style="width: 100%;">
             <div class="dashboard-panel clearfix">
 
@@ -208,7 +348,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
         </div>
     </div>
 
-    <div id="row_kafka_infra_nodes_search" class="dashboard-row dashboard-row_kafka_infra_search">
+    <div id="row_kafka_infra_nodes_search" class="dashboard-row dashboard-row_kafka_infra_search" data-depends="$selection3$">
         <div id="panel_togglepanel_true_search_kafka_infra_nodes" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_search_kafka_infra">
             <div class="dashboard-panel clearfix">
                 <h2 class="panel-title">Search and filter</h2>
@@ -231,8 +371,8 @@ styles in <div> tags, similar to Bootstrap's grid system.
         </div>
     </div>
 
-    <div id="row_kafka_infra_nodes_modify" class="dashboard-row dashboard-row_kafka_infra_nodes_modify">
-        <div id="panel_togglepanel_true_modify_kafka_infra_nodes" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_modify_kafka_infra_nodes">
+    <div id="row_kafka_infra_nodes_modify" class="dashboard-row dashboard-row_kafka_infra_nodes_modify" data-depends="$selection3$">
+        <div id="panel_modify_kafka_infra_nodes" class="dashboard-cell" style="width: 50%;" data-original-id="panel_togglepanel_true_modify_kafka_infra_nodes">
             <div class="dashboard-panel clearfix">
                 <h2 class="panel-title">Modify entries</h2>
                 <div class="fieldset">
@@ -246,14 +386,11 @@ styles in <div> tags, similar to Bootstrap's grid system.
                         <button class="btn btn-primary submit">Modify this entry</button>
                     </div>
                 </div>
-
             </div>
         </div>
-    </div>
-    <div id="row_kafka_infra_nodes_delete" class="dashboard-row dashboard-row_kafka_infra_delete">
-        <div id="panel_togglepanel_true_show_kafka_infra_nodes" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_show_kafka_infra_nodes">
+        <div id="panel_delete_kafka_infra_nodes" class="dashboard-cell" style="width: 50%;" data-original-id="panel_togglepanel_true_show_kafka_infra_nodes">
             <div class="dashboard-panel clearfix">
-                <h2 class="panel-title">Collection content (click on a row to populate for modification/suppression)</h2>
+                <h2 class="panel-title">Suppress entry</h2>
                 <div class="fieldset">
                     <div class="input input-text" id="input_kafka_infra_nodes_delete">
                         <label>keyid:</label>
@@ -262,6 +399,14 @@ styles in <div> tags, similar to Bootstrap's grid system.
                         <button class="btn btn-primary submit">Delete this entry</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="row_kafka_infra_nodes_delete" class="dashboard-row dashboard-row_kafka_infra_delete" data-depends="$selection3$">
+        <div id="panel_togglepanel_true_show_kafka_infra_nodes" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_show_kafka_infra_nodes">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Collection content (click on a row to populate for modification/suppression)</h2>
                 <div class="panel-element-row">
                     <div id="element_kafka_infra_nodes_main_table" class="dashboard-element table" style="width: 100%">
                         <div class="panel-body"></div>
@@ -271,20 +416,62 @@ styles in <div> tags, similar to Bootstrap's grid system.
         </div>
     </div>
 
-    <div id="row_kafka_topics" class="dashboard-row dashboard-row_topics">
-        <div id="panel_kafka_topics" class="dashboard-cell" style="width: 100%;">
+    <div id="row-infra-topics-help" class="dashboard-row dashboard-row-kafka-infra-help" data-depends="$selection4$">
+        <div id="panel-infra-topics-help" class="dashboard-cell" style="width: 100%;" data-original-id="panel1">
             <div class="dashboard-panel clearfix">
-                <h2 class="panel-title"></h2>
-                <div class="fieldset" style="text-align: left;">
-                    <div class="dashseparator">
-                        <h1><br />Kafka Topics monitoring<br /></h1>
+                <div class="panel-element-row">
+                    <div id="element-infra-topics-help" class="dashboard-element html" style="width: 100%">
+                        <div class="panel-body html">
+
+                            <h1>Kafka infrastructure monitoring help - Topics monitoring</h1>
+
+                            <p>The KVstore collection defines the state of alerting for Kafka topics, though the following item(s):
+
+                                <lu>
+                                    <li><b>monitoring_state:</b> only enabled entities will trigger when alerts conditions are met, such as a component being down or unreachable.</li>
+                                </lu>
+
+                            <br />
+
+                            The content of the KVstore collection is automatically maintained by the scheduled report named "Update Kafka topics inventory".
+
+                            <br />
+
+                            This report can be used at any time, and will automatically fill the KVstore based lookup named "kafka_topics_monitoring", therefore the monitoring_state is preserved unless the KVstore collection is manually flushed.
+
+                            </p>
+
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="row_kafka_topics_single" class="dashboard-row dashboard-row_connect_single">
+    <div id="row_manage_kafka_topics" class="dashboard-row dashboard-row_maintenance" data-depends="$selection4$">
+        <div id="panel_manage_kafka_topics1" class="dashboard-cell" style="width: 50%;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title"></h2>
+                <div class="fieldset" style="text-align: center;">
+                    <div class="form-submit" id="btn_manage_content_kafka_topics1">
+                        <button class="btn btn-primary submit">Update the collection now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="panel_manage_kafka_topics2" class="dashboard-cell" style="width: 50%;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title"></h2>
+                <div class="fieldset" style="text-align: center;">
+                    <div class="form-submit" id="btn_manage_content_kafka_topics2">
+                        <button class="btn btn-primary submit">Reset the collection now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="row_kafka_topics_single" class="dashboard-row dashboard-row_connect_single" data-depends="$selection4$">
         <div id="panel_kafka_topics_single" class="dashboard-cell" style="width: 100%;">
             <div class="dashboard-panel clearfix">
 
@@ -303,7 +490,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
         </div>
     </div>
     
-    <div id="row_kafka_topics_search" class="dashboard-row dashboard-row_kafka_topics_search">
+    <div id="row_kafka_topics_search" class="dashboard-row dashboard-row_kafka_topics_search" data-depends="$selection4$">
         <div id="panel_togglepanel_true_search_kafka_topics" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_search_kafka_topics">
             <div class="dashboard-panel clearfix">
                 <h2 class="panel-title">Search and filter</h2>
@@ -326,8 +513,8 @@ styles in <div> tags, similar to Bootstrap's grid system.
         </div>
     </div>
 
-    <div id="row_kafka_topics_modify" class="dashboard-row dashboard-row_kafka_topics_modify">
-        <div id="panel_togglepanel_true_modify_kafka_topics" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_modify_kafka_topics">
+    <div id="row_kafka_topics_modify" class="dashboard-row dashboard-row_kafka_topics_modify" data-depends="$selection4$">
+        <div id="panel_modify_kafka_topics" class="dashboard-cell" style="width: 50%;" data-original-id="panel_togglepanel_true_modify_kafka_topics">
             <div class="dashboard-panel clearfix">
                 <h2 class="panel-title">Modify entries</h2>
                 <div class="fieldset">
@@ -341,11 +528,9 @@ styles in <div> tags, similar to Bootstrap's grid system.
 
             </div>
         </div>
-    </div>
-    <div id="row_kafka_topics_delete" class="dashboard-row dashboard-row_kafka_topics_delete">
-        <div id="panel_togglepanel_true_show_kafka_topics" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_show_kafka_topics">
+        <div id="panel_delete_kafka_topics" class="dashboard-cell" style="width: 50%;" data-original-id="panel_togglepanel_true_show_kafka_topics">
             <div class="dashboard-panel clearfix">
-                <h2 class="panel-title">Collection content (click on a row to populate for modification/suppression)</h2>
+                <h2 class="panel-title">Suppress entry</h2>
                 <div class="fieldset">
                     <div class="input input-text" id="input_kafka_topics_delete">
                         <label>keyid:</label>
@@ -354,6 +539,13 @@ styles in <div> tags, similar to Bootstrap's grid system.
                         <button class="btn btn-primary submit">Delete this entry</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div id="row_kafka_topics_delete" class="dashboard-row dashboard-row_kafka_topics_delete" data-depends="$selection4$">
+        <div id="panel_togglepanel_true_show_kafka_topics" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_show_kafka_topics">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Collection content (click on a row to populate for modification/suppression)</h2>
                 <div class="panel-element-row">
                     <div id="element_kafka_topics_main_table" class="dashboard-element table" style="width: 100%">
                         <div class="panel-body"></div>
@@ -362,21 +554,65 @@ styles in <div> tags, similar to Bootstrap's grid system.
             </div>
         </div>
     </div>
-    
-    <div id="row_connect" class="dashboard-row dashboard-row_connect">
-        <div id="panel_connect" class="dashboard-cell" style="width: 100%;">
+
+    <div id="row-infra-connect-help" class="dashboard-row dashboard-row-kafka-infra-help" data-depends="$selection5$">
+        <div id="panel-infra-connect-help" class="dashboard-cell" style="width: 100%;" data-original-id="panel1">
             <div class="dashboard-panel clearfix">
-                <h2 class="panel-title"></h2>
-                <div class="fieldset" style="text-align: left;">
-                    <div class="dashseparator">
-                        <h1><br />Kafka Connect tasks monitoring<br /></h1>
+                <div class="panel-element-row">
+                    <div id="element-infra-connect-help" class="dashboard-element html" style="width: 100%">
+                        <div class="panel-body html">
+
+                            <h1>Kafka infrastructure monitoring help - Kafka Connect tasks monitoring</h1>
+
+                            <p>The KVstore collection defines the state of alerting for Kafka Connect connectors and tasks, though the following item(s):
+
+                                <lu>
+                                    <li><b>monitoring_state:</b> only enabled entities will trigger when alerts conditions are met, such as a component being down or unreachable.</li>
+                                    <li><b>grace_period:</b> a minimal grace period in seconds that will be applied before the alert triggers.
+                                </lu>
+
+                            <br />
+                            <br />
+
+                            The content of the KVstore collection is automatically maintained by the scheduled report named "Update Kafka Connect tasks inventory".
+
+                            <br />
+
+                            This report can be used at any time, and will automatically fill the KVstore based lookup named "kafka_connect_tasks_monitoring", therefore the monitoring_state and grace_period are preserved unless the KVstore collection is manually flushed.
+
+                            </p>
+
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="row_connect_single" class="dashboard-row dashboard-row_connect_single">
+    <div id="row_manage_kafka_connect" class="dashboard-row dashboard-row_maintenance" data-depends="$selection5$">
+        <div id="panel_manage_kafka_connect1" class="dashboard-cell" style="width: 50%;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title"></h2>
+                <div class="fieldset" style="text-align: center;">
+                    <div class="form-submit" id="btn_manage_content_kafka_connect1">
+                        <button class="btn btn-primary submit">Update the collection now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="panel_manage_kafka_connect2" class="dashboard-cell" style="width: 50%;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title"></h2>
+                <div class="fieldset" style="text-align: center;">
+                    <div class="form-submit" id="btn_manage_content_kafka_connect2">
+                        <button class="btn btn-primary submit">Reset the collection now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="row_connect_single" class="dashboard-row dashboard-row_connect_single" data-depends="$selection5$">
         <div id="panel_connect_single" class="dashboard-cell" style="width: 100%;">
             <div class="dashboard-panel clearfix">
 
@@ -395,7 +631,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
         </div>
     </div>
 
-    <div id="row_connect_search" class="dashboard-row dashboard-row_connect_search">
+    <div id="row_connect_search" class="dashboard-row dashboard-row_connect_search" data-depends="$selection5$">
         <div id="panel_togglepanel_true_search" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_search">
             <div class="dashboard-panel clearfix">
                 <h2 class="panel-title">Search and filter</h2>
@@ -421,8 +657,8 @@ styles in <div> tags, similar to Bootstrap's grid system.
         </div>
     </div>
 
-    <div id="row_connect_modify" class="dashboard-row dashboard-row_connect_modify">
-        <div id="panel_togglepanel_true_modify" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_modify">
+    <div id="row_connect_modify" class="dashboard-row dashboard-row_connect_modify" data-depends="$selection5$">
+        <div id="panel_modify_connect" class="dashboard-cell" style="width: 50%;" data-original-id="panel_togglepanel_true_modify">
             <div class="dashboard-panel clearfix">
                 <h2 class="panel-title">Modify entries</h2>
                 <div class="fieldset">
@@ -436,14 +672,11 @@ styles in <div> tags, similar to Bootstrap's grid system.
                         <button class="btn btn-primary submit">Modify this entry</button>
                     </div>
                 </div>
-
             </div>
         </div>
-    </div>
-    <div id="row_connect_delete" class="dashboard-row dashboard-row_connect_delete">
-        <div id="panel_togglepanel_true_show_connect" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_show_connect">
+        <div id="panel_delete_connect" class="dashboard-cell" style="width: 50%;" data-original-id="panel_togglepanel_true_show_connect">
             <div class="dashboard-panel clearfix">
-                <h2 class="panel-title">Collection content (click on a row to populate for modification/suppression)</h2>
+                <h2 class="panel-title">Suppress entry</h2>
                 <div class="fieldset">
                     <div class="input input-text" id="input_connect_delete">
                         <label>keyid:</label>
@@ -452,6 +685,13 @@ styles in <div> tags, similar to Bootstrap's grid system.
                         <button class="btn btn-primary submit">Delete this entry</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div id="row_connect_delete" class="dashboard-row dashboard-row_connect_delete" data-depends="$selection5$">
+        <div id="panel_togglepanel_true_show_connect" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_show_connect">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Collection content (click on a row to populate for modification/suppression)</h2>
                 <div class="panel-element-row">
                     <div id="element_connect_main_table" class="dashboard-element table" style="width: 100%">
                         <div class="panel-body"></div>
@@ -465,20 +705,62 @@ styles in <div> tags, similar to Bootstrap's grid system.
     Burrow
     -->
 
-    <div id="row_burrow" class="dashboard-row dashboard-row_burrow">
-        <div id="panel_burrow" class="dashboard-cell" style="width: 100%;">
+    <div id="row-infra-consumers-help" class="dashboard-row dashboard-row-kafka-infra-help" data-depends="$selection6$">
+        <div id="panel-infra-consumers-help" class="dashboard-cell" style="width: 100%;" data-original-id="panel1">
             <div class="dashboard-panel clearfix">
-                <h2 class="panel-title"></h2>
-                <div class="fieldset" style="text-align: left;">
-                    <div class="dashseparator">
-                        <h1><br />Kafka consumer group monitoring with Burrow<br /></h1>
+                <div class="panel-element-row">
+                    <div id="element-infra-consumers-help" class="dashboard-element html" style="width: 100%">
+                        <div class="panel-body html">
+
+                            <h1>Kafka infrastructure monitoring help - Consumers monitoring with Burrow</h1>
+
+                            <p>The KVstore collection defines the state of alerting for Kafka Consumers, though the following item(s):
+
+                                <lu>
+                                    <li><b>monitoring_state:</b> only enabled entities will trigger when alerts conditions are met, such as a component being down or unreachable.</li>
+                                </lu>
+
+                            <br />
+
+                            The content of the KVstore collection is automatically maintained by the scheduled report named "Update Kafka Burrow group consumers inventory".
+
+                            <br />
+
+                            This report can be used at any time, and will automatically fill the KVstore based lookup named "kafka_burrow_consumers_monitoring", therefore the monitoring_state is preserved unless the KVstore collection is manually flushed.
+
+                            </p>
+
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="row_burrow_single" class="dashboard-row dashboard-row_burrow_single">
+    <div id="row_manage_kafka_consumers" class="dashboard-row dashboard-row_maintenance" data-depends="$selection6$">
+        <div id="panel_manage_kafka_consumers1" class="dashboard-cell" style="width: 50%;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title"></h2>
+                <div class="fieldset" style="text-align: center;">
+                    <div class="form-submit" id="btn_manage_content_kafka_consumers1">
+                        <button class="btn btn-primary submit">Update the collection now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="panel_manage_kafka_consumers2" class="dashboard-cell" style="width: 50%;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title"></h2>
+                <div class="fieldset" style="text-align: center;">
+                    <div class="form-submit" id="btn_manage_content_kafka_consumers2">
+                        <button class="btn btn-primary submit">Reset the collection now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="row_burrow_single" class="dashboard-row dashboard-row_burrow_single" data-depends="$selection6$">
         <div id="panel_burrow_single" class="dashboard-cell" style="width: 100%;">
             <div class="dashboard-panel clearfix">
 
@@ -497,7 +779,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
         </div>
     </div>
 
-    <div id="row_burrow_search" class="dashboard-row dashboard-row_burrow_search">
+    <div id="row_burrow_search" class="dashboard-row dashboard-row_burrow_search" data-depends="$selection6$">
         <div id="panel_togglepanel_true_search_burrow" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_search_burrow">
             <div class="dashboard-panel clearfix">
                 <h2 class="panel-title">Search and filter</h2>
@@ -523,8 +805,8 @@ styles in <div> tags, similar to Bootstrap's grid system.
         </div>
     </div>
 
-    <div id="row_burrow_modify" class="dashboard-row dashboard-row_burrow_modify">
-        <div id="panel_togglepanel_true_modify_burrow" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_modify_burrow">
+    <div id="row_burrow_modify" class="dashboard-row dashboard-row_burrow_modify" data-depends="$selection6$">
+        <div id="panel_modify_burrow" class="dashboard-cell" style="width: 50%;" data-original-id="panel_togglepanel_true_modify_burrow">
             <div class="dashboard-panel clearfix">
                 <h2 class="panel-title">Modify entries</h2>
                 <div class="fieldset">
@@ -535,14 +817,11 @@ styles in <div> tags, similar to Bootstrap's grid system.
                         <button class="btn btn-primary submit">Modify this entry</button>
                     </div>
                 </div>
-
             </div>
         </div>
-    </div>
-    <div id="row_burrow_delete" class="dashboard-row dashboard-row_burrow_delete">
-        <div id="panel_togglepanel_true_show_burrow" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_show_burrow">
+        <div id="panel_delete_burrow" class="dashboard-cell" style="width: 50%;" data-original-id="panel_togglepanel_true_show_burrow">
             <div class="dashboard-panel clearfix">
-                <h2 class="panel-title">Collection content (click on a row to populate for modification/suppression)</h2>
+                <h2 class="panel-title">Suppress entry</h2>
                 <div class="fieldset">
                     <div class="input input-text" id="input_burrow_delete">
                         <label>keyid:</label>
@@ -551,6 +830,14 @@ styles in <div> tags, similar to Bootstrap's grid system.
                         <button class="btn btn-primary submit">Delete this entry</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="row_burrow_delete" class="dashboard-row dashboard-row_burrow_delete" data-depends="$selection6$">
+        <div id="panel_togglepanel_true_show_burrow" class="dashboard-cell" style="width: 100%;" data-original-id="panel_togglepanel_true_show_burrow">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Collection content (click on a row to populate for modification/suppression)</h2>
                 <div class="panel-element-row">
                     <div id="element_burrow_main_table" class="dashboard-element table" style="width: 100%">
                         <div class="panel-body"></div>
@@ -559,7 +846,6 @@ styles in <div> tags, similar to Bootstrap's grid system.
             </div>
         </div>
     </div>
-
 
 </div>
 
@@ -716,13 +1002,33 @@ require([
         //
 
         //
+        // ALERT SUMMARY
+        //
+
+var search_kafka_alerts_main_table = new SearchManager({
+            "id": "search_kafka_alerts_main_table",
+            "sample_ratio": 1,
+            "earliest_time": "-15m",
+            "cancelOnUnload": true,
+            "search": "| rest splunk_server=local /servicesNS/-/telegraf-kafka/saved/searches | search eai:acl.app=\"telegraf-kafka\" alert.track=1 | fields title, cron_schedule, schedule_window, alert.suppress.fields, alert.suppress.period, disabled, next_scheduled_time, id | rex field=id \"saved/searches/(?<id>.*)\" | sort limit=0 title | rangemap field=disabled low=0-0 severe=1-1",
+            "latest_time": "now",
+            "status_buckets": 0,
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
+            "runWhenTimeIsUndefined": false
+        }, {tokens: true, tokenNamespace: "submitted"});
+
+        //
         // MAINTENANCE MODE
         //
 
 var search_maintenance_state = new SearchManager({
             "id": "search_maintenance_state",
             "sample_ratio": 1,
-            "search": "| inputlookup kafka_alerting_maintenance | fields maintenance_mode | eval maintenance=if(match(maintenance_mode, \"enabled\"), 1, 0), maintenance_mode=upper(maintenance_mode) | rangemap field=maintenance low=0-0 high=1-1 default=severe",
+            "search": "| inputlookup kafka_alerting_maintenance | fields maintenance_mode | eval maintenance=if(match(maintenance_mode, \"enabled\"), 1, 0), maintenance_mode=upper(maintenance_mode) | rangemap field=maintenance low=0-0 severe=1-1 default=severe",
             "status_buckets": 0,
             "earliest_time": "-24h@h",
             "cancelOnUnload": true,
@@ -776,7 +1082,7 @@ var search_kafka_infra_main_table = new SearchManager({
             "sample_ratio": 1,
             "earliest_time": "-15m",
             "cancelOnUnload": true,
-            "search": "| inputlookup kafka_infra_inventory | eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_kafka_infra_name$ $search_tk_kafka_infra_env$ $search_tk_kafka_infra_label$ $search_tk_kafka_infra_role$ $search_tk_kafka_infra_monitoring_state$ | fields keyid, env, label, name, role, monitoring_state, grace_period, lasttime | eval lasttime_epoch=lasttime, lasttime=strftime(lasttime_epoch, \"%d/%m/%Y %H:%M:%S\") | sort 0 role, env, label, name",
+            "search": "| inputlookup kafka_infra_inventory | eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_kafka_infra_name$ $search_tk_kafka_infra_env$ $search_tk_kafka_infra_label$ $search_tk_kafka_infra_role$ $search_tk_kafka_infra_monitoring_state$ | fields keyid, env, label, name, role, monitoring_state, grace_period, lasttime | eval lasttime_epoch=lasttime, lasttime=strftime(lasttime_epoch, \"%d/%m/%Y %H:%M:%S\") | sort 0 role, env, label, name | eval range=if(monitoring_state=\"enabled\", \"low\", \"severe\")",
             "latest_time": "now",
             "status_buckets": 0,
             "app": utils.getCurrentApp(),
@@ -876,7 +1182,7 @@ var search_kafka_infra_nodes_main_table = new SearchManager({
             "sample_ratio": 1,
             "earliest_time": "-15m",
             "cancelOnUnload": true,
-            "search": "| inputlookup kafka_infra_nodes_inventory | eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_kafka_infra_nodes_env$ $search_tk_kafka_infra_nodes_label$ $search_tk_kafka_infra_nodes_role$ $search_tk_kafka_infra_nodes_monitoring_state$ | fields keyid, env, label, role, current_nodes_number, minimal_nodes_number, monitoring_state | sort 0 role, env, label, role",
+            "search": "| inputlookup kafka_infra_nodes_inventory | eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_kafka_infra_nodes_env$ $search_tk_kafka_infra_nodes_label$ $search_tk_kafka_infra_nodes_role$ $search_tk_kafka_infra_nodes_monitoring_state$ | fields keyid, env, label, role, current_nodes_number, minimal_nodes_number, monitoring_state | sort 0 role, env, label, role | eval range=if(monitoring_state=\"enabled\", \"low\", \"severe\")",
             "latest_time": "now",
             "status_buckets": 0,
             "app": utils.getCurrentApp(),
@@ -976,7 +1282,7 @@ var search_kafka_topics_main_table = new SearchManager({
             "sample_ratio": 1,
             "earliest_time": "-15m",
             "cancelOnUnload": true,
-            "search": "| inputlookup kafka_topics_monitoring | eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_kafka_topics_env$ $search_tk_kafka_topics_label$ $search_tk_kafka_topics_name$ $search_tk_kafka_topics_monitoring_state$ | fields keyid, env, label, topic, monitoring_state | sort 0 env, label, name",
+            "search": "| inputlookup kafka_topics_monitoring | eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_kafka_topics_env$ $search_tk_kafka_topics_label$ $search_tk_kafka_topics_name$ $search_tk_kafka_topics_monitoring_state$ | fields keyid, env, label, topic, monitoring_state | sort 0 env, label, name | eval range=if(monitoring_state=\"enabled\", \"low\", \"severe\")",
             "latest_time": "now",
             "status_buckets": 0,
             "app": utils.getCurrentApp(),
@@ -1124,7 +1430,7 @@ var search_connect_main_table = new SearchManager({
             "sample_ratio": 1,
             "earliest_time": "-15m",
             "cancelOnUnload": true,
-            "search": "| inputlookup kafka_connect_tasks_monitoring | eval keyid = _key | fillnull value=\"unknown\" env, label | append [ | mstats latest(_value) as task_state_id where `telegraf_kafka_index` metric_name=\"kafka_connect.connector-task.status\" connector=* by connector, env, label, jolokia_agent_url, task span=1s | stats min(task_state_id) as task_state_id by env, label, connector | eval task_state=case(task_state_id=0, \"paused\", task_state_id=1, \"running\", task_state_id=2, \"unassigned\", task_state_id=3, \"failed\", task_state_id=4, \"destroyed\") ] | stats values(*) as \"*\" by env, label, connector  | search $search_tk_connect_env$ $search_tk_connect_label$ $search_tk_connect_connector$ $search_tk_connect_role$ $search_tk_connect_monitoring_state$ | fields keyid, env, label, connector, role, grace_period, task_state, monitoring_state | sort 0 env, label, connector",
+            "search": "| inputlookup kafka_connect_tasks_monitoring | eval keyid = _key | fillnull value=\"unknown\" env, label | append [ | mstats latest(_value) as task_state_id where `telegraf_kafka_index` metric_name=\"kafka_connect.connector-task.status\" connector=* by connector, env, label, jolokia_agent_url, task span=1s | stats min(task_state_id) as task_state_id by env, label, connector | eval task_state=case(task_state_id=0, \"paused\", task_state_id=1, \"running\", task_state_id=2, \"unassigned\", task_state_id=3, \"failed\", task_state_id=4, \"destroyed\") ] | stats values(*) as \"*\" by env, label, connector  | search $search_tk_connect_env$ $search_tk_connect_label$ $search_tk_connect_connector$ $search_tk_connect_role$ $search_tk_connect_monitoring_state$ | fields keyid, env, label, connector, role, grace_period, task_state, monitoring_state | sort 0 env, label, connector | eval range=if(monitoring_state=\"enabled\", \"low\", \"severe\")",
             "latest_time": "now",
             "status_buckets": 0,
             "app": utils.getCurrentApp(),
@@ -1240,7 +1546,7 @@ var search_burrow_main_table = new SearchManager({
             "sample_ratio": 1,
             "earliest_time": "-15m",
             "cancelOnUnload": true,
-            "search": "| inputlookup kafka_burrow_consumers_monitoring | eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_burrow_env$ $search_tk_burrow_label$ $search_tk_burrow_cluster$ $search_tk_burrow_monitoring_state$ $search_tk_burrow_name$ | fields keyid, env, label, cluster, group, monitoring_state | sort 0 env, label, cluster, group",
+            "search": "| inputlookup kafka_burrow_consumers_monitoring | eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_burrow_env$ $search_tk_burrow_label$ $search_tk_burrow_cluster$ $search_tk_burrow_monitoring_state$ $search_tk_burrow_name$ | fields keyid, env, label, cluster, group, monitoring_state | sort 0 env, label, cluster, group | eval range=if(monitoring_state=\"enabled\", \"low\", \"severe\")",
             "latest_time": "now",
             "status_buckets": 0,
             "app": utils.getCurrentApp(),
@@ -1269,13 +1575,39 @@ var search_burrow_main_table = new SearchManager({
             id: 'dashboard',
             el: $('.dashboard-body'),
             showTitle: true,
-            editable: true
+            editable: false
         }, {tokens: true}).render();
 
 
         //
         // VIEWS: VISUALIZATION ELEMENTS
         //
+
+        //
+        // ALERT SUMMARY
+        //
+
+        var element_kafka_alerts_main_table = new TableElement({
+            "id": "element_kafka_alerts_main_table",
+            "count": 100,
+            "dataOverlayMode": "none",
+            "drilldown": "row",
+            "fields": "title, cron_schedule, schedule_window, alert.suppress.fields, alert.suppress.period, disabled, next_scheduled_time,range",
+            "percentagesRow": "false",
+            "rowNumbers": "false",
+            "totalsRow": "false",
+            "wrap": "true",
+            "managerid": "search_kafka_alerts_main_table",
+            "el": $('#element_kafka_alerts_main_table')
+        }, {tokens: true, tokenNamespace: "submitted"}).render();
+
+        element_kafka_alerts_main_table.on("click", function(e) {
+            if (e.field !== undefined) {
+                e.preventDefault();
+                var url = TokenUtils.replaceTokenNames("{{SPLUNKWEB_URL_PREFIX}}/app/telegraf-kafka/alert?s=%2FservicesNS%2Fnobody%2Ftelegraf-kafka%2Fsaved%2Fsearches%2F$row.id$", _.extend(submittedTokenModel.toJSON(), e.data), TokenUtils.getEscaper('url'), TokenUtils.getFilters(mvc.Components));
+                utils.redirect(url, false, "_blank");
+            }
+        });
 
         //
         // MAINTENANCE MODE
@@ -1285,10 +1617,12 @@ var search_burrow_main_table = new SearchManager({
             "id": "element_maintenance_state",
             "drilldown": "none",
             "colorMode": "block",
+            "link.visible": "false",
             "numberPrecision": "0",
             "useColors": "0",
             "underLabel": "MAINTENANCE MODE STATUS",
             "colorBy": "value",
+            "height": "60",
             "managerid": "search_maintenance_state",
             "el": $('#element_maintenance_state')
         }, {tokens: true, tokenNamespace: "submitted"}).render();
@@ -1340,10 +1674,10 @@ var search_burrow_main_table = new SearchManager({
 
         var element_kafka_infra_main_table = new TableElement({
             "id": "element_kafka_infra_main_table",
-            "count": 10,
+            "count": 100,
             "dataOverlayMode": "none",
             "drilldown": "row",
-            "fields": "keyid, env, label, name, role, monitoring_state, grace_period, lasttime",
+            "fields": "keyid, env, label, name, role, monitoring_state, range, grace_period, lasttime",
             "percentagesRow": "false",
             "rowNumbers": "false",
             "totalsRow": "false",
@@ -1413,7 +1747,7 @@ var search_burrow_main_table = new SearchManager({
 
         var element_kafka_infra_nodes_main_table = new TableElement({
             "id": "element_kafka_infra_nodes_main_table",
-            "count": 10,
+            "count": 100,
             "dataOverlayMode": "none",
             "drilldown": "row",
             "percentagesRow": "false",
@@ -1484,7 +1818,7 @@ var search_burrow_main_table = new SearchManager({
 
         var element_kafka_topics_main_table = new TableElement({
             "id": "element_kafka_topics_main_table",
-            "count": 10,
+            "count": 100,
             "dataOverlayMode": "none",
             "drilldown": "row",
             "percentagesRow": "false",
@@ -1553,7 +1887,7 @@ var search_burrow_main_table = new SearchManager({
 
         var element_connect_main_table = new TableElement({
             "id": "element_connect_main_table",
-            "count": 10,
+            "count": 100,
             "dataOverlayMode": "none",
             "drilldown": "row",
             "percentagesRow": "false",
@@ -1624,7 +1958,7 @@ var search_burrow_main_table = new SearchManager({
 
         var element_burrow_main_table = new TableElement({
             "id": "element_burrow_main_table",
-            "count": 10,
+            "count": 100,
             "dataOverlayMode": "none",
             "drilldown": "row",
             "percentagesRow": "false",
@@ -1661,6 +1995,84 @@ var search_burrow_main_table = new SearchManager({
         //
         // VIEWS: FORM INPUTS
         //
+
+        //
+        // link-input
+        //
+
+        var inputlink1 = new LinkListInput({
+            "id": "inputlink1",
+            "choices": [
+                {"value": "selection1", "label": "ALERT CONFIGURATION SUMMARY"},
+                {"value": "selection2", "label": "STALE METRICS MONITORING PER COMPONENT"},
+                {"value": "selection3", "label": "STALE METRICS MONITORING PER NUMBER OF NODES"},
+                {"value": "selection4", "label": "KAFKA TOPICS MONITORING"},
+                {"value": "selection5", "label": "KAFKA CONNECT TASKS MONITORING"},
+                {"value": "selection6", "label": "KAFKA CONSUMER GROUP MONITORING"}
+            ],
+            "default": "selection1",
+            "searchWhenChanged": true,
+            "selectFirstChoice": false,
+            "value": "$form.tabs_linkinput$",
+            "el": $('#inputlink1')
+        }, {tokens: true}).render();
+
+        inputlink1.on("change", function(newValue) {
+            FormUtils.handleValueChange(inputlink1);
+        });
+
+        inputlink1.on("valueChange", function(e) {
+            if (e.value === "selection1") {
+                EventHandler.setToken("selection1", "true", {}, e.data);
+                EventHandler.unsetToken("selection2");
+                EventHandler.unsetToken("selection3");
+                EventHandler.unsetToken("selection4");
+                EventHandler.unsetToken("selection5");
+                EventHandler.unsetToken("selection6");
+            } else if (e.value === "selection2") {
+                EventHandler.setToken("selection2", "true", {}, e.data);
+                EventHandler.unsetToken("selection1");
+                EventHandler.unsetToken("selection3");
+                EventHandler.unsetToken("selection4");
+                EventHandler.unsetToken("selection5");
+                EventHandler.unsetToken("selection6");
+            } else if (e.value === "selection2") {
+                EventHandler.setToken("selection2", "true", {}, e.data);
+                EventHandler.unsetToken("selection1");
+                EventHandler.unsetToken("selection3");
+                EventHandler.unsetToken("selection4");
+                EventHandler.unsetToken("selection5");
+                EventHandler.unsetToken("selection6");
+            } else if (e.value === "selection3") {
+                EventHandler.setToken("selection3", "true", {}, e.data);
+                EventHandler.unsetToken("selection1");
+                EventHandler.unsetToken("selection2");
+                EventHandler.unsetToken("selection4");
+                EventHandler.unsetToken("selection5");
+                EventHandler.unsetToken("selection6");
+            } else if (e.value === "selection4") {
+                EventHandler.setToken("selection4", "true", {}, e.data);
+                EventHandler.unsetToken("selection1");
+                EventHandler.unsetToken("selection2");
+                EventHandler.unsetToken("selection3");
+                EventHandler.unsetToken("selection5");
+                EventHandler.unsetToken("selection6");
+            } else if (e.value === "selection5") {
+                EventHandler.setToken("selection5", "true", {}, e.data);
+                EventHandler.unsetToken("selection1");
+                EventHandler.unsetToken("selection2");
+                EventHandler.unsetToken("selection3");
+                EventHandler.unsetToken("selection4");
+                EventHandler.unsetToken("selection6");
+            } else if (e.value === "selection6") {
+                EventHandler.setToken("selection6", "true", {}, e.data);
+                EventHandler.unsetToken("selection1");
+                EventHandler.unsetToken("selection2");
+                EventHandler.unsetToken("selection3");
+                EventHandler.unsetToken("selection4");
+                EventHandler.unsetToken("selection5");
+            }
+        });
 
         //
         // KAFKA INFRA
@@ -2396,9 +2808,17 @@ var search_burrow_main_table = new SearchManager({
         var service = mvc.createService({ owner: "nobody" });
 
         //
-        // MAINTENANCE MODE
+        // ALERT SUMMARY
         //
 
+        $("#btn_refresh_kafka_alerts").click(function() {
+            submitTokens();
+            search_kafka_alerts_main_table.startSearch();
+        });
+
+        //
+        // MAINTENANCE MODE
+        //
 
         //
         // ENABLE MAINTENANCE MODE BUTTON
@@ -2422,7 +2842,7 @@ var search_burrow_main_table = new SearchManager({
             // Verify the current status
             //
 
-            // Search everything and return the first 10 results
+            // Define the query
             var searchQuery = "| inputlookup kafka_alerting_maintenance";
 
             // Set the search parameters--specify a time range
@@ -2524,7 +2944,7 @@ var search_burrow_main_table = new SearchManager({
             // Verify the current status
             //
 
-            // Search everything and return the first 10 results
+            // Define the query
             var searchQuery = "| inputlookup kafka_alerting_maintenance";
 
             // Set the search parameters--specify a time range
@@ -2606,7 +3026,194 @@ var search_burrow_main_table = new SearchManager({
         //
         // KAFKA TOPICS
         //
-        
+
+        //
+        // UPDATE COLLECTION
+        //
+
+        // Call this function when the Update collection button is clicked
+
+        $("#btn_manage_content_kafka_topics1").click(function() {
+            submitTokens();
+
+            // When the Submit button is clicked, get all the form fields by accessing token values
+            var tokens = mvc.Components.get("default");
+
+            bootbox.confirm("<h3 style=\"color: indianred;\">Do you want to run now the collection update?</h3><p>This is perfectly safe and simply runs now the scheduled report updating the KVstore collection.<br /><br />If the operation is confirmed, please wait a few seconds for the background job to terminate and the end job window to appear.</p>", function(result){
+
+                if (result) {
+
+                    console.log("Start collection update" );
+
+                    // Define the query
+                    var searchQuery = "| savedsearch \"Update Kafka topics inventory\"";
+
+                    // Set the search parameters--specify a time range
+                    var searchParams = {
+                      earliest_time: "-60m",
+                      latest_time: "now"
+                    };
+
+                    // Run a normal search that immediately returns the job's SID
+                    service.search(
+                      searchQuery,
+                      searchParams,
+                      function(err, job) {
+
+                        // Display the job's search ID
+                        console.log("Job SID: ", job.sid);
+
+                        // Poll the status of the search job
+                        job.track({period: 200}, {
+                          done: function(job) {
+                            // console.log("Done!");
+
+                            // Once the job is done, update all searches
+                            search_kafka_topics_no_components.startSearch();
+                            search_kafka_topics_no_components_enabled.startSearch();
+                            search_kafka_topics_no_components_disabled.startSearch();
+                            search_kafka_topics_main_table.startSearch();
+                            search_kafka_topics_search_env.startSearch();
+                            search_kafka_topics_search_label.startSearch();
+
+                            bootbox.alert("<h3 style=\"color: indianred;\">Collection update done.</h3><p>The KVstore collection was updated successfully. All relevant searches were refreshed.</p>")
+
+                            // Print out the statics
+                            console.log("Job statistics:");
+                            console.log("  Event count:  " + job.properties().eventCount);
+                            console.log("  Result count: " + job.properties().resultCount);
+                            console.log("  Disk usage:   " + job.properties().diskUsage + " bytes");
+                            console.log("  Priority:     " + job.properties().priority);
+
+                          },
+                          failed: function(job) {
+                            console.log("Job failed")
+                          },
+                          error: function(err) {
+                            done(err);
+                          }
+                        });
+
+                      }
+                    );
+
+
+                    }
+
+                });
+
+        });
+
+
+        //
+        // RESET COLLECTION
+        //
+
+        // Call this function when the erase collection button is clicked
+
+        $("#btn_manage_content_kafka_topics2").click(function() {
+            submitTokens();
+
+            // When the Submit button is clicked, get all the form fields by accessing token values
+            var tokens = mvc.Components.get("default");
+
+            bootbox.confirm("<h3 style=\"color: indianred;\">Are you sure you want to reset the collection content ?</h3><p>All existing configuration will be irremediably lost, the KVstore collection will be flushed and replaced by a fresh update, with default values.<br /><br />If the operation is confirmed, please wait a few seconds for the background job to terminate and the end job window to appear.</p>", function(result){
+
+                if (result) {
+
+                    console.log("Flushing KVstore collection" );
+
+                    // Define the query
+                    var searchQuery = "| outputlookup kafka_topics_monitoring";
+
+                    // Set the search parameters--specify a time range
+                    var searchParams = {
+                      earliest_time: "-60m",
+                      latest_time: "now"
+                    };
+
+                    // Run a blocking search and get back a job
+                    service.search(
+                      searchQuery,
+                      searchParams,
+                      function(err, job) {
+                        console.log("...done!\n");
+
+                        // Get the job from the server to display more info
+                        job.fetch(function(err){
+                          // Display properties of the job
+                          console.log("Search job properties\n---------------------");
+                          console.log("Search job ID:         " + job.sid);
+                          console.log("The number of events:  " + job.properties().eventCount);
+                          console.log("The number of results: " + job.properties().resultCount);
+                          console.log("Search duration:       " + job.properties().runDuration + " seconds");
+                          console.log("This job expires in:   " + job.properties().ttl + " seconds");
+
+                        });
+
+                        console.log("Start collection update" );
+
+                        // Define the query
+                        var searchQuery = "| savedsearch \"Update Kafka topics inventory\"";
+
+                        // Set the search parameters--specify a time range
+                        var searchParams = {
+                          earliest_time: "-60m",
+                          latest_time: "now"
+                        };
+
+                        // Run a normal search that immediately returns the job's SID
+                        service.search(
+                          searchQuery,
+                          searchParams,
+                          function(err, job) {
+
+                            // Display the job's search ID
+                            console.log("Job SID: ", job.sid);
+
+                            // Poll the status of the search job
+                            job.track({period: 200}, {
+                              done: function(job) {
+                                // console.log("Done!");
+
+                                // Once the job is done, update all searches
+                                search_kafka_topics_no_components.startSearch();
+                                search_kafka_topics_no_components_enabled.startSearch();
+                                search_kafka_topics_no_components_disabled.startSearch();
+                                search_kafka_topics_main_table.startSearch();
+                                search_kafka_topics_search_env.startSearch();
+                                search_kafka_topics_search_label.startSearch();
+
+                                // Print out the statics
+                                console.log("Job statistics:");
+                                console.log("  Event count:  " + job.properties().eventCount);
+                                console.log("  Result count: " + job.properties().resultCount);
+                                console.log("  Disk usage:   " + job.properties().diskUsage + " bytes");
+                                console.log("  Priority:     " + job.properties().priority);
+
+                                bootbox.alert("<h3 style=\"color: indianred;\">Collection reset done.</h3><p>The KVstore collection was flushed and updated successfully. All relevant searches were refreshed.</p>")
+
+                              },
+                              failed: function(job) {
+                                console.log("Job failed")
+                              },
+                              error: function(err) {
+                                done(err);
+                              }
+                            });
+
+                          }
+                        );
+
+                      }
+                    );
+
+                    }
+
+                });
+
+        });
+
         //
         // DELETE BUTTON
         //
@@ -2739,7 +3346,210 @@ var search_burrow_main_table = new SearchManager({
         //
         // KAFKA INFRA
         //
-        
+
+        //
+        // UPDATE COLLECTION
+        //
+
+        // Call this function when the Update collection button is clicked
+
+        $("#btn_manage_content_kafka_infra1").click(function() {
+            submitTokens();
+
+            // When the Submit button is clicked, get all the form fields by accessing token values
+            var tokens = mvc.Components.get("default");
+
+            bootbox.confirm("<h3 style=\"color: indianred;\">Do you want to run now the collection update?</h3><p>This is perfectly safe and simply runs now the scheduled report updating the KVstore collection.<br /><br />If the operation is confirmed, please wait a few seconds for the background job to terminate and the end job window to appear.</p>", function(result){
+
+                if (result) {
+
+                    console.log("Start collection update" );
+
+                    // Define the query
+                    var searchQuery = "| savedsearch \"Update Kafka Infrastructure components inventory\"";
+
+                    // Set the search parameters--specify a time range
+                    var searchParams = {
+                      earliest_time: "-60m",
+                      latest_time: "now"
+                    };
+
+                    // Run a normal search that immediately returns the job's SID
+                    service.search(
+                      searchQuery,
+                      searchParams,
+                      function(err, job) {
+
+                        // Display the job's search ID
+                        console.log("Job SID: ", job.sid);
+
+                        // Poll the status of the search job
+                        job.track({period: 200}, {
+                          done: function(job) {
+                            // console.log("Done!");
+
+                            // Once the job is done, update all searches
+                            search_kafka_infra_no_components.startSearch();
+                            search_kafka_infra_no_components_enabled.startSearch();
+                            search_kafka_infra_no_components_disabled.startSearch();
+                            search_kafka_infra_main_table.startSearch();
+                            search_kafka_infra_search_env.startSearch();
+                            search_kafka_infra_search_label.startSearch();
+
+                            // this shares the same KVstore collection maintenance object
+                            search_kafka_infra_nodes_no_components.startSearch();
+                            search_kafka_infra_nodes_no_components_enabled.startSearch();
+                            search_kafka_infra_nodes_no_components_disabled.startSearch();
+                            search_kafka_infra_nodes_main_table.startSearch();
+                            search_kafka_infra_nodes_search_env.startSearch();
+                            search_kafka_infra_nodes_search_label.startSearch();
+
+                            bootbox.alert("<h3 style=\"color: indianred;\">Collection update done.</h3><p>The KVstore collection was updated successfully. All relevant searches were refreshed.</p>")
+
+                            // Print out the statics
+                            console.log("Job statistics:");
+                            console.log("  Event count:  " + job.properties().eventCount);
+                            console.log("  Result count: " + job.properties().resultCount);
+                            console.log("  Disk usage:   " + job.properties().diskUsage + " bytes");
+                            console.log("  Priority:     " + job.properties().priority);
+
+                          },
+                          failed: function(job) {
+                            console.log("Job failed")
+                          },
+                          error: function(err) {
+                            done(err);
+                          }
+                        });
+
+                      }
+                    );
+
+
+                    }
+
+                });
+
+        });
+
+
+        //
+        // RESET COLLECTION
+        //
+
+        // Call this function when the erase collection button is clicked
+
+        $("#btn_manage_content_kafka_infra2").click(function() {
+            submitTokens();
+
+            // When the Submit button is clicked, get all the form fields by accessing token values
+            var tokens = mvc.Components.get("default");
+
+            bootbox.confirm("<h3 style=\"color: indianred;\">Are you sure you want to reset the collection content ?</h3><p>All existing configuration will be irremediably lost, the KVstore collection will be flushed and replaced by a fresh update, with default values.<br /><br />If the operation is confirmed, please wait a few seconds for the background job to terminate and the end job window to appear.</p>", function(result){
+
+                if (result) {
+
+                    console.log("Flushing KVstore collection" );
+
+                    // Define the query
+                    var searchQuery = "| outputlookup kafka_infra_inventory";
+
+                    // Set the search parameters--specify a time range
+                    var searchParams = {
+                      earliest_time: "-60m",
+                      latest_time: "now"
+                    };
+
+                    // Run a blocking search and get back a job
+                    service.search(
+                      searchQuery,
+                      searchParams,
+                      function(err, job) {
+                        console.log("...done!\n");
+
+                        // Get the job from the server to display more info
+                        job.fetch(function(err){
+                          // Display properties of the job
+                          console.log("Search job properties\n---------------------");
+                          console.log("Search job ID:         " + job.sid);
+                          console.log("The number of events:  " + job.properties().eventCount);
+                          console.log("The number of results: " + job.properties().resultCount);
+                          console.log("Search duration:       " + job.properties().runDuration + " seconds");
+                          console.log("This job expires in:   " + job.properties().ttl + " seconds");
+
+                        });
+
+                        console.log("Start collection update" );
+
+                        // Define the query
+                        var searchQuery = "| savedsearch \"Update Kafka Infrastructure components inventory\"";
+
+                        // Set the search parameters--specify a time range
+                        var searchParams = {
+                          earliest_time: "-60m",
+                          latest_time: "now"
+                        };
+
+                        // Run a normal search that immediately returns the job's SID
+                        service.search(
+                          searchQuery,
+                          searchParams,
+                          function(err, job) {
+
+                            // Display the job's search ID
+                            console.log("Job SID: ", job.sid);
+
+                            // Poll the status of the search job
+                            job.track({period: 200}, {
+                              done: function(job) {
+                                // console.log("Done!");
+
+                                // Once the job is done, update all searches
+                                search_kafka_infra_no_components.startSearch();
+                                search_kafka_infra_no_components_enabled.startSearch();
+                                search_kafka_infra_no_components_disabled.startSearch();
+                                search_kafka_infra_main_table.startSearch();
+                                search_kafka_infra_search_env.startSearch();
+                                search_kafka_infra_search_label.startSearch();
+
+                                // this shares the same KVstore collection maintenance object
+                                search_kafka_infra_nodes_no_components.startSearch();
+                                search_kafka_infra_nodes_no_components_enabled.startSearch();
+                                search_kafka_infra_nodes_no_components_disabled.startSearch();
+                                search_kafka_infra_nodes_main_table.startSearch();
+                                search_kafka_infra_nodes_search_env.startSearch();
+                                search_kafka_infra_nodes_search_label.startSearch();
+
+                                // Print out the statics
+                                console.log("Job statistics:");
+                                console.log("  Event count:  " + job.properties().eventCount);
+                                console.log("  Result count: " + job.properties().resultCount);
+                                console.log("  Disk usage:   " + job.properties().diskUsage + " bytes");
+                                console.log("  Priority:     " + job.properties().priority);
+
+                                bootbox.alert("<h3 style=\"color: indianred;\">Collection reset done.</h3><p>The KVstore collection was flushed and updated successfully. All relevant searches were refreshed.</p>")
+
+                              },
+                              failed: function(job) {
+                                console.log("Job failed")
+                              },
+                              error: function(err) {
+                                done(err);
+                              }
+                            });
+
+                          }
+                        );
+
+                      }
+                    );
+
+                    }
+
+                });
+
+        });
+
         //
         // DELETE BUTTON
         //
@@ -2885,6 +3695,209 @@ var search_burrow_main_table = new SearchManager({
         //
 
         //
+        // UPDATE COLLECTION
+        //
+
+        // Call this function when the Update collection button is clicked
+
+        $("#btn_manage_content_kafka_infra_nodenumber1").click(function() {
+            submitTokens();
+
+            // When the Submit button is clicked, get all the form fields by accessing token values
+            var tokens = mvc.Components.get("default");
+
+            bootbox.confirm("<h3 style=\"color: indianred;\">Do you want to run now the collection update?</h3><p>This is perfectly safe and simply runs now the scheduled report updating the KVstore collection.<br /><br />If the operation is confirmed, please wait a few seconds for the background job to terminate and the end job window to appear.</p>", function(result){
+
+                if (result) {
+
+                    console.log("Start collection update" );
+
+                    // Define the query
+                    var searchQuery = "| savedsearch \"Update Kafka Infrastructure components inventory\"";
+
+                    // Set the search parameters--specify a time range
+                    var searchParams = {
+                      earliest_time: "-60m",
+                      latest_time: "now"
+                    };
+
+                    // Run a normal search that immediately returns the job's SID
+                    service.search(
+                      searchQuery,
+                      searchParams,
+                      function(err, job) {
+
+                        // Display the job's search ID
+                        console.log("Job SID: ", job.sid);
+
+                        // Poll the status of the search job
+                        job.track({period: 200}, {
+                          done: function(job) {
+                            // console.log("Done!");
+
+                            // Once the job is done, update all searches
+                            search_kafka_infra_nodes_no_components.startSearch();
+                            search_kafka_infra_nodes_no_components_enabled.startSearch();
+                            search_kafka_infra_nodes_no_components_disabled.startSearch();
+                            search_kafka_infra_nodes_main_table.startSearch();
+                            search_kafka_infra_nodes_search_env.startSearch();
+                            search_kafka_infra_nodes_search_label.startSearch();
+
+                            // This shares the same KVstore collection maintenance object
+                            search_kafka_infra_no_components.startSearch();
+                            search_kafka_infra_no_components_enabled.startSearch();
+                            search_kafka_infra_no_components_disabled.startSearch();
+                            search_kafka_infra_main_table.startSearch();
+                            search_kafka_infra_search_env.startSearch();
+                            search_kafka_infra_search_label.startSearch();
+
+                            bootbox.alert("<h3 style=\"color: indianred;\">Collection update done.</h3><p>The KVstore collection was updated successfully. All relevant searches were refreshed.</p>")
+
+                            // Print out the statics
+                            console.log("Job statistics:");
+                            console.log("  Event count:  " + job.properties().eventCount);
+                            console.log("  Result count: " + job.properties().resultCount);
+                            console.log("  Disk usage:   " + job.properties().diskUsage + " bytes");
+                            console.log("  Priority:     " + job.properties().priority);
+
+                          },
+                          failed: function(job) {
+                            console.log("Job failed")
+                          },
+                          error: function(err) {
+                            done(err);
+                          }
+                        });
+
+                      }
+                    );
+
+
+                    }
+
+                });
+
+        });
+
+
+        //
+        // RESET COLLECTION
+        //
+
+        // Call this function when the erase collection button is clicked
+
+        $("#btn_manage_content_kafka_infra_nodenumber2").click(function() {
+            submitTokens();
+
+            // When the Submit button is clicked, get all the form fields by accessing token values
+            var tokens = mvc.Components.get("default");
+
+            bootbox.confirm("<h3 style=\"color: indianred;\">Are you sure you want to reset the collection content ?</h3><p>All existing configuration will be irremediably lost, the KVstore collection will be flushed and replaced by a fresh update, with default values.<br /><br />If the operation is confirmed, please wait a few seconds for the background job to terminate and the end job window to appear.</p>", function(result){
+
+                if (result) {
+
+                    console.log("Flushing KVstore collection" );
+
+                    // Define the query
+                    var searchQuery = "| outputlookup kafka_infra_nodes_inventory";
+
+                    // Set the search parameters--specify a time range
+                    var searchParams = {
+                      earliest_time: "-60m",
+                      latest_time: "now"
+                    };
+
+                    // Run a blocking search and get back a job
+                    service.search(
+                      searchQuery,
+                      searchParams,
+                      function(err, job) {
+                        console.log("...done!\n");
+
+                        // Get the job from the server to display more info
+                        job.fetch(function(err){
+                          // Display properties of the job
+                          console.log("Search job properties\n---------------------");
+                          console.log("Search job ID:         " + job.sid);
+                          console.log("The number of events:  " + job.properties().eventCount);
+                          console.log("The number of results: " + job.properties().resultCount);
+                          console.log("Search duration:       " + job.properties().runDuration + " seconds");
+                          console.log("This job expires in:   " + job.properties().ttl + " seconds");
+
+                        });
+
+                        console.log("Start collection update" );
+
+                        // Define the query
+                        var searchQuery = "| savedsearch \"Update Kafka Infrastructure components inventory\"";
+
+                        // Set the search parameters--specify a time range
+                        var searchParams = {
+                          earliest_time: "-60m",
+                          latest_time: "now"
+                        };
+
+                        // Run a normal search that immediately returns the job's SID
+                        service.search(
+                          searchQuery,
+                          searchParams,
+                          function(err, job) {
+
+                            // Display the job's search ID
+                            console.log("Job SID: ", job.sid);
+
+                            // Poll the status of the search job
+                            job.track({period: 200}, {
+                              done: function(job) {
+                                // console.log("Done!");
+
+                                // Once the job is done, update all searches
+                                search_kafka_infra_nodes_no_components.startSearch();
+                                search_kafka_infra_nodes_no_components_enabled.startSearch();
+                                search_kafka_infra_nodes_no_components_disabled.startSearch();
+                                search_kafka_infra_nodes_main_table.startSearch();
+                                search_kafka_infra_nodes_search_env.startSearch();
+                                search_kafka_infra_nodes_search_label.startSearch();
+
+                                // This shares the same KVstore collection maintenance object
+                                search_kafka_infra_no_components.startSearch();
+                                search_kafka_infra_no_components_enabled.startSearch();
+                                search_kafka_infra_no_components_disabled.startSearch();
+                                search_kafka_infra_main_table.startSearch();
+                                search_kafka_infra_search_env.startSearch();
+                                search_kafka_infra_search_label.startSearch();
+
+                                // Print out the statics
+                                console.log("Job statistics:");
+                                console.log("  Event count:  " + job.properties().eventCount);
+                                console.log("  Result count: " + job.properties().resultCount);
+                                console.log("  Disk usage:   " + job.properties().diskUsage + " bytes");
+                                console.log("  Priority:     " + job.properties().priority);
+
+                                bootbox.alert("<h3 style=\"color: indianred;\">Collection reset done.</h3><p>The KVstore collection was flushed and updated successfully. All relevant searches were refreshed.</p>")
+
+                              },
+                              failed: function(job) {
+                                console.log("Job failed")
+                              },
+                              error: function(err) {
+                                done(err);
+                              }
+                            });
+
+                          }
+                        );
+
+                      }
+                    );
+
+                    }
+
+                });
+
+        });
+
+        //
         // DELETE BUTTON
         //
 
@@ -3027,6 +4040,195 @@ var search_burrow_main_table = new SearchManager({
         //
 
         //
+        // UPDATE COLLECTION
+        //
+
+        // Call this function when the Update collection button is clicked
+
+        $("#btn_manage_content_kafka_consumers1").click(function() {
+            submitTokens();
+
+            // When the Submit button is clicked, get all the form fields by accessing token values
+            var tokens = mvc.Components.get("default");
+
+            bootbox.confirm("<h3 style=\"color: indianred;\">Do you want to run now the collection update?</h3><p>This is perfectly safe and simply runs now the scheduled report updating the KVstore collection.<br /><br />If the operation is confirmed, please wait a few seconds for the background job to terminate and the end job window to appear.</p>", function(result){
+
+                if (result) {
+
+                    console.log("Start collection update" );
+
+                    // Define the query
+                    var searchQuery = "| savedsearch \"Update Kafka Burrow group consumers inventory\"";
+
+                    // Set the search parameters--specify a time range
+                    var searchParams = {
+                      earliest_time: "-60m",
+                      latest_time: "now"
+                    };
+
+                    // Run a normal search that immediately returns the job's SID
+                    service.search(
+                      searchQuery,
+                      searchParams,
+                      function(err, job) {
+
+                        // Display the job's search ID
+                        console.log("Job SID: ", job.sid);
+
+                        // Poll the status of the search job
+                        job.track({period: 200}, {
+                          done: function(job) {
+                            // console.log("Done!");
+
+                            // Once the job is done, update all searches
+                            search_burrow_no_consumers.startSearch();
+                            search_burrow_no_consumers_enabled.startSearch();
+                            search_burrow_no_consumers_disabled.startSearch();
+                            search_burrow_main_table.startSearch();
+                            search_burrow_search_env.startSearch();
+                            search_burrow_search_label.startSearch();
+                            search_burrow_search_cluster.startSearch();
+
+                            bootbox.alert("<h3 style=\"color: indianred;\">Collection update done.</h3><p>The KVstore collection was updated successfully. All relevant searches were refreshed.</p>")
+
+                            // Print out the statics
+                            console.log("Job statistics:");
+                            console.log("  Event count:  " + job.properties().eventCount);
+                            console.log("  Result count: " + job.properties().resultCount);
+                            console.log("  Disk usage:   " + job.properties().diskUsage + " bytes");
+                            console.log("  Priority:     " + job.properties().priority);
+
+                          },
+                          failed: function(job) {
+                            console.log("Job failed")
+                          },
+                          error: function(err) {
+                            done(err);
+                          }
+                        });
+
+                      }
+                    );
+
+
+                    }
+
+                });
+
+        });
+
+
+        //
+        // RESET COLLECTION
+        //
+
+        // Call this function when the erase collection button is clicked
+
+        $("#btn_manage_content_kafka_consumers2").click(function() {
+            submitTokens();
+
+            // When the Submit button is clicked, get all the form fields by accessing token values
+            var tokens = mvc.Components.get("default");
+
+            bootbox.confirm("<h3 style=\"color: indianred;\">Are you sure you want to reset the collection content ?</h3><p>All existing configuration will be irremediably lost, the KVstore collection will be flushed and replaced by a fresh update, with default values.<br /><br />If the operation is confirmed, please wait a few seconds for the background job to terminate and the end job window to appear.</p>", function(result){
+
+                if (result) {
+
+                    console.log("Flushing KVstore collection" );
+
+                    // Define the query
+                    var searchQuery = "| outputlookup kafka_burrow_consumers_monitoring";
+
+                    // Set the search parameters--specify a time range
+                    var searchParams = {
+                      earliest_time: "-60m",
+                      latest_time: "now"
+                    };
+
+                    // Run a blocking search and get back a job
+                    service.search(
+                      searchQuery,
+                      searchParams,
+                      function(err, job) {
+                        console.log("...done!\n");
+
+                        // Get the job from the server to display more info
+                        job.fetch(function(err){
+                          // Display properties of the job
+                          console.log("Search job properties\n---------------------");
+                          console.log("Search job ID:         " + job.sid);
+                          console.log("The number of events:  " + job.properties().eventCount);
+                          console.log("The number of results: " + job.properties().resultCount);
+                          console.log("Search duration:       " + job.properties().runDuration + " seconds");
+                          console.log("This job expires in:   " + job.properties().ttl + " seconds");
+
+                        });
+
+                        console.log("Start collection update" );
+
+                        // Define the query
+                        var searchQuery = "| savedsearch \"Update Kafka Burrow group consumers inventory\"";
+
+                        // Set the search parameters--specify a time range
+                        var searchParams = {
+                          earliest_time: "-60m",
+                          latest_time: "now"
+                        };
+
+                        // Run a normal search that immediately returns the job's SID
+                        service.search(
+                          searchQuery,
+                          searchParams,
+                          function(err, job) {
+
+                            // Display the job's search ID
+                            console.log("Job SID: ", job.sid);
+
+                            // Poll the status of the search job
+                            job.track({period: 200}, {
+                              done: function(job) {
+                                // console.log("Done!");
+
+                                // Once the job is done, update all searches
+                                search_burrow_no_consumers.startSearch();
+                                search_burrow_no_consumers_enabled.startSearch();
+                                search_burrow_no_consumers_disabled.startSearch();
+                                search_burrow_main_table.startSearch();
+                                search_burrow_search_env.startSearch();
+                                search_burrow_search_label.startSearch();
+                                search_burrow_search_cluster.startSearch();
+
+                                // Print out the statics
+                                console.log("Job statistics:");
+                                console.log("  Event count:  " + job.properties().eventCount);
+                                console.log("  Result count: " + job.properties().resultCount);
+                                console.log("  Disk usage:   " + job.properties().diskUsage + " bytes");
+                                console.log("  Priority:     " + job.properties().priority);
+
+                                bootbox.alert("<h3 style=\"color: indianred;\">Collection reset done.</h3><p>The KVstore collection was flushed and updated successfully. All relevant searches were refreshed.</p>")
+
+                              },
+                              failed: function(job) {
+                                console.log("Job failed")
+                              },
+                              error: function(err) {
+                                done(err);
+                              }
+                            });
+
+                          }
+                        );
+
+                      }
+                    );
+
+                    }
+
+                });
+
+        });
+
+        //
         // DELETE BUTTON
         //
 
@@ -3162,6 +4364,193 @@ var search_burrow_main_table = new SearchManager({
         //
         // KAFKA CONNECT
         //
+
+        //
+        // UPDATE COLLECTION
+        //
+
+        // Call this function when the Update collection button is clicked
+
+        $("#btn_manage_content_kafka_connect1").click(function() {
+            submitTokens();
+
+            // When the Submit button is clicked, get all the form fields by accessing token values
+            var tokens = mvc.Components.get("default");
+
+            bootbox.confirm("<h3 style=\"color: indianred;\">Do you want to run now the collection update?</h3><p>This is perfectly safe and simply runs now the scheduled report updating the KVstore collection.<br /><br />If the operation is confirmed, please wait a few seconds for the background job to terminate and the end job window to appear.</p>", function(result){
+
+                if (result) {
+
+                    console.log("Start collection update" );
+
+                    // Define the query
+                    var searchQuery = "| savedsearch \"Update Kafka Connect tasks inventory\"";
+
+                    // Set the search parameters--specify a time range
+                    var searchParams = {
+                      earliest_time: "-60m",
+                      latest_time: "now"
+                    };
+
+                    // Run a normal search that immediately returns the job's SID
+                    service.search(
+                      searchQuery,
+                      searchParams,
+                      function(err, job) {
+
+                        // Display the job's search ID
+                        console.log("Job SID: ", job.sid);
+
+                        // Poll the status of the search job
+                        job.track({period: 200}, {
+                          done: function(job) {
+                            // console.log("Done!");
+
+                            // Once the job is done, update all searches
+                            search_connect_no_connectors.startSearch();
+                            search_connect_no_connectors_enabled.startSearch();
+                            search_connect_no_connectors_disabled.startSearch();
+                            search_connect_main_table.startSearch();
+                            search_connect_search_env.startSearch();
+                            search_connect_search_label.startSearch();
+
+                            bootbox.alert("<h3 style=\"color: indianred;\">Collection update done.</h3><p>The KVstore collection was updated successfully. All relevant searches were refreshed.</p>")
+
+                            // Print out the statics
+                            console.log("Job statistics:");
+                            console.log("  Event count:  " + job.properties().eventCount);
+                            console.log("  Result count: " + job.properties().resultCount);
+                            console.log("  Disk usage:   " + job.properties().diskUsage + " bytes");
+                            console.log("  Priority:     " + job.properties().priority);
+
+                          },
+                          failed: function(job) {
+                            console.log("Job failed")
+                          },
+                          error: function(err) {
+                            done(err);
+                          }
+                        });
+
+                      }
+                    );
+
+
+                    }
+
+                });
+
+        });
+
+
+        //
+        // RESET COLLECTION
+        //
+
+        // Call this function when the erase collection button is clicked
+
+        $("#btn_manage_content_kafka_connect2").click(function() {
+            submitTokens();
+
+            // When the Submit button is clicked, get all the form fields by accessing token values
+            var tokens = mvc.Components.get("default");
+
+            bootbox.confirm("<h3 style=\"color: indianred;\">Are you sure you want to reset the collection content ?</h3><p>All existing configuration will be irremediably lost, the KVstore collection will be flushed and replaced by a fresh update, with default values.<br /><br />If the operation is confirmed, please wait a few seconds for the background job to terminate and the end job window to appear.</p>", function(result){
+
+                if (result) {
+
+                    console.log("Flushing KVstore collection" );
+
+                    // Define the query
+                    var searchQuery = "| outputlookup kafka_connect_tasks_monitoring";
+
+                    // Set the search parameters--specify a time range
+                    var searchParams = {
+                      earliest_time: "-60m",
+                      latest_time: "now"
+                    };
+
+                    // Run a blocking search and get back a job
+                    service.search(
+                      searchQuery,
+                      searchParams,
+                      function(err, job) {
+                        console.log("...done!\n");
+
+                        // Get the job from the server to display more info
+                        job.fetch(function(err){
+                          // Display properties of the job
+                          console.log("Search job properties\n---------------------");
+                          console.log("Search job ID:         " + job.sid);
+                          console.log("The number of events:  " + job.properties().eventCount);
+                          console.log("The number of results: " + job.properties().resultCount);
+                          console.log("Search duration:       " + job.properties().runDuration + " seconds");
+                          console.log("This job expires in:   " + job.properties().ttl + " seconds");
+
+                        });
+
+                        console.log("Start collection update" );
+
+                        // Define the query
+                        var searchQuery = "| savedsearch \"Update Kafka Connect tasks inventory\"";
+
+                        // Set the search parameters--specify a time range
+                        var searchParams = {
+                          earliest_time: "-60m",
+                          latest_time: "now"
+                        };
+
+                        // Run a normal search that immediately returns the job's SID
+                        service.search(
+                          searchQuery,
+                          searchParams,
+                          function(err, job) {
+
+                            // Display the job's search ID
+                            console.log("Job SID: ", job.sid);
+
+                            // Poll the status of the search job
+                            job.track({period: 200}, {
+                              done: function(job) {
+                                // console.log("Done!");
+
+                                // Once the job is done, update all searches
+                                search_connect_no_connectors.startSearch();
+                                search_connect_no_connectors_enabled.startSearch();
+                                search_connect_no_connectors_disabled.startSearch();
+                                search_connect_main_table.startSearch();
+                                search_connect_search_env.startSearch();
+                                search_connect_search_label.startSearch();
+
+                                // Print out the statics
+                                console.log("Job statistics:");
+                                console.log("  Event count:  " + job.properties().eventCount);
+                                console.log("  Result count: " + job.properties().resultCount);
+                                console.log("  Disk usage:   " + job.properties().diskUsage + " bytes");
+                                console.log("  Priority:     " + job.properties().priority);
+
+                                bootbox.alert("<h3 style=\"color: indianred;\">Collection reset done.</h3><p>The KVstore collection was flushed and updated successfully. All relevant searches were refreshed.</p>")
+
+                              },
+                              failed: function(job) {
+                                console.log("Job failed")
+                              },
+                              error: function(err) {
+                                done(err);
+                              }
+                            });
+
+                          }
+                        );
+
+                      }
+                    );
+
+                    }
+
+                });
+
+        });
 
         //
         // DELETE BUTTON
@@ -3305,7 +4694,7 @@ var search_burrow_main_table = new SearchManager({
 );
 // ]]>
 </script>
-<script src="{{SPLUNKWEB_URL_PREFIX}}/static/app/telegraf-kafka/togglepanel.js" type="text/javascript"></script>
 <script src="{{SPLUNKWEB_URL_PREFIX}}/static/app/telegraf-kafka/bootbox.min.js" type="text/javascript"></script>
+<script src="{{SPLUNKWEB_URL_PREFIX}}/static/app/telegraf-kafka/alerting-management.js" type="text/javascript"></script>
 </body>
 </html>

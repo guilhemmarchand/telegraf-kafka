@@ -1,6 +1,17 @@
 Release notes
 #############
 
+Version 1.1.11
+==============
+
+- feature: Improvement of the Alerting framework management interface with tabs categorization, capability to update and reset collections on demand, alert activation summary, UI experience greatly improved
+- fix: Prevent low range state for Kafka Connect tasks that were recently deleted in tasks overview
+- fix: Improve Kafka Connect tasks table in Kafka Connect entity view
+- fix: Pastel red color for under-replicated partitions in topics views
+- fix: Properly order per topic/partitions in broker entity table view
+- fix: Prevents a failing component that was unreachable for a long period to be entirely removed from the infrastructure collection, replaced by a disabled_autoforced monitoring_state value if downtime>24 hours
+- fix: Preserve _key_id of KVstore collections during updates for kafka_infra_inventory / kafka_infra_nodes_inventory lookups
+
 Version 1.1.10
 ==============
 

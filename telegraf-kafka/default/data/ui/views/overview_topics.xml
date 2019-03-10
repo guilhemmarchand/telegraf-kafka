@@ -92,7 +92,7 @@
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="# UnderReplicatedPartitions">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#ff6961" minColor="#FFFFFF"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="Size MB">

@@ -1,0 +1,12 @@
+
+
+/* hide resizing panel option */
+
+.ui-resizable-handle,.action-bar,.menus {
+   visibility:hidden !important;
+}
+
+/* hide the footer everywhere */
+.dashboard-row .dashboard-panel .dashboard-element .panel-footer {
+   display: none !important;
+}

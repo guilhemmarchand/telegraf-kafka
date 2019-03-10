@@ -1034,13 +1034,18 @@
                     <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name=kafka_partition.LogEndOffset OR metric_name=kafka_partition.LogStartOffset OR metric_name=kafka_partition.NumLogSegments OR metric_name=kafka_partition.Size OR metric_name=kafka_partition.UnderReplicatedPartitions $topic_partition$ $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url, topic, partition, metric_name
 | eval {metric_name}=value
 | stats first(kafka_partition.*) as "*" by jolokia_agent_url, topic, partition
-| fields jolokia_agent_url, topic, partition, LogStartOffset, LogEndOffset, NumLogSegments, Size, UnderReplicatedPartitions</query>
+| fields jolokia_agent_url, topic, partition, LogStartOffset, LogEndOffset, NumLogSegments, Size, UnderReplicatedPartitions
+| sort limit=0 topic, partition</query>
                     <earliest>-1h</earliest>
                     <latest>now</latest>
                     <sampleRatio>1</sampleRatio>
                 </search>
                 <option name="count">15</option>
                 <option name="dataOverlayMode">none</option>
+                <format type="color" field="Size">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
             </table>
         </panel>
     </row>
