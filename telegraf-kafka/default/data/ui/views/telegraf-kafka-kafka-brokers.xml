@@ -102,12 +102,15 @@
                     </done>
                 </search>
                 <option name="colorMode">block</option>
-                <option name="drilldown">none</option>
+                <option name="drilldown">all</option>
                 <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
                 <option name="underLabel">OFFLINE PARTITIONS</option>
                 <option name="useColors">1</option>
+                <drilldown>
+                  <link target="_blank">search?q=| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_controller.OfflinePartitionsCount.Value" $env$ $label$ by env, label, jolokia_agent_url | stats sum(value) as value by env, label, jolokia_agent_url&amp;earliest=-90s&amp;latest=now</link>
+                </drilldown>
             </single>
         </panel>
         <panel>
@@ -121,12 +124,17 @@
                     <refreshType>delay</refreshType>
                 </search>
                 <option name="colorMode">block</option>
-                <option name="drilldown">none</option>
+                <option name="drilldown">all</option>
                 <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
                 <option name="underLabel">UNDER-REPLICATED PARTITIONS</option>
                 <option name="useColors">1</option>
+                <drilldown>
+                  <link target="_blank">search?q=| mstats latest(_value) as UnderReplicatedPartitions where `telegraf_kafka_index` metric_name=kafka_partition.UnderReplicatedPartitions $env$ $label$ by jolokia_agent_url, topic, partition
+| stats values(jolokia_agent_url) as jolokia_agent_url, dc(partition) as "# Partitions", sum(UnderReplicatedPartitions) as "# UnderReplicatedPartitions" by topic
+| where '# UnderReplicatedPartitions'>0&amp;earliest=-90s&amp;latest=now</link>
+                </drilldown>
             </single>
         </panel>
         <panel>
@@ -437,7 +445,7 @@
             <title>ISR Shrinking per sec</title>
             <chart>
                 <search depends="$chart2$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_replica_manager.IsrShrinksPerSec.OneMinuteRate" span=10s by jolokia_agent_url
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_replica_manager.IsrShrinksPerSec.OneMinuteRate" $env$ $label$ $jolokia_agent_url$ span=10s by jolokia_agent_url
 | timechart limit=20 useother=f `telegraf_kafka_span` avg(_value) as IsrShrinksPerSec by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -456,11 +464,19 @@
             <title>UnderReplicatedPartitions by topic</title>
             <table>
                 <search depends="$chart2$">
-                    <query>| mstats latest(_value) as UnderReplicatedPartitions where `telegraf_kafka_index` metric_name="kafka_partition.UnderReplicatedPartitions" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url, topic | sort 0 topic, jolokia_agent_url</query>
+                    <query>| mstats latest(_value) as UnderReplicatedPartitions where `telegraf_kafka_index` metric_name=kafka_partition.UnderReplicatedPartitions $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url, topic, partition | stats values(jolokia_agent_url) as jolokia_agent_url, dc(partition) as "# Partitions", sum(UnderReplicatedPartitions) as "# UnderReplicatedPartitions" by topic</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                 </search>
                 <option name="count">8</option>
+                <format type="color" field="# Partitions">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="# UnderReplicatedPartitions">
+                    <colorPalette type="minMidMax" maxColor="#ff6961" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
             </table>
         </panel>
     </row>

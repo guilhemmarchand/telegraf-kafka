@@ -428,12 +428,15 @@
                     <refreshType>delay</refreshType>
                 </search>
                 <option name="colorMode">block</option>
-                <option name="drilldown">none</option>
+                <option name="drilldown">all</option>
                 <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
                 <option name="underLabel">OFFLINE PARTITIONS</option>
                 <option name="useColors">1</option>
+                <drilldown>
+                  <link target="_blank">search?q=| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_controller.OfflinePartitionsCount.Value" $env$ $label$ by env, label, jolokia_agent_url | stats sum(value) as value by env, label, jolokia_agent_url&amp;earliest=-90s&amp;latest=now</link>
+                </drilldown>
             </single>
         </panel>
         <panel>
@@ -447,12 +450,17 @@
                     <refreshType>delay</refreshType>
                 </search>
                 <option name="colorMode">block</option>
-                <option name="drilldown">none</option>
+                <option name="drilldown">all</option>
                 <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
                 <option name="underLabel">UNDER-REPLICATED PARTITIONS</option>
                 <option name="useColors">1</option>
+                <drilldown>
+                  <link target="_blank">search?q=| mstats latest(_value) as UnderReplicatedPartitions where `telegraf_kafka_index` metric_name=kafka_partition.UnderReplicatedPartitions $env$ $label$ by jolokia_agent_url, topic, partition
+| stats values(jolokia_agent_url) as jolokia_agent_url, dc(partition) as "# Partitions", sum(UnderReplicatedPartitions) as "# UnderReplicatedPartitions" by topic
+| where '# UnderReplicatedPartitions'>0&amp;earliest=-90s&amp;latest=now</link>
+                </drilldown>
             </single>
         </panel>
         <panel>
