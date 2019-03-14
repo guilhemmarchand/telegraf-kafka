@@ -1,6 +1,13 @@
 Release notes
 #############
 
+Version 1.1.12
+==============
+
+- feature: Adding drilldown to single forms for Offline and Under-replicated partitions in Overview and Kafka Brokers entities views
+- fix: ISR Shrinking missing env/label/broker filters in Kafka broker entity view
+- feature: Better table rendering in Kafka broker entity view for Under-replicated partitions
+
 Version 1.1.11
 ==============
 
