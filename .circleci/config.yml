@@ -36,7 +36,7 @@ jobs:
                 git clone --branch ${CIRCLE_BRANCH} https://${GITHUB_TOKEN}@github.com/guilhemmarchand/telegraf-kafka
             fi
       - restore_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "telegraf-kafka/default/app.conf" }}
+          key: deps1-{{ .Branch }}-{{ checksum "telegraf-kafka/telegraf-kafka/default/app.conf" }}
       - run: *apt-install
       - run:
           name: grab appinspect
@@ -57,6 +57,7 @@ jobs:
       - run:
           name: run appinspect
           command: |
+            cd telegraf-kafka
             rm -rf telegraf-kafka/.git
             rm -rf telegraf-kafka/.circleci
             rm -rf telegraf-kafka/.gitignore
