@@ -64,6 +64,7 @@ jobs:
             tar -zcvf telegraf-kafka.tar.gz telegraf-kafka
             mkdir dist
             cp telegraf-kafka.tar.gz dist/
+            cd ../
             cd appinspect-latest
             source venv/bin/activate
             splunk-appinspect inspect ../telegraf-kafka.tar.gz --included-tags=cloud 
