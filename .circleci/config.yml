@@ -66,8 +66,10 @@ jobs:
             cp telegraf-kafka.tar.gz dist/
             cd ../
             cd appinspect-latest
+            pwd
+            ls -ltr
             source venv/bin/activate
-            splunk-appinspect inspect ../telegraf-kafka.tar.gz --included-tags=cloud 
+            splunk-appinspect inspect ../telegraf-kafka/telegraf-kafka.tar.gz --included-tags=cloud
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "telegraf-kafka/default/app.conf" }}
           paths:
