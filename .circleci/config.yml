@@ -31,9 +31,9 @@ jobs:
           name: checkout repo
           command: |
             if [ "${CIRCLE_BRANCH}" == "" ]; then
-                git clone https://${GITHUB_TOKEN}@github.com/splunk/telegraf-kafka.git
+                git clone https://${GITHUB_TOKEN}@github.com/guilhemmarchand/telegraf-kafka
             else
-                git clone --branch ${CIRCLE_BRANCH} https://${GITHUB_TOKEN}@github.com/splunk/telegraf-kafka.git
+                git clone --branch ${CIRCLE_BRANCH} https://${GITHUB_TOKEN}@github.com/guilhemmarchand/telegraf-kafka
             fi
       - restore_cache:
           key: deps1-{{ .Branch }}-{{ checksum "telegraf-kafka/default/app.conf" }}
