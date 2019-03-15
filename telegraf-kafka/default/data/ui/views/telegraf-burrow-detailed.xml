@@ -41,7 +41,7 @@
 | lookup burrow_status status_code OUTPUT status, description
 | rangemap field=status_code low=1-1 elevated=2-2 default=severe
 | eval avg_lag=round(avg_lag, 3), delta_lastTime=now()-lastTime, lastTime=strftime(lastTime, "%H:%M:%S")
-| eval status=if(delta_lastTime>120, "UNKNOWN", status), description=if(delta_lastTime>120, "The delta in seconds between the last state received and now has exceeded 120 seconds", description)
+| eval status=if(delta_lastTime>120, "UNKNOWN", status), description=if(delta_lastTime>120, "The delta in seconds between the last state received and now has exceeded 120 seconds", description), range=if(delta_lastTime>120, "severe", range)
 | appendcols [ | mcatalog values(topic) as topics where metric_name="burrow_partition.lag" `telegraf_kafka_index` group="$group$" by group ]
 | fields group, topics, avg_lag, max_lag, current, sparkline, status, range, lastTime, description | rename description as "status description", topics as "consuming from topics"</query>
                     <earliest>$time.earliest$</earliest>
@@ -96,7 +96,7 @@
                 <title>Group consumer lag over time</title>
                 <search>
                     <query>| mstats max(_value) as value where `telegraf_kafka_index` metric_name="burrow_group.lag" env=$env$ label=$label$ group="$group$" span=10s
-| timechart span=1m avg(value) as "average lag", max(value) as "max lag"</query>
+| timechart `telegraf_kafka_span` avg(value) as "average lag", max(value) as "max lag"</query>
                     <earliest>$time.earliest$</earliest>
                     <latest>$time.latest$</latest>
                     <refresh>30s</refresh>
@@ -166,7 +166,7 @@
                 <title>By topic lag over time</title>
                 <search>
                     <query>| mstats max(_value) as value where `telegraf_kafka_index` metric_name="burrow_partition.lag" env=$env$ label=$label$ group="$group$" ($topic$) by topic span=10s
-| timechart useother=f limit=45 span=1m $bytopic_statsmode$(value) as lag by topic</query>
+| timechart useother=f limit=45 `telegraf_kafka_span` $bytopic_statsmode$(value) as lag by topic</query>
                     <earliest>$time.earliest$</earliest>
                     <latest>$time.latest$</latest>
                     <refresh>30s</refresh>
@@ -218,7 +218,7 @@
 | lookup burrow_status status_code OUTPUT status, description
 | rangemap field=status_code low=1-1 elevated=2-2 default=severe
 | eval avg_lag=round(avg_lag, 3), delta_lastTime=now()-lastTime, lastTime=strftime(lastTime, "%H:%M:%S")
-| eval status=if(delta_lastTime>120, "UNKNOWN", status), description=if(delta_lastTime>120, "The delta in seconds between the last state received and now has exceeded 120 seconds", description)
+| eval status=if(delta_lastTime>120, "UNKNOWN", status), description=if(delta_lastTime>120, "The delta in seconds between the last state received and now has exceeded 120 seconds", description), range=if(delta_lastTime>120, "severe", range)
 | join topic, partition [ | mstats latest(_value) prestats=t where metric_name="burrow_topic.offset" `telegraf_kafka_index` env=$env$ label=$label$ $topic$ by topic, partition
 | stats latest(_value) as topic_offset by topic, partition ]
 | fields topic, partition, topic_offset, current_offset, avg_lag, max_lag, current, sparkline, status, range, lastTime, description | rename description as "status description"</query>
