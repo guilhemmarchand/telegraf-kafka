@@ -16,6 +16,10 @@ Welcome to the Splunk application for Kafka Smart Monitoring documentation
    :alt: main1.png
    :align: center
 
+.. image:: img/main2.png
+   :alt: main2.png
+   :align: center
+
 **The application provides builtin and native monitoring for Apache Kafka components, as well as the Confluent stack components:**
 
 * Zookeeper
