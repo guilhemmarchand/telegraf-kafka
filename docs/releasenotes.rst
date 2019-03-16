@@ -1,6 +1,14 @@
 Release notes
 #############
 
+=======
+Version 1.1.13
+==============
+
+- fix: Static span is defined in Burrow detailed view charts
+- fix: Prevents removed Burrow consumers to appear as low range when latest metrics available are part of the selected time range
+- fix: Missing group by statement for Burrow consumers monitoring in OOTB alert, generates unexpected output containing OK consumers, while alerts are correctly justified for ERR consumers
+
 Version 1.1.12
 ==============
 
