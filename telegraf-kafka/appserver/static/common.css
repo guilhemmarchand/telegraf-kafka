@@ -103,3 +103,8 @@
     -webkit-transform: scale(1.2);
     transform: scale(1.2);
 }
+
+/* Prevents modal window from generating troubles within Splunk interfaces */
+.modal {
+  display: none;
+}

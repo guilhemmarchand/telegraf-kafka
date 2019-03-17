@@ -2,6 +2,14 @@ Release notes
 #############
 
 ==============
+Version 1.1.14
+==============
+
+- feature: Migration to native modal windows for user interactions in the alerting management user interface (removal of bootbox js plugin)
+- feature: Improvement of the maintenance mode workflow: maintenance mode is now time conditioned with an end of maintenance period requested via UI calendar during activation
+- feature: Hourly schedule of the maintenance mode status verification report
+
+==============
 Version 1.1.13
 ==============
 
