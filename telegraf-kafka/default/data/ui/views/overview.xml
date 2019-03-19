@@ -969,9 +969,12 @@
                 <search base="connect_tasks_summary">
                     <query>where role="kafka_source_task"
 | fillnull value=5 integer_status
-| rangemap field=integer_status low=1-1 high=2-5 default=severe
-| fields status, range, integer_status
-| sort - limit=0 integer_status | append [ makeresults ] | fillnull value="unknown" status | fillnull value="elevated" range | fields - _time</query>
+| fillnull value="unknown" status
+| eval range_status=case(status="running", 0, status="paused", 1, status!="running" AND status!="paused", 2)
+| rangemap field=range_status low=0-0 high=1-1 severe=2-5 default=severe
+| fields status, range, integer_status, range_status
+| sort - limit=0 range_status
+| append [ makeresults ] | fillnull value="unknown" status | fillnull value="elevated" range | fields - _time</query>
                 </search>
                 <option name="colorBy">value</option>
                 <option name="colorMode">block</option>
@@ -1023,9 +1026,12 @@
                 <search base="connect_tasks_summary">
                     <query>where role="kafka_sink_task"
 | fillnull value=5 integer_status
-| rangemap field=integer_status low=1-1 high=2-5 default=severe
-| fields status, range, integer_status
-| sort - limit=0 integer_status | append [ makeresults ] | fillnull value="unknown" status | fillnull value="elevated" range | fields - _time</query>
+| fillnull value="unknown" status
+| eval range_status=case(status="running", 0, status="paused", 1, status!="running" AND status!="paused", 2)
+| rangemap field=range_status low=0-0 high=1-1 severe=2-5 default=severe
+| fields status, range, integer_status, range_status
+| sort - limit=0 range_status
+| append [ makeresults ] | fillnull value="unknown" status | fillnull value="elevated" range | fields - _time</query>
                 </search>
                 <option name="colorBy">value</option>
                 <option name="colorMode">block</option>
@@ -1116,7 +1122,13 @@
             <table id="table_source_tasks">
             <title>Kafka Connect source connector tasks status (click on the row to open entity view for that connector)</title>
                 <search depends="$show_source_tasks$">
-                    <query>| savedsearch "Kafka monitoring - tasks status report" | search $env$ $label$ | where role="kafka_source_task" | fields - integer_status</query>
+                    <query>| savedsearch "Kafka monitoring - tasks status report" | search $env$ $label$ | where role="kafka_source_task" | fields - integer_status
+| append [ inputlookup kafka_connect_tasks_monitoring | search $env$ $label$ | where monitoring_state="enabled" | where role="kafka_source_task" ]
+| stats first(*) as "*", values(jolokia_agent_url) as jolokia_agent_url by env, label, connector
+| fields env, label, jolokia_agent_url, connector, role, task, status, lastTime, range
+| fillnull value="severe" range
+| fillnull value="time range out of scope, state undetermined" lastTime
+| fillnull value="undetermined" status</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                     <refresh>90s</refresh>
@@ -1161,7 +1173,13 @@
             <table id="table_sink_tasks">
             <title>Kafka Connect sink connector tasks status (click on the row to open entity view for that connector)</title>
                 <search depends="$show_sink_tasks$">
-                    <query>| savedsearch "Kafka monitoring - tasks status report" | search $env$ $label$ | where role="kafka_sink_task" | fields - integer_status</query>
+                    <query>| savedsearch "Kafka monitoring - tasks status report" | search $env$ $label$ | where role="kafka_sink_task" | fields - integer_status
+| append [ inputlookup kafka_connect_tasks_monitoring | search $env$ $label$ | where monitoring_state="enabled" | where role="kafka_sink_task" ]
+| stats first(*) as "*", values(jolokia_agent_url) as jolokia_agent_url by env, label, connector
+| fields env, label, jolokia_agent_url, connector, role, task, status, lastTime, range
+| fillnull value="severe" range
+| fillnull value="time range out of scope, state undetermined" lastTime
+| fillnull value="undetermined" status</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                     <refresh>90s</refresh>
@@ -1234,7 +1252,7 @@
 | eval status=if(count_severe>count_elevated, 2, 1), status=if(count_severe=0 AND count_elevated=0, 0, status)
 | rangemap field=status low=0-0 elevated=1-1 severe=2-2 default=severe
 | eval status_human=case(range="low", "OK", range="elevated", "WARN", range="severe", "ERR")
-| appendcols [ | makeresults | eval status_none="no consumers monitored yet", range_none="gray" ]
+| append [ | makeresults | eval status_none="no consumers monitored yet", range_none="gray" ] | stats first(*) as "*"
 | eval status_human=if(isnull(status_human), "0 monitored consumers (update collection required)", status_human), range=if(isnull(range), range_none, range)
 | fields status_human, range</query>
                 </search>

@@ -5,9 +5,14 @@ Release notes
 Version 1.1.14
 ==============
 
+- feature: Major improvements of the user experience with the management of embedded alerting via modal contextual user interactions
+- feature: Maintenance mode is now time conditioned with an end of maintenance period requested via UI calendar during activation
 - feature: Migration to native modal windows for user interactions in the alerting management user interface (removal of bootbox js plugin)
-- feature: Improvement of the maintenance mode workflow: maintenance mode is now time conditioned with an end of maintenance period requested via UI calendar during activation
-- feature: Hourly schedule of the maintenance mode status verification report
+- feature: Default schedule change of the maintenance mode status verification report
+- feature: Request Splunk restart by default in app.conf
+- fix: Kafka Connect tasks that are paused do not properly affect the aggregated state single form in Overview
+- fix: Add Kafka Connect tasks in the dynamic table tasks overview if the tasks are listed as monitored in the collection, and the tasks do not report metrics currently (collection stopped, tasks were removed but not from collection)
+- fix: Burrow task single form in Overview page results in appendcols related error in Overview page within Splunk 7.0.x
 
 ==============
 Version 1.1.13
