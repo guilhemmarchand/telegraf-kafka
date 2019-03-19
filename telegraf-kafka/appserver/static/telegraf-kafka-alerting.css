@@ -1,0 +1,6 @@
+
+/* Prevents green disabled button */
+.btn-primary[disabled] {
+    background-color: #337ab7;
+    opacity: .40;
+}

@@ -5,9 +5,11 @@ Release notes
 Version 1.1.14
 ==============
 
+- feature: Major improvements of the user experience with the management of embedded alerting via modal contextual user interactions
+- feature: Maintenance mode is now time conditioned with an end of maintenance period requested via UI calendar during activation
 - feature: Migration to native modal windows for user interactions in the alerting management user interface (removal of bootbox js plugin)
-- feature: Improvement of the maintenance mode workflow: maintenance mode is now time conditioned with an end of maintenance period requested via UI calendar during activation
-- feature: Hourly schedule of the maintenance mode status verification report
+- feature: Default schedule change of the maintenance mode status verification report
+- feature: Request Splunk restart by default in app.conf
 
 ==============
 Version 1.1.13
