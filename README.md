@@ -26,9 +26,7 @@ The Splunk application for Telegraf Kafka monitoring provides smart insight moni
 
 ![screen1](./docs/img/main1.png)
 
-This Splunk application is a backport of the origin ITSI module for Telegraf smart monitoring:
-
-https://github.com/guilhemmarchand/DA-ITSI-TELEGRAF-KAFKA
+![screen1](./docs/img/main2.png)
 
 **Please consult the online documentation:** https://telegraf-kafka.readthedocs.io
 
