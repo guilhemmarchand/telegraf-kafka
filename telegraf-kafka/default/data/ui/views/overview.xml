@@ -1122,13 +1122,7 @@
             <table id="table_source_tasks">
             <title>Kafka Connect source connector tasks status (click on the row to open entity view for that connector)</title>
                 <search depends="$show_source_tasks$">
-                    <query>| savedsearch "Kafka monitoring - tasks status report" | search $env$ $label$ | where role="kafka_source_task" | fields - integer_status
-| append [ inputlookup kafka_connect_tasks_monitoring | search $env$ $label$ | where monitoring_state="enabled" | where role="kafka_source_task" ]
-| stats first(*) as "*", values(jolokia_agent_url) as jolokia_agent_url by env, label, connector
-| fields env, label, jolokia_agent_url, connector, role, task, status, lastTime, range
-| fillnull value="severe" range
-| fillnull value="time range out of scope, state undetermined" lastTime
-| fillnull value="undetermined" status</query>
+                    <query>| savedsearch "Kafka monitoring - tasks status report" | search $env$ $label$ | where role="kafka_source_task" | fields - integer_status</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                     <refresh>90s</refresh>
@@ -1173,13 +1167,7 @@
             <table id="table_sink_tasks">
             <title>Kafka Connect sink connector tasks status (click on the row to open entity view for that connector)</title>
                 <search depends="$show_sink_tasks$">
-                    <query>| savedsearch "Kafka monitoring - tasks status report" | search $env$ $label$ | where role="kafka_sink_task" | fields - integer_status
-| append [ inputlookup kafka_connect_tasks_monitoring | search $env$ $label$ | where monitoring_state="enabled" | where role="kafka_sink_task" ]
-| stats first(*) as "*", values(jolokia_agent_url) as jolokia_agent_url by env, label, connector
-| fields env, label, jolokia_agent_url, connector, role, task, status, lastTime, range
-| fillnull value="severe" range
-| fillnull value="time range out of scope, state undetermined" lastTime
-| fillnull value="undetermined" status</query>
+                    <query>| savedsearch "Kafka monitoring - tasks status report" | search $env$ $label$ | where role="kafka_sink_task" | fields - integer_status</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                     <refresh>90s</refresh>
