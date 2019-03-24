@@ -2112,16 +2112,22 @@ require([
             tokenNamespace: "submitted"
         });
 
-        var search_connect_main_table = new PostProcessManager({
-            "managerid": "search_connect_no_connectors_mainsearch",
+        // Do not use PostProcessManager here due to append which will breake in Splunk 7.0.x
+var search_connect_main_table = new SearchManager({
             "id": "search_connect_main_table",
-            "search": "eval keyid = _key | fillnull value=\"unknown\" env, label | append [ | mstats latest(_value) as task_state_id where `telegraf_kafka_index` metric_name=\"kafka_connect.connector-task.status\" connector=* by connector, env, label, jolokia_agent_url, task span=1s | stats min(task_state_id) as task_state_id by env, label, connector | eval task_state=case(task_state_id=0, \"paused\", task_state_id=1, \"running\", task_state_id=2, \"unassigned\", task_state_id=3, \"failed\", task_state_id=4, \"destroyed\") ] | stats values(*) as \"*\" by env, label, connector  | search $search_tk_connect_env$ $search_tk_connect_label$ $search_tk_connect_connector$ $search_tk_connect_role$ $search_tk_connect_monitoring_state$ | fields keyid, env, label, connector, role, grace_period, task_state, monitoring_state | sort 0 env, label, connector | eval range=if(monitoring_state=\"enabled\", \"low\", \"severe\")",
-            "tokenDependencies": {},
+            "sample_ratio": 1,
+            "earliest_time": "-15m",
+            "cancelOnUnload": true,
+            "search": "| inputlookup kafka_connect_tasks_monitoring | eval keyid = _key | fillnull value=\"unknown\" env, label | append [ | mstats latest(_value) as task_state_id where `telegraf_kafka_index` metric_name=\"kafka_connect.connector-task.status\" connector=* by connector, env, label, jolokia_agent_url, task span=1s | stats min(task_state_id) as task_state_id by env, label, connector | eval task_state=case(task_state_id=0, \"paused\", task_state_id=1, \"running\", task_state_id=2, \"unassigned\", task_state_id=3, \"failed\", task_state_id=4, \"destroyed\") ] | stats values(*) as \"*\" by env, label, connector  | search $search_tk_connect_env$ $search_tk_connect_label$ $search_tk_connect_connector$ $search_tk_connect_role$ $search_tk_connect_monitoring_state$ | fields keyid, env, label, connector, role, grace_period, task_state, monitoring_state | sort 0 env, label, connector | eval range=if(monitoring_state=\"enabled\", \"low\", \"severe\")",
+            "latest_time": "now",
+            "status_buckets": 0,
+            "app": utils.getCurrentApp(),
+            "auto_cancel": 90,
+            "preview": true,
+            "tokenDependencies": {
+            },
             "runWhenTimeIsUndefined": false
-        }, {
-            tokens: true,
-            tokenNamespace: "submitted"
-        });
+        }, {tokens: true, tokenNamespace: "submitted"});
 
         var modal_input_kafka_connector_grace_period = new DropdownInput({
             "id": "modal_input_kafka_connector_grace_period",
