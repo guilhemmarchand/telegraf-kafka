@@ -173,7 +173,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
                     <h3 style="color: indianred;"><span class="glyphicon glyphicon-lock"></span>Maintenance mode</h3>
                 </div>
                 <div class="modal-body">
-                    <p>Error: the selected date time is in the past, please select a relevant end date for the maintenance mode.
+                    <p><b>Invalid entry:</b> the selected date time is in the past, please select a valid end date for the maintenance mode.
                     </p>
                 </div>
 
@@ -195,7 +195,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
                     <h3 style="color: indianred;"><span class="glyphicon glyphicon-lock"></span>Maintenance mode</h3>
                 </div>
                 <div class="modal-body">
-                    <p>Error: the date / time entries are empty or incorrect, please select a relevant end date for the maintenance mode.
+                    <p><b>Invalid entry:</b> the date / time entries are empty or incorrect, please select a valid end date for the maintenance mode.
                     </p>
                 </div>
 
@@ -266,12 +266,133 @@ styles in <div> tags, similar to Bootstrap's grid system.
                 </div>
                 <div class="modal-body">
                     <p>The KVstore collection was updated successfully. All relevant searches were refreshed.<br /><br />
+                        <b>It is recommended to reload the dashboard, using the button bellow.</b>
                     </p>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-default btn-default pull-left" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
-                    <button type="submit" id="btn_modal_update_collection_done" class="btn btn-default btn-primary pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Ok</button>
+                    <button type="submit" id="btn_modal_reload" class="btn btn-default btn-primary pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close & refresh</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error or failure while attempting to enable or disable the maintenance mode -->
+    <div class="modal fade" id="modal_maintenance_mode_failure" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 style="color: indianred;"><span class="glyphicon glyphicon-lock"></span>Oops!</h3>
+                </div>
+                <div class="modal-body">
+                    <p>Sorry but it looks like an error occurred while attempting to modify the maintenance mode.<br /><br />
+                        <b>You might not have the permission to write to the collection</b>, or an unexpected failure was encountered.
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error or failure during KVstore collection flush -->
+    <div class="modal fade" id="modal_update_collection_failure_flush" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 style="color: indianred;"><span class="glyphicon glyphicon-lock"></span>Oops!</h3>
+                </div>
+                <div class="modal-body">
+                    <p>Sorry but it looks like an error occurred while attempting to flush the KVstore collection.<br /><br />
+                        <b>You might not have the permission to write to the collection</b>, or an unexpected failure was encountered.
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error or failure during KVstore collection update -->
+    <div class="modal fade" id="modal_update_collection_failure" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 style="color: indianred;"><span class="glyphicon glyphicon-lock"></span>Oops!</h3>
+                </div>
+                <div class="modal-body">
+                    <p>Sorry but it looks like an error occurred while attempting to perform the KVstore collection update.<br /><br />
+                        <b>You might not have the permission to write to the collection</b>, or an unexpected failure was encountered.
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error or failure during KVstore collection update -->
+    <div class="modal fade" id="modal_update_collection_failure_return" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 style="color: indianred;"><span class="glyphicon glyphicon-lock"></span>Oops!</h3>
+                </div>
+                <div class="modal-body">
+                    <p>Sorry but it looks like an error occurred while attempting to perform the KVstore collection update.<br /><br />
+                        <b>You might not have the permission to write to the collection</b>, or an unexpected failure was encountered.<br /><br />
+                        <b>The server returned the following error message:</b>
+                    </p>
+                    <div class="modal-error-message" style="margin: 10px 0; padding: 10px; border-radius: 3px 3px 3px 3px; color: #D8000C; background-color: #FFBABA;">
+                        <p>error return message</p>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error loading the current maintenance mode -->
+    <div class="modal fade" id="modal_loading_maintenance_mode_failure" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 style="color: indianred;"><span class="glyphicon glyphicon-lock"></span>Oops!</h3>
+                </div>
+                <div class="modal-body">
+                    <p>Sorry but it looks like an error occurred while loading the current maintenance mode status.
+                        <br /><br />
+                        Please attempt to refresh the page or review Splunk logs.<br /><br />
+                        <b>If the application was just deployed, please make sure Splunk was restarted after the installation.</b>
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
                 </div>
             </div>
         </div>
@@ -701,16 +822,12 @@ styles in <div> tags, similar to Bootstrap's grid system.
 
                                 <lu>
                                     <li><b>monitoring_state:</b> only enabled entities will trigger when alerts conditions are met, such as a component being down or unreachable.</li>
-                                    <li><b>grace_period:</b> a minimal grace period in seconds that will be applied before the alert triggers.</li>
+                                    <li><b>grace_period:</b> a minimal grace period in seconds that will be applied before the alert triggers. (for metrics availability test only)</li>
                                 </lu>
 
                             <br />
 
-                            The content of the KVstore collection is automatically maintained by the scheduled report named "Update Kafka Infrastructure components inventory".
-
-                            <br />
-
-                            This report can be used at any time, and will automatically fill the KVstore based lookup named "kafka_infra_nodes_inventory", therefore the monitoring_state and grace_period are preserved unless the KVstore collection is manually flushed.
+                            Use the update collection button to immediately run the components discovery report, or use the reset button to flush and reset the state of the collection.
 
                             </p>
 
@@ -824,11 +941,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
 
                             <br />
 
-                            The content of the KVstore collection is automatically maintained by the scheduled report named "Update Kafka Infrastructure components inventory".
-
-                            <br />
-
-                            This report can be used at any time, and will automatically fill the KVstore based lookup named "kafka_infra_nodes_inventory", therefore the monitoring_state and minimal_node_number are preserved unless the KVstore collection is manually flushed.
+                            Use the update collection button to immediately run the components discovery report, or use the reset button to flush and reset the state of the collection.
 
                             </p>
 
@@ -934,11 +1047,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
 
                             <br />
 
-                            The content of the KVstore collection is automatically maintained by the scheduled report named "Update Kafka topics inventory".
-
-                            <br />
-
-                            This report can be used at any time, and will automatically fill the KVstore based lookup named "kafka_topics_monitoring", therefore the monitoring_state is preserved unless the KVstore collection is manually flushed.
+                            Use the update collection button to immediately run the components discovery report, or use the reset button to flush and reset the state of the collection.
 
                             </p>
 
@@ -1046,11 +1155,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
                             <br />
                             <br />
 
-                            The content of the KVstore collection is automatically maintained by the scheduled report named "Update Kafka Connect tasks inventory".
-
-                            <br />
-
-                            This report can be used at any time, and will automatically fill the KVstore based lookup named "kafka_connect_tasks_monitoring", therefore the monitoring_state and grace_period are preserved unless the KVstore collection is manually flushed.
+                            Use the update collection button to immediately run the components discovery report, or use the reset button to flush and reset the state of the collection.
 
                             </p>
 
@@ -1163,11 +1268,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
 
                             <br />
 
-                            The content of the KVstore collection is automatically maintained by the scheduled report named "Update Kafka Burrow group consumers inventory".
-
-                            <br />
-
-                            This report can be used at any time, and will automatically fill the KVstore based lookup named "kafka_burrow_consumers_monitoring", therefore the monitoring_state is preserved unless the KVstore collection is manually flushed.
+                            Use the update collection button to immediately run the components discovery report, or use the reset button to flush and reset the state of the collection.
 
                             </p>
 
@@ -1423,6 +1524,14 @@ require([
         // });
 
         //
+        // COMMON BUTTONS
+        //
+
+        $("#btn_modal_reload").click(function() {
+            document.location.reload()
+        });
+
+        //
         // SEARCH MANAGERS
         //
 
@@ -1452,53 +1561,14 @@ require([
         // MAINTENANCE MODE
         //
 
-        var search_maintenance_state = new SearchManager({
-            "id": "search_maintenance_state",
+        var search_maintenance_mode_mainsearch = new SearchManager({
+            "id": "search_maintenance_mode_mainsearch",
             "sample_ratio": 1,
-            "search": "| savedsearch \"Verify Kafka alerting maintenance status\" | fields maintenance_mode | eval maintenance=if(match(maintenance_mode, \"enabled\"), 1, 0), maintenance_mode=upper(maintenance_mode) | rangemap field=maintenance low=0-0 severe=1-1 default=severe",
+            "search": "| inputlookup kafka_alerting_maintenance",
             "status_buckets": 0,
             "earliest_time": "-24h@h",
             "cancelOnUnload": true,
             "latest_time": "now",
-            "app": utils.getCurrentApp(),
-            "auto_cancel": 90,
-            "preview": true,
-            "tokenDependencies": {},
-            "runWhenTimeIsUndefined": false
-        }, {
-            tokens: true,
-            tokenNamespace: "submitted"
-        });
-
-        var search_maintenance_state_reactivation = new SearchManager({
-            "id": "search_maintenance_state_reactivation",
-            "sample_ratio": 1,
-            "search": "| inputlookup kafka_alerting_maintenance | eval maintenance_mode_end=strftime(maintenance_mode_end, \"%d %b %H:%M\") | fields maintenance_mode_end",
-            "status_buckets": 0,
-            "earliest_time": "-24h@h",
-            "cancelOnUnload": true,
-            "latest_time": "now",
-            "app": utils.getCurrentApp(),
-            "auto_cancel": 90,
-            "preview": true,
-            "tokenDependencies": {
-                "depends": "$maintenance_enabled$",
-                "rejects": ""
-            },
-            "runWhenTimeIsUndefined": false
-        }, {
-            tokens: true,
-            tokenNamespace: "submitted"
-        });
-
-        var search_maintenance_mode_state = new SearchManager({
-            "id": "search_maintenance_mode_state",
-            "earliest_time": "$earliest$",
-            "sample_ratio": null,
-            "cancelOnUnload": true,
-            "latest_time": "$latest$",
-            "search": "| inputlookup kafka_alerting_maintenance | fields maintenance_mode",
-            "status_buckets": 0,
             "app": utils.getCurrentApp(),
             "auto_cancel": 90,
             "preview": true,
@@ -1510,7 +1580,7 @@ require([
         });
 
         new SearchEventHandler({
-            managerid: "search_maintenance_mode_state",
+            managerid: "search_maintenance_mode_mainsearch",
             event: "progress",
             conditions: [{
                     attr: "match",
@@ -1530,6 +1600,28 @@ require([
                     }]
                 }
             ]
+        });
+
+        var search_maintenance_state = new PostProcessManager({
+            "managerid": "search_maintenance_mode_mainsearch",
+            "id": "search_maintenance_state",
+            "search": "fields maintenance_mode | eval maintenance=if(match(maintenance_mode, \"enabled\"), 1, 0), maintenance_mode=upper(maintenance_mode) | rangemap field=maintenance low=0-0 severe=1-1 default=severe",
+            "tokenDependencies": {},
+            "runWhenTimeIsUndefined": false
+        }, {
+            tokens: true,
+            tokenNamespace: "submitted"
+        });
+
+        var search_maintenance_state_reactivation = new PostProcessManager({
+            "managerid": "search_maintenance_mode_mainsearch",
+            "id": "search_maintenance_state_reactivation",
+            "search": "eval maintenance_mode_end=strftime(maintenance_mode_end, \"%d %b %H:%M\") | fields maintenance_mode_end",
+            "tokenDependencies": {},
+            "runWhenTimeIsUndefined": false
+        }, {
+            tokens: true,
+            tokenNamespace: "submitted"
         });
 
         // end time maintenance mode
@@ -1757,10 +1849,12 @@ require([
             "app": utils.getCurrentApp(),
             "auto_cancel": 90,
             "preview": true,
-            "tokenDependencies": {
-            },
+            "tokenDependencies": {},
             "runWhenTimeIsUndefined": false
-        }, {tokens: true, tokenNamespace: "submitted"});
+        }, {
+            tokens: true,
+            tokenNamespace: "submitted"
+        });
 
         var search_kafka_infra_search_env = new PostProcessManager({
             "managerid": "search_kafka_infra_mainsearch",
@@ -1880,10 +1974,12 @@ require([
             "app": utils.getCurrentApp(),
             "auto_cancel": 90,
             "preview": true,
-            "tokenDependencies": {
-            },
+            "tokenDependencies": {},
             "runWhenTimeIsUndefined": false
-        }, {tokens: true, tokenNamespace: "submitted"});
+        }, {
+            tokens: true,
+            tokenNamespace: "submitted"
+        });
 
         var search_kafka_infra_nodes_search_env = new PostProcessManager({
             "managerid": "search_kafka_infra_nodes_mainsearch",
@@ -1966,10 +2062,12 @@ require([
             "app": utils.getCurrentApp(),
             "auto_cancel": 90,
             "preview": true,
-            "tokenDependencies": {
-            },
+            "tokenDependencies": {},
             "runWhenTimeIsUndefined": false
-        }, {tokens: true, tokenNamespace: "submitted"});
+        }, {
+            tokens: true,
+            tokenNamespace: "submitted"
+        });
 
         var search_kafka_topics_search_env = new PostProcessManager({
             "managerid": "search_kafka_topics_mainsearch",
@@ -2052,10 +2150,12 @@ require([
             "app": utils.getCurrentApp(),
             "auto_cancel": 90,
             "preview": true,
-            "tokenDependencies": {
-            },
+            "tokenDependencies": {},
             "runWhenTimeIsUndefined": false
-        }, {tokens: true, tokenNamespace: "submitted"});
+        }, {
+            tokens: true,
+            tokenNamespace: "submitted"
+        });
 
         var search_connect_no_connectors = new PostProcessManager({
             "managerid": "search_connect_no_connectors_mainsearch",
@@ -2113,7 +2213,7 @@ require([
         });
 
         // Do not use PostProcessManager here due to append which will breake in Splunk 7.0.x
-var search_connect_main_table = new SearchManager({
+        var search_connect_main_table = new SearchManager({
             "id": "search_connect_main_table",
             "sample_ratio": 1,
             "earliest_time": "-15m",
@@ -2124,10 +2224,12 @@ var search_connect_main_table = new SearchManager({
             "app": utils.getCurrentApp(),
             "auto_cancel": 90,
             "preview": true,
-            "tokenDependencies": {
-            },
+            "tokenDependencies": {},
             "runWhenTimeIsUndefined": false
-        }, {tokens: true, tokenNamespace: "submitted"});
+        }, {
+            tokens: true,
+            tokenNamespace: "submitted"
+        });
 
         var modal_input_kafka_connector_grace_period = new DropdownInput({
             "id": "modal_input_kafka_connector_grace_period",
@@ -2181,10 +2283,12 @@ var search_connect_main_table = new SearchManager({
             "app": utils.getCurrentApp(),
             "auto_cancel": 90,
             "preview": true,
-            "tokenDependencies": {
-            },
+            "tokenDependencies": {},
             "runWhenTimeIsUndefined": false
-        }, {tokens: true, tokenNamespace: "submitted"});
+        }, {
+            tokens: true,
+            tokenNamespace: "submitted"
+        });
 
         var search_burrow_no_consumers = new PostProcessManager({
             "managerid": "search_burrow_mainsearch",
@@ -2330,11 +2434,11 @@ var search_connect_main_table = new SearchManager({
 
                 // Define the alert URL
                 var url = TokenUtils.replaceTokenNames("{{SPLUNKWEB_URL_PREFIX}}/app/telegraf-kafka/alert?s=%2FservicesNS%2Fnobody%2Ftelegraf-kafka%2Fsaved%2Fsearches%2F$row.id$", _.extend(submittedTokenModel.toJSON(), e.data), TokenUtils.getEscaper('url'), TokenUtils.getFilters(mvc.Components));
-                var alert_url = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port: '') + url;
+                var alert_url = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '') + url;
                 //console.log("full url is " + alert_url);
 
                 // Define the URL target
-                document.getElementById("btn_url_modal_manage_kafka_alert").href=alert_url;
+                document.getElementById("btn_url_modal_manage_kafka_alert").href = alert_url;
 
                 submitTokens();
 
@@ -2345,10 +2449,10 @@ var search_connect_main_table = new SearchManager({
                 var tk_kafka_alert_title = tokens.get("tk_kafka_alert_title");
 
                 // Define the history search
-                var alert_search_history = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port: '') + '//app/telegraf-kafka/search' + "?q=search%20index%3D_audit%20action%3D\"alert_fired\"%20ss_app%3D\"telegraf-kafka\"%20ss_name%3D\"" + encodeURI(tk_kafka_alert_title) + "\""
+                var alert_search_history = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '') + '//app/telegraf-kafka/search' + "?q=search%20index%3D_audit%20action%3D\"alert_fired\"%20ss_app%3D\"telegraf-kafka\"%20ss_name%3D\"" + encodeURI(tk_kafka_alert_title) + "\""
 
                 // Define the URL target
-                document.getElementById("btn_url_modal_history_kafka_alert").href=alert_search_history;
+                document.getElementById("btn_url_modal_history_kafka_alert").href = alert_search_history;
 
                 // Enable modal context
                 $("#modal_manage_kafka_alerts").modal();
@@ -2360,7 +2464,10 @@ var search_connect_main_table = new SearchManager({
             "id": "body_modal_manage_kafka_alerts",
             "useTokens": true,
             "el": $('#body_modal_manage_kafka_alerts')
-        }, {tokens: true, tokenNamespace: "submitted"}).render();
+        }, {
+            tokens: true,
+            tokenNamespace: "submitted"
+        }).render();
 
         DashboardController.addReadyDep(body_modal_manage_kafka_alerts.contentLoaded());
 
@@ -2715,7 +2822,7 @@ var search_connect_main_table = new SearchManager({
 
                 // When the Submit button is clicked, get all the form fields by accessing token values
                 var tokens = mvc.Components.get("default");
-                
+
                 var tk_kafka_topic_monitoring_state = tokens.get("tk_kafka_topic_monitoring_state");
 
                 // Dynamically manage buttons states
@@ -2830,7 +2937,7 @@ var search_connect_main_table = new SearchManager({
 
                 // When the Submit button is clicked, get all the form fields by accessing token values
                 var tokens = mvc.Components.get("default");
-                
+
                 var tk_kafka_connector_monitoring_state = tokens.get("tk_kafka_connector_monitoring_state");
 
                 // Dynamically manage buttons states
@@ -3945,11 +4052,11 @@ var search_connect_main_table = new SearchManager({
         };
 
         // Run a oneshot search that returns the job's results
-
         service.oneshotSearch(
             searchQuery,
             searchParams,
             function(err, results) {
+
                 // Display the results
                 var fields = results.fields;
                 var rows = results.rows;
@@ -3975,6 +4082,9 @@ var search_connect_main_table = new SearchManager({
                 }
 
                 if (!current_maintenance_mode) {
+                    $("#modal_loading_maintenance_mode_failure").modal()
+                    document.getElementById('btn_press_enable_maintenance').disabled = true;
+                    document.getElementById('btn_press_disable_maintenance').disabled = true;
                     return;
                 }
 
@@ -4096,17 +4206,42 @@ var search_connect_main_table = new SearchManager({
                                     latest_time: "now"
                                 };
 
-                                // Run a oneshot search that returns the job's results
-                                service.oneshotSearch(
+                                // Update the collection
+                                service.search(
                                     searchQuery,
                                     searchParams,
-                                    function(err, results) {
-                                        // Update single
-                                        search_maintenance_state.startSearch();
-                                        search_maintenance_mode_state.startSearch();
-                                        // buttons states
-                                        document.getElementById('btn_press_disable_maintenance').disabled = false;
-                                        document.getElementById('btn_press_enable_maintenance').disabled = true;
+                                    function(err, job) {
+
+                                        // Poll the status of the search job
+                                        job.track({
+                                            period: 200
+                                        }, {
+                                            done: function(job) {
+                                                //console.log("Done!");
+
+                                                // Update single
+                                                search_maintenance_mode_mainsearch.startSearch();
+                                                search_maintenance_state.startSearch();
+                                                // buttons states
+                                                document.getElementById('btn_press_disable_maintenance').disabled = false;
+                                                document.getElementById('btn_press_enable_maintenance').disabled = true;
+                                            },
+                                            failed: function(properties) {
+                                                let errorStr = "Unknown Error!";
+                                                if (properties && properties._properties && properties._properties.messages && properties._properties.messages[0]['text']) {
+                                                    errorStr = properties._properties.messages[0]['text'];
+                                                } else if (properties && properties._properties && properties._properties.messages) {
+                                                    errorStr = JSON.stringify(properties._properties.messages);
+                                                }
+                                                $("#loadingGray").remove()
+                                                $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                                                $("#modal_update_collection_failure_return").modal()
+                                            },
+                                            error: function(err) {
+                                                done(err);
+                                                $("#modal_maintenance_mode_failure").modal()
+                                            }
+                                        });
                                     }
                                 );
 
@@ -4147,19 +4282,42 @@ var search_connect_main_table = new SearchManager({
                     latest_time: "now"
                 };
 
-                // Run a oneshot search that returns the job's results
-                service.oneshotSearch(
+                // Update the collection
+                service.search(
                     searchQuery,
                     searchParams,
-                    function(err, results) {
-                        // Update single
-                        search_maintenance_state.startSearch();
-                        search_maintenance_mode_state.startSearch();
+                    function(err, job) {
 
-                        // buttons states
-                        document.getElementById('btn_press_disable_maintenance').disabled = true;
-                        document.getElementById('btn_press_enable_maintenance').disabled = false;
+                        // Poll the status of the search job
+                        job.track({
+                            period: 200
+                        }, {
+                            done: function(job) {
+                                //console.log("Done!");
 
+                                // Update single
+                                search_maintenance_mode_mainsearch.startSearch();
+                                search_maintenance_state.startSearch();
+                                // buttons states
+                                document.getElementById('btn_press_disable_maintenance').disabled = true;
+                                document.getElementById('btn_press_enable_maintenance').disabled = false;
+                            },
+                            failed: function(properties) {
+                                let errorStr = "Unknown Error!";
+                                if (properties && properties._properties && properties._properties.messages && properties._properties.messages[0]['text']) {
+                                    errorStr = properties._properties.messages[0]['text'];
+                                } else if (properties && properties._properties && properties._properties.messages) {
+                                    errorStr = JSON.stringify(properties._properties.messages);
+                                }
+                                $("#loadingGray").remove()
+                                $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                                $("#modal_update_collection_failure_return").modal()
+                            },
+                            error: function(err) {
+                                done(err);
+                                $("#modal_maintenance_mode_failure").modal()
+                            }
+                        });
                     }
                 );
             });
@@ -4186,14 +4344,14 @@ var search_connect_main_table = new SearchManager({
 
             $("#btn_modal_update_collection").click(function() {
 
-                console.log("Start collection update");
+                //console.log("Start collection update");
 
                 // Define the query
                 var searchQuery = "| savedsearch \"Update Kafka topics inventory\"";
 
                 // Set the search parameters--specify a time range
                 var searchParams = {
-                    earliest_time: "-60m",
+                    earliest_time: "-4h",
                     latest_time: "now"
                 };
 
@@ -4203,44 +4361,72 @@ var search_connect_main_table = new SearchManager({
                     searchParams,
                     function(err, job) {
 
-                        // Display the job's search ID
-                        console.log("Job SID: ", job.sid);
+                        $("#loadingGray").remove()
+                        $("body").append('<div id="loadingGray" style="background: #e9e9e9; display: block; position: fixed; z-index: 100; top: 0; right: 0; bottom: 0; left: 0; height: 100%; opacity: 0.8;"><div style="width: 100%; margin-top: 250px; padding-bottom: 50px; text-align: center;"><p style="font-size: 18pt; font-weight: bolder;">Updating the KVstore collection...</p></div><div id="spinner"></div></div>')
 
-                        // Poll the status of the search job
-                        job.track({
-                            period: 200
-                        }, {
-                            done: function(job) {
-                                console.log("Done!");
+                        require(["jquery",
+                                "/static/app/telegraf-kafka/spin.js"
+                            ],
+                            function($,
+                                Spinner
+                            ) {
+                                new Spinner({
+                                    lines: 12,
+                                    position: "relative"
+                                }).spin(document.getElementById('spinner'));
+                            })
 
-                                // Once the job is done, update all searches
-                                search_kafka_topics_mainsearch.startSearch();
-                                search_kafka_topics_mainsearch.startSearch();
-                                search_kafka_topics_no_components.startSearch();
-                                search_kafka_topics_no_components_enabled.startSearch();
-                                search_kafka_topics_no_components_disabled.startSearch();
-                                search_kafka_topics_main_table.startSearch();
-                                search_kafka_topics_search_env.startSearch();
-                                search_kafka_topics_search_label.startSearch();
-
-                                $("#modal_update_collection_done").modal()
-
-                                // Print out the statics
-                                console.log("Job statistics:");
-                                console.log("  Event count:  " + job.properties().eventCount);
-                                console.log("  Result count: " + job.properties().resultCount);
-                                console.log("  Disk usage:   " + job.properties().diskUsage + " bytes");
-                                console.log("  Priority:     " + job.properties().priority);
-
-                            },
-                            failed: function(job) {
-                                console.log("Job failed")
-                            },
-                            error: function(err) {
-                                done(err);
+                        // Shall the search fail before we can get properties
+                        if (job == null) {
+                            let errorStr = "Unknown Error!";
+                            if (err && err.data && err.data.messages && err.data.messages[0]['text']) {
+                                errorStr = err.data.messages[0]['text'];
+                            } else if (err && err.data && err.data.messages) {
+                                errorStr = JSON.stringify(err.data.messages);
                             }
-                        });
+                            $("#loadingGray").remove()
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                            $("#modal_update_collection_failure_return").modal()
+                        } else {
 
+                            // Poll the status of the search job
+                            job.track({
+                                period: 200
+                            }, {
+                                done: function(job) {
+                                    //console.log("Done!");
+
+                                    // Once the job is done, update all searches
+                                    search_kafka_topics_mainsearch.startSearch();
+                                    search_kafka_topics_no_components.startSearch();
+                                    search_kafka_topics_no_components_enabled.startSearch();
+                                    search_kafka_topics_no_components_disabled.startSearch();
+                                    search_kafka_topics_main_table.startSearch();
+                                    search_kafka_topics_search_env.startSearch();
+                                    search_kafka_topics_search_label.startSearch();
+
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_done").modal()
+
+                                },
+                                failed: function(properties) {
+                                    let errorStr = "Unknown Error!";
+                                    if (properties && properties._properties && properties._properties.messages && properties._properties.messages[0]['text']) {
+                                        errorStr = properties._properties.messages[0]['text'];
+                                    } else if (properties && properties._properties && properties._properties.messages) {
+                                        errorStr = JSON.stringify(properties._properties.messages);
+                                    }
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                                    $("#modal_update_collection_failure_return").modal()
+                                },
+                                error: function(err) {
+                                    done(err);
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_failure").modal()
+                                }
+                            });
+                        }
                     }
                 );
             });
@@ -4251,7 +4437,6 @@ var search_connect_main_table = new SearchManager({
         //
 
         // Call this function when the erase collection button is clicked
-
         $("#btn_manage_content_kafka_topics2").click(function() {
             submitTokens();
 
@@ -4262,14 +4447,12 @@ var search_connect_main_table = new SearchManager({
 
             $("#btn_modal_rebuild_collection").click(function() {
 
-                console.log("Flushing KVstore collection");
-
                 // Define the query
                 var searchQuery = "| outputlookup kafka_topics_monitoring";
 
                 // Set the search parameters--specify a time range
                 var searchParams = {
-                    earliest_time: "-60m",
+                    earliest_time: "-4h",
                     latest_time: "now"
                 };
 
@@ -4278,76 +4461,118 @@ var search_connect_main_table = new SearchManager({
                     searchQuery,
                     searchParams,
                     function(err, job) {
-                        console.log("...done!\n");
 
-                        // Get the job from the server to display more info
-                        job.fetch(function(err) {
-                            // Display properties of the job
-                            console.log("Search job properties\n---------------------");
-                            console.log("Search job ID:         " + job.sid);
-                            console.log("The number of events:  " + job.properties().eventCount);
-                            console.log("The number of results: " + job.properties().resultCount);
-                            console.log("Search duration:       " + job.properties().runDuration + " seconds");
-                            console.log("This job expires in:   " + job.properties().ttl + " seconds");
+                        $("#loadingGray").remove()
+                        $("body").append('<div id="loadingGray" style="background: #e9e9e9; display: block; position: fixed; z-index: 100; top: 0; right: 0; bottom: 0; left: 0; height: 100%; opacity: 0.8;"><div style="width: 100%; margin-top: 250px; padding-bottom: 50px; text-align: center;"><p style="font-size: 18pt; font-weight: bolder;">Flushing and updating the KVstore collection...</p></div><div id="spinner"></div></div>')
 
-                        });
+                        require(["jquery",
+                                "/static/app/telegraf-kafka/spin.js"
+                            ],
+                            function($,
+                                Spinner
+                            ) {
+                                new Spinner({
+                                    lines: 12,
+                                    position: "relative"
+                                }).spin(document.getElementById('spinner'));
+                            })
 
-                        console.log("Start collection update");
-
-                        // Define the query
-                        var searchQuery = "| savedsearch \"Update Kafka topics inventory\"";
-
-                        // Set the search parameters--specify a time range
-                        var searchParams = {
-                            earliest_time: "-60m",
-                            latest_time: "now"
-                        };
-
-                        // Run a normal search that immediately returns the job's SID
-                        service.search(
-                            searchQuery,
-                            searchParams,
-                            function(err, job) {
-
-                                // Display the job's search ID
-                                console.log("Job SID: ", job.sid);
-
-                                // Poll the status of the search job
-                                job.track({
-                                    period: 200
-                                }, {
-                                    done: function(job) {
-                                        console.log("Done!");
-
-                                        // Once the job is done, update all searches
-                                        search_kafka_topics_mainsearch.startSearch();
-                                        search_kafka_topics_no_components.startSearch();
-                                        search_kafka_topics_no_components_enabled.startSearch();
-                                        search_kafka_topics_no_components_disabled.startSearch();
-                                        search_kafka_topics_main_table.startSearch();
-                                        search_kafka_topics_search_env.startSearch();
-                                        search_kafka_topics_search_label.startSearch();
-
-                                        // Print out the statics
-                                        console.log("Job statistics:");
-                                        console.log("  Event count:  " + job.properties().eventCount);
-                                        console.log("  Result count: " + job.properties().resultCount);
-                                        console.log("  Disk usage:   " + job.properties().diskUsage + " bytes");
-                                        console.log("  Priority:     " + job.properties().priority);
-
-                                        $("#modal_update_collection_done").modal()
-
-                                    },
-                                    failed: function(job) {
-                                        console.log("Job failed")
-                                    },
-                                    error: function(err) {
-                                        done(err);
-                                    }
-                                });
-
+                        // Shall the search fail before we can get properties
+                        if (job == null) {
+                            let errorStr = "Unknown Error!";
+                            if (err && err.data && err.data.messages && err.data.messages[0]['text']) {
+                                errorStr = err.data.messages[0]['text'];
+                            } else if (err && err.data && err.data.messages) {
+                                errorStr = JSON.stringify(err.data.messages);
                             }
-                        );
+                            $("#loadingGray").remove()
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                            $("#modal_update_collection_failure_return").modal()
+                        } else {
+
+                            // Poll the status of the search job
+                            job.track({
+                                period: 200
+                            }, {
+                                done: function(job) {
+
+                                    // Define the query
+                                    var searchQuery = "| savedsearch \"Update Kafka topics inventory\"";
+
+                                    // Set the search parameters--specify a time range
+                                    var searchParams = {
+                                        earliest_time: "-4h",
+                                        latest_time: "now"
+                                    };
+
+                                    // Run a normal search that immediately returns the job's SID
+                                    service.search(
+                                        searchQuery,
+                                        searchParams,
+                                        function(err, job) {
+
+                                            // Poll the status of the search job
+                                            job.track({
+                                                period: 200
+                                            }, {
+                                                done: function(job) {
+                                                    //console.log("Done!");
+
+                                                    // Once the job is done, update all searches
+                                                    search_kafka_topics_mainsearch.startSearch();
+                                                    search_kafka_topics_no_components.startSearch();
+                                                    search_kafka_topics_no_components_enabled.startSearch();
+                                                    search_kafka_topics_no_components_disabled.startSearch();
+                                                    search_kafka_topics_main_table.startSearch();
+                                                    search_kafka_topics_search_env.startSearch();
+                                                    search_kafka_topics_search_label.startSearch();
+
+                                                    $("#loadingGray").remove()
+                                                    $("#modal_update_collection_done").modal()
+
+                                                },
+                                                failed: function(properties) {
+                                                    let errorStr = "Unknown Error!";
+                                                    if (properties && properties._properties && properties._properties.messages && properties._properties.messages[0]['text']) {
+                                                        errorStr = properties._properties.messages[0]['text'];
+                                                    } else if (properties && properties._properties && properties._properties.messages) {
+                                                        errorStr = JSON.stringify(properties._properties.messages);
+                                                    }
+                                                    $("#loadingGray").remove()
+                                                    $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                                                    $("#modal_update_collection_failure_return").modal()
+                                                },
+                                                error: function(err) {
+                                                    done(err);
+                                                    $("#loadingGray").remove()
+                                                    $("#modal_update_collection_failure").modal()
+                                                }
+
+                                            });
+
+                                        }
+                                    );
+
+                                },
+                                failed: function(properties) {
+                                    let errorStr = "Unknown Error!";
+                                    if (properties && properties._properties && properties._properties.messages && properties._properties.messages[0]['text']) {
+                                        errorStr = properties._properties.messages[0]['text'];
+                                    } else if (properties && properties._properties && properties._properties.messages) {
+                                        errorStr = JSON.stringify(properties._properties.messages);
+                                    }
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                                    $("#modal_update_collection_failure_return").modal()
+                                },
+                                error: function(err) {
+                                    done(err);
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_failure_flush").modal()
+                                }
+                            });
+
+                        }
 
                     }
                 );
@@ -4376,26 +4601,20 @@ var search_connect_main_table = new SearchManager({
             var modify_key = tokens.get("tk_kafka_topic_keyid");
 
             // Create the endpoint URL
-            var myendpoint_URl = "storage/collections/data/kv_telegraf_kafka_topics_monitoring/" + modify_key;
+            var myendpoint_URl = "/en-US/splunkd/__raw/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_topics_monitoring/" + modify_key;
 
-            //console.log("endpoint URL is:" + myendpoint_URl);
-
-            if (!modify_key || !modify_key.length) {
-                // Show an error message
-                $("#modal_entry_update_invalid").modal()
-                return;
-            } else {
+            if (modify_key && modify_key.length) {
 
                 $("#modal_entry_deletion").modal()
-
                 $("#btn_modal_entry_deletion").click(function() {
 
-                    // Get the value of the key ID field
-
-                    // Use the request method to send a REST POST request
-                    // to the storage/collections/data/{collection}/entry_key endpoint
-                    service.del(myendpoint_URl)
-                        .done(function() {
+                    $.ajax({
+                        url: myendpoint_URl,
+                        type: "DELETE",
+                        async: true,
+                        contentType: "application/json",
+                        success: function(returneddata) {
+                            //console.log("Updated!", returneddata)
                             // Run the search again to update the table
                             search_kafka_topics_mainsearch.startSearch();
                             search_kafka_topics_no_components.startSearch();
@@ -4405,7 +4624,20 @@ var search_connect_main_table = new SearchManager({
                             search_kafka_topics_search_env.startSearch();
                             search_kafka_topics_search_label.startSearch();
 
-                        });
+                            // house cleaning
+                            myendpoint_URl = undefined;
+                            delete(myendpoint_URl);
+                            modify_key = undefined;
+                            delete(modify_key);
+                            return;
+                        },
+                        error: function(xhr, textStatus, error) {
+                            message = "Error Updating!" + xhr + textStatus + error;
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(message);
+                            $("#modal_update_collection_failure_return").modal()
+                        }
+
+                    });
 
                 });
 
@@ -4435,7 +4667,7 @@ var search_connect_main_table = new SearchManager({
             var tk_kafka_topic_monitoring_state = "enabled";
 
             // Create the endpoint URL
-            var myendpoint_URl = "storage/collections/data/kv_telegraf_kafka_topics_monitoring/" + modify_key;
+            var myendpoint_URl = "/en-US/splunkd/__raw/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_topics_monitoring/" + modify_key;
 
             // Create a dictionary to store the field names and values
             var record = {
@@ -4455,20 +4687,14 @@ var search_connect_main_table = new SearchManager({
 
                 $("#btn_modal_entry_modification").click(function() {
 
-                    // Get the value of the key ID field
-
-                    // Use the request method to send a REST POST request
-                    // to the storage/collections/data/{collection}/entry_key endpoint
-                    service.request(
-                            myendpoint_URl,
-                            "POST",
-                            null,
-                            null,
-                            JSON.stringify(record), {
-                                "Content-Type": "application/json"
-                            },
-                            null)
-                        .done(function() {
+                    $.ajax({
+                        url: myendpoint_URl,
+                        type: "POST",
+                        async: true,
+                        contentType: "application/json",
+                        data: JSON.stringify(record),
+                        success: function(returneddata) {
+                            //console.log("Updated!", returneddata)
                             // Run the search again to update the table
                             search_kafka_topics_mainsearch.startSearch();
                             search_kafka_topics_no_components.startSearch();
@@ -4477,8 +4703,13 @@ var search_connect_main_table = new SearchManager({
                             search_kafka_topics_main_table.startSearch();
                             search_kafka_topics_search_env.startSearch();
                             search_kafka_topics_search_label.startSearch();
-
-                        });
+                        },
+                        error: function(xhr, textStatus, error) {
+                            message = "Error Updating!" + xhr + textStatus + error;
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(message);
+                            $("#modal_update_collection_failure_return").modal()
+                        }
+                    });
 
                 });
 
@@ -4504,7 +4735,7 @@ var search_connect_main_table = new SearchManager({
             var tk_kafka_topic_monitoring_state = "disabled";
 
             // Create the endpoint URL
-            var myendpoint_URl = "storage/collections/data/kv_telegraf_kafka_topics_monitoring/" + modify_key;
+            var myendpoint_URl = "/en-US/splunkd/__raw/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_topics_monitoring/" + modify_key;
 
             // Create a dictionary to store the field names and values
             var record = {
@@ -4524,20 +4755,14 @@ var search_connect_main_table = new SearchManager({
 
                 $("#btn_modal_entry_modification").click(function() {
 
-                    // Get the value of the key ID field
-
-                    // Use the request method to send a REST POST request
-                    // to the storage/collections/data/{collection}/entry_key endpoint
-                    service.request(
-                            myendpoint_URl,
-                            "POST",
-                            null,
-                            null,
-                            JSON.stringify(record), {
-                                "Content-Type": "application/json"
-                            },
-                            null)
-                        .done(function() {
+                    $.ajax({
+                        url: myendpoint_URl,
+                        type: "POST",
+                        async: true,
+                        contentType: "application/json",
+                        data: JSON.stringify(record),
+                        success: function(returneddata) {
+                            //console.log("Updated!", returneddata)
                             // Run the search again to update the table
                             search_kafka_topics_mainsearch.startSearch();
                             search_kafka_topics_no_components.startSearch();
@@ -4546,8 +4771,13 @@ var search_connect_main_table = new SearchManager({
                             search_kafka_topics_main_table.startSearch();
                             search_kafka_topics_search_env.startSearch();
                             search_kafka_topics_search_label.startSearch();
-
-                        });
+                        },
+                        error: function(xhr, textStatus, error) {
+                            message = "Error Updating!" + xhr + textStatus + error;
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(message);
+                            $("#modal_update_collection_failure_return").modal()
+                        }
+                    });
 
                 });
 
@@ -4575,14 +4805,14 @@ var search_connect_main_table = new SearchManager({
 
             $("#btn_modal_update_collection").click(function() {
 
-                console.log("Start collection update");
+                //console.log("Start collection update");
 
                 // Define the query
                 var searchQuery = "| savedsearch \"Update Kafka Infrastructure components inventory\"";
 
                 // Set the search parameters--specify a time range
                 var searchParams = {
-                    earliest_time: "-60m",
+                    earliest_time: "-4h",
                     latest_time: "now"
                 };
 
@@ -4592,66 +4822,91 @@ var search_connect_main_table = new SearchManager({
                     searchParams,
                     function(err, job) {
 
-                        // Display the job's search ID
-                        console.log("Job SID: ", job.sid);
+                        $("#loadingGray").remove()
+                        $("body").append('<div id="loadingGray" style="background: #e9e9e9; display: block; position: fixed; z-index: 100; top: 0; right: 0; bottom: 0; left: 0; height: 100%; opacity: 0.8;"><div style="width: 100%; margin-top: 250px; padding-bottom: 50px; text-align: center;"><p style="font-size: 18pt; font-weight: bolder;">Updating the KVstore collection...</p></div><div id="spinner"></div></div>')
 
-                        // Poll the status of the search job
-                        job.track({
-                            period: 200
-                        }, {
-                            done: function(job) {
-                                console.log("Done!");
+                        require(["jquery",
+                                "/static/app/telegraf-kafka/spin.js"
+                            ],
+                            function($,
+                                Spinner
+                            ) {
+                                new Spinner({
+                                    lines: 12,
+                                    position: "relative"
+                                }).spin(document.getElementById('spinner'));
+                            })
 
-                                // Once the job is done, update all searches
-                                search_kafka_infra_mainsearch.startSearch();
-                                search_kafka_infra_no_components.startSearch();
-                                search_kafka_infra_no_components_enabled.startSearch();
-                                search_kafka_infra_no_components_disabled.startSearch();
-                                search_kafka_infra_main_table.startSearch();
-                                search_kafka_infra_search_env.startSearch();
-                                search_kafka_infra_search_label.startSearch();
-
-                                // this shares the same KVstore collection maintenance object
-                                search_kafka_infra_nodes_mainsearch.startSearch();
-                                search_kafka_infra_nodes_no_components.startSearch();
-                                search_kafka_infra_nodes_no_components_enabled.startSearch();
-                                search_kafka_infra_nodes_no_components_disabled.startSearch();
-                                search_kafka_infra_nodes_main_table.startSearch();
-                                search_kafka_infra_nodes_search_env.startSearch();
-                                search_kafka_infra_nodes_search_label.startSearch();
-
-                                $("#modal_update_collection_done").modal()
-
-                                // Print out the statics
-                                console.log("Job statistics:");
-                                console.log("  Event count:  " + job.properties().eventCount);
-                                console.log("  Result count: " + job.properties().resultCount);
-                                console.log("  Disk usage:   " + job.properties().diskUsage + " bytes");
-                                console.log("  Priority:     " + job.properties().priority);
-
-                            },
-                            failed: function(job) {
-                                console.log("Job failed")
-                            },
-                            error: function(err) {
-                                done(err);
+                        // Shall the search fail before we can get properties
+                        if (job == null) {
+                            let errorStr = "Unknown Error!";
+                            if (err && err.data && err.data.messages && err.data.messages[0]['text']) {
+                                errorStr = err.data.messages[0]['text'];
+                            } else if (err && err.data && err.data.messages) {
+                                errorStr = JSON.stringify(err.data.messages);
                             }
-                        });
+                            $("#loadingGray").remove()
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                            $("#modal_update_collection_failure_return").modal()
+                        } else {
 
+                            // Poll the status of the search job
+                            job.track({
+                                period: 200
+                            }, {
+                                done: function(job) {
+                                    //console.log("Done!");
+
+                                    // Once the job is done, update all searches
+                                    search_kafka_infra_mainsearch.startSearch();
+                                    search_kafka_infra_no_components.startSearch();
+                                    search_kafka_infra_no_components_enabled.startSearch();
+                                    search_kafka_infra_no_components_disabled.startSearch();
+                                    search_kafka_infra_main_table.startSearch();
+                                    search_kafka_infra_search_env.startSearch();
+                                    search_kafka_infra_search_label.startSearch();
+
+                                    // this shares the same KVstore collection maintenance object
+                                    search_kafka_infra_nodes_mainsearch.startSearch();
+                                    search_kafka_infra_nodes_no_components.startSearch();
+                                    search_kafka_infra_nodes_no_components_enabled.startSearch();
+                                    search_kafka_infra_nodes_no_components_disabled.startSearch();
+                                    search_kafka_infra_nodes_main_table.startSearch();
+                                    search_kafka_infra_nodes_search_env.startSearch();
+                                    search_kafka_infra_nodes_search_label.startSearch();
+
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_done").modal()
+
+                                },
+                                failed: function(properties) {
+                                    let errorStr = "Unknown Error!";
+                                    if (properties && properties._properties && properties._properties.messages && properties._properties.messages[0]['text']) {
+                                        errorStr = properties._properties.messages[0]['text'];
+                                    } else if (properties && properties._properties && properties._properties.messages) {
+                                        errorStr = JSON.stringify(properties._properties.messages);
+                                    }
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                                    $("#modal_update_collection_failure_return").modal()
+                                },
+                                error: function(err) {
+                                    done(err);
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_failure").modal()
+                                }
+                            });
+                        }
                     }
                 );
-
             });
-
         });
-
 
         //
         // RESET COLLECTION
         //
 
         // Call this function when the erase collection button is clicked
-
         $("#btn_manage_content_kafka_infra2").click(function() {
             submitTokens();
 
@@ -4662,14 +4917,12 @@ var search_connect_main_table = new SearchManager({
 
             $("#btn_modal_rebuild_collection").click(function() {
 
-                console.log("Flushing KVstore collection");
-
                 // Define the query
                 var searchQuery = "| outputlookup kafka_infra_inventory";
 
                 // Set the search parameters--specify a time range
                 var searchParams = {
-                    earliest_time: "-60m",
+                    earliest_time: "-4h",
                     latest_time: "now"
                 };
 
@@ -4678,85 +4931,127 @@ var search_connect_main_table = new SearchManager({
                     searchQuery,
                     searchParams,
                     function(err, job) {
-                        console.log("...done!\n");
 
-                        // Get the job from the server to display more info
-                        job.fetch(function(err) {
-                            // Display properties of the job
-                            console.log("Search job properties\n---------------------");
-                            console.log("Search job ID:         " + job.sid);
-                            console.log("The number of events:  " + job.properties().eventCount);
-                            console.log("The number of results: " + job.properties().resultCount);
-                            console.log("Search duration:       " + job.properties().runDuration + " seconds");
-                            console.log("This job expires in:   " + job.properties().ttl + " seconds");
+                        $("#loadingGray").remove()
+                        $("body").append('<div id="loadingGray" style="background: #e9e9e9; display: block; position: fixed; z-index: 100; top: 0; right: 0; bottom: 0; left: 0; height: 100%; opacity: 0.8;"><div style="width: 100%; margin-top: 250px; padding-bottom: 50px; text-align: center;"><p style="font-size: 18pt; font-weight: bolder;">Flushing and updating the KVstore collection...</p></div><div id="spinner"></div></div>')
 
-                        });
+                        require(["jquery",
+                                "/static/app/telegraf-kafka/spin.js"
+                            ],
+                            function($,
+                                Spinner
+                            ) {
+                                new Spinner({
+                                    lines: 12,
+                                    position: "relative"
+                                }).spin(document.getElementById('spinner'));
+                            })
 
-                        console.log("Start collection update");
-
-                        // Define the query
-                        var searchQuery = "| savedsearch \"Update Kafka Infrastructure components inventory\"";
-
-                        // Set the search parameters--specify a time range
-                        var searchParams = {
-                            earliest_time: "-60m",
-                            latest_time: "now"
-                        };
-
-                        // Run a normal search that immediately returns the job's SID
-                        service.search(
-                            searchQuery,
-                            searchParams,
-                            function(err, job) {
-
-                                // Display the job's search ID
-                                console.log("Job SID: ", job.sid);
-
-                                // Poll the status of the search job
-                                job.track({
-                                    period: 200
-                                }, {
-                                    done: function(job) {
-                                        console.log("Done!");
-
-                                        // Once the job is done, update all searches
-                                        search_kafka_infra_mainsearch.startSearch();
-                                        search_kafka_infra_no_components.startSearch();
-                                        search_kafka_infra_no_components_enabled.startSearch();
-                                        search_kafka_infra_no_components_disabled.startSearch();
-                                        search_kafka_infra_main_table.startSearch();
-                                        search_kafka_infra_search_env.startSearch();
-                                        search_kafka_infra_search_label.startSearch();
-
-                                        // this shares the same KVstore collection maintenance object
-                                        search_kafka_infra_nodes_mainsearch.startSearch();
-                                        search_kafka_infra_nodes_no_components.startSearch();
-                                        search_kafka_infra_nodes_no_components_enabled.startSearch();
-                                        search_kafka_infra_nodes_no_components_disabled.startSearch();
-                                        search_kafka_infra_nodes_main_table.startSearch();
-                                        search_kafka_infra_nodes_search_env.startSearch();
-                                        search_kafka_infra_nodes_search_label.startSearch();
-
-                                        // Print out the statics
-                                        console.log("Job statistics:");
-                                        console.log("  Event count:  " + job.properties().eventCount);
-                                        console.log("  Result count: " + job.properties().resultCount);
-                                        console.log("  Disk usage:   " + job.properties().diskUsage + " bytes");
-                                        console.log("  Priority:     " + job.properties().priority);
-
-                                        $("#modal_update_collection_done").modal()
-
-                                    },
-                                    failed: function(job) {
-                                        console.log("Job failed")
-                                    },
-                                    error: function(err) {
-                                        done(err);
-                                    }
-                                });
-
+                        // Shall the search fail before we can get properties
+                        if (job == null) {
+                            let errorStr = "Unknown Error!";
+                            if (err && err.data && err.data.messages && err.data.messages[0]['text']) {
+                                errorStr = err.data.messages[0]['text'];
+                            } else if (err && err.data && err.data.messages) {
+                                errorStr = JSON.stringify(err.data.messages);
                             }
-                        );
+                            $("#loadingGray").remove()
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                            $("#modal_update_collection_failure_return").modal()
+                        } else {
+
+                            // Poll the status of the search job
+                            job.track({
+                                period: 200
+                            }, {
+                                done: function(job) {
+
+                                    // Define the query
+                                    var searchQuery = "| savedsearch \"Update Kafka Infrastructure components inventory\"";
+
+                                    // Set the search parameters--specify a time range
+                                    var searchParams = {
+                                        earliest_time: "-4h",
+                                        latest_time: "now"
+                                    };
+
+                                    // Run a normal search that immediately returns the job's SID
+                                    service.search(
+                                        searchQuery,
+                                        searchParams,
+                                        function(err, job) {
+
+                                            // Poll the status of the search job
+                                            job.track({
+                                                period: 200
+                                            }, {
+                                                done: function(job) {
+                                                    //console.log("Done!");
+
+                                                    // Once the job is done, update all searches
+                                                    search_kafka_infra_mainsearch.startSearch();
+                                                    search_kafka_infra_no_components.startSearch();
+                                                    search_kafka_infra_no_components_enabled.startSearch();
+                                                    search_kafka_infra_no_components_disabled.startSearch();
+                                                    search_kafka_infra_main_table.startSearch();
+                                                    search_kafka_infra_search_env.startSearch();
+                                                    search_kafka_infra_search_label.startSearch();
+
+                                                    // this shares the same KVstore collection maintenance object
+                                                    search_kafka_infra_nodes_mainsearch.startSearch();
+                                                    search_kafka_infra_nodes_no_components.startSearch();
+                                                    search_kafka_infra_nodes_no_components_enabled.startSearch();
+                                                    search_kafka_infra_nodes_no_components_disabled.startSearch();
+                                                    search_kafka_infra_nodes_main_table.startSearch();
+                                                    search_kafka_infra_nodes_search_env.startSearch();
+                                                    search_kafka_infra_nodes_search_label.startSearch();
+
+                                                    $("#loadingGray").remove()
+                                                    $("#modal_update_collection_done").modal()
+
+                                                },
+                                                failed: function(properties) {
+                                                    let errorStr = "Unknown Error!";
+                                                    if (properties && properties._properties && properties._properties.messages && properties._properties.messages[0]['text']) {
+                                                        errorStr = properties._properties.messages[0]['text'];
+                                                    } else if (properties && properties._properties && properties._properties.messages) {
+                                                        errorStr = JSON.stringify(properties._properties.messages);
+                                                    }
+                                                    $("#loadingGray").remove()
+                                                    $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                                                    $("#modal_update_collection_failure_return").modal()
+                                                },
+                                                error: function(err) {
+                                                    done(err);
+                                                    $("#loadingGray").remove()
+                                                    $("#modal_update_collection_failure").modal()
+                                                }
+
+                                            });
+
+                                        }
+                                    );
+
+                                },
+                                failed: function(properties) {
+                                    let errorStr = "Unknown Error!";
+                                    if (properties && properties._properties && properties._properties.messages && properties._properties.messages[0]['text']) {
+                                        errorStr = properties._properties.messages[0]['text'];
+                                    } else if (properties && properties._properties && properties._properties.messages) {
+                                        errorStr = JSON.stringify(properties._properties.messages);
+                                    }
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                                    $("#modal_update_collection_failure_return").modal()
+                                },
+                                error: function(err) {
+                                    done(err);
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_failure_flush").modal()
+                                }
+                            });
+
+                        }
 
                     }
                 );
@@ -4785,26 +5080,20 @@ var search_connect_main_table = new SearchManager({
             var modify_key = tokens.get("tk_kafka_infra_keyid");
 
             // Create the endpoint URL
-            var myendpoint_URl = "storage/collections/data/kv_telegraf_kafka_inventory/" + modify_key;
+            var myendpoint_URl = "/en-US/splunkd/__raw/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_inventory/" + modify_key;
 
-            //console.log("endpoint URL is:" + myendpoint_URl);
-
-            if (!modify_key || !modify_key.length) {
-                // Show an error message
-                $("#modal_entry_update_invalid").modal()
-                return;
-            } else {
+            if (modify_key && modify_key.length) {
 
                 $("#modal_entry_deletion").modal()
-
                 $("#btn_modal_entry_deletion").click(function() {
 
-                    // Get the value of the key ID field
-
-                    // Use the request method to send a REST POST request
-                    // to the storage/collections/data/{collection}/entry_key endpoint
-                    service.del(myendpoint_URl)
-                        .done(function() {
+                    $.ajax({
+                        url: myendpoint_URl,
+                        type: "DELETE",
+                        async: true,
+                        contentType: "application/json",
+                        success: function(returneddata) {
+                            //console.log("Updated!", returneddata)
                             // Run the search again to update the table
                             search_kafka_infra_mainsearch.startSearch();
                             search_kafka_infra_no_components.startSearch();
@@ -4814,7 +5103,20 @@ var search_connect_main_table = new SearchManager({
                             search_kafka_infra_search_env.startSearch();
                             search_kafka_infra_search_label.startSearch();
 
-                        });
+                            // house cleaning
+                            myendpoint_URl = undefined;
+                            delete(myendpoint_URl);
+                            modify_key = undefined;
+                            delete(modify_key);
+                            return;
+                        },
+                        error: function(xhr, textStatus, error) {
+                            message = "Error Updating!" + xhr + textStatus + error;
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(message);
+                            $("#modal_update_collection_failure_return").modal()
+                        }
+
+                    });
 
                 });
 
@@ -4846,7 +5148,7 @@ var search_connect_main_table = new SearchManager({
             var tk_kafka_infra_grace_period = tokens.get("tk_kafka_infra_grace_period");
 
             // Create the endpoint URL
-            var myendpoint_URl = "storage/collections/data/kv_telegraf_kafka_inventory/" + modify_key;
+            var myendpoint_URl = "/en-US/splunkd/__raw/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_inventory/" + modify_key;
 
             // Create a dictionary to store the field names and values
             var record = {
@@ -4873,20 +5175,14 @@ var search_connect_main_table = new SearchManager({
 
                 $("#btn_modal_entry_modification").click(function() {
 
-                    // Get the value of the key ID field
-
-                    // Use the request method to send a REST POST request
-                    // to the storage/collections/data/{collection}/entry_key endpoint
-                    service.request(
-                            myendpoint_URl,
-                            "POST",
-                            null,
-                            null,
-                            JSON.stringify(record), {
-                                "Content-Type": "application/json"
-                            },
-                            null)
-                        .done(function() {
+                    $.ajax({
+                        url: myendpoint_URl,
+                        type: "POST",
+                        async: true,
+                        contentType: "application/json",
+                        data: JSON.stringify(record),
+                        success: function(returneddata) {
+                            //console.log("Updated!", returneddata)
                             // Run the search again to update the table
                             search_kafka_infra_mainsearch.startSearch();
                             search_kafka_infra_no_components.startSearch();
@@ -4895,8 +5191,13 @@ var search_connect_main_table = new SearchManager({
                             search_kafka_infra_main_table.startSearch();
                             search_kafka_infra_search_env.startSearch();
                             search_kafka_infra_search_label.startSearch();
-
-                        });
+                        },
+                        error: function(xhr, textStatus, error) {
+                            message = "Error Updating!" + xhr + textStatus + error;
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(message);
+                            $("#modal_update_collection_failure_return").modal()
+                        }
+                    });
 
                 });
 
@@ -4924,7 +5225,7 @@ var search_connect_main_table = new SearchManager({
             var tk_kafka_infra_grace_period = tokens.get("tk_kafka_infra_grace_period");
 
             // Create the endpoint URL
-            var myendpoint_URl = "storage/collections/data/kv_telegraf_kafka_inventory/" + modify_key;
+            var myendpoint_URl = "/en-US/splunkd/__raw/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_inventory/" + modify_key;
 
             // Create a dictionary to store the field names and values
             var record = {
@@ -4951,20 +5252,14 @@ var search_connect_main_table = new SearchManager({
 
                 $("#btn_modal_entry_modification").click(function() {
 
-                    // Get the value of the key ID field
-
-                    // Use the request method to send a REST POST request
-                    // to the storage/collections/data/{collection}/entry_key endpoint
-                    service.request(
-                            myendpoint_URl,
-                            "POST",
-                            null,
-                            null,
-                            JSON.stringify(record), {
-                                "Content-Type": "application/json"
-                            },
-                            null)
-                        .done(function() {
+                    $.ajax({
+                        url: myendpoint_URl,
+                        type: "POST",
+                        async: true,
+                        contentType: "application/json",
+                        data: JSON.stringify(record),
+                        success: function(returneddata) {
+                            //console.log("Updated!", returneddata)
                             // Run the search again to update the table
                             search_kafka_infra_mainsearch.startSearch();
                             search_kafka_infra_no_components.startSearch();
@@ -4973,8 +5268,13 @@ var search_connect_main_table = new SearchManager({
                             search_kafka_infra_main_table.startSearch();
                             search_kafka_infra_search_env.startSearch();
                             search_kafka_infra_search_label.startSearch();
-
-                        });
+                        },
+                        error: function(xhr, textStatus, error) {
+                            message = "Error Updating!" + xhr + textStatus + error;
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(message);
+                            $("#modal_update_collection_failure_return").modal()
+                        }
+                    });
 
                 });
 
@@ -5008,7 +5308,7 @@ var search_connect_main_table = new SearchManager({
             //console.log("Value of modal_input_grace_period is: " + tk_kafka_infra_grace_period);
 
             // Create the endpoint URL
-            var myendpoint_URl = "storage/collections/data/kv_telegraf_kafka_inventory/" + modify_key;
+            var myendpoint_URl = "/en-US/splunkd/__raw/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_inventory/" + modify_key;
 
             if (!modify_key || !modify_key.length) {
                 // Show an error message
@@ -5041,22 +5341,14 @@ var search_connect_main_table = new SearchManager({
                             "lasttime": tk_lasttime
                         };
 
-                        //console.log("Value of tk_kafka_infra_grace_period is: " + tk_kafka_infra_grace_period);
-
-                        // Get the value of the key ID field
-
-                        // Use the request method to send a REST POST request
-                        // to the storage/collections/data/{collection}/entry_key endpoint
-                        service.request(
-                                myendpoint_URl,
-                                "POST",
-                                null,
-                                null,
-                                JSON.stringify(record), {
-                                    "Content-Type": "application/json"
-                                },
-                                null)
-                            .done(function() {
+                        $.ajax({
+                            url: myendpoint_URl,
+                            type: "POST",
+                            async: true,
+                            contentType: "application/json",
+                            data: JSON.stringify(record),
+                            success: function(returneddata) {
+                                //console.log("Updated!", returneddata)
                                 // Run the search again to update the table
                                 search_kafka_infra_mainsearch.startSearch();
                                 search_kafka_infra_no_components.startSearch();
@@ -5065,8 +5357,14 @@ var search_connect_main_table = new SearchManager({
                                 search_kafka_infra_main_table.startSearch();
                                 search_kafka_infra_search_env.startSearch();
                                 search_kafka_infra_search_label.startSearch();
+                            },
+                            error: function(xhr, textStatus, error) {
+                                message = "Error Updating!" + xhr + textStatus + error;
+                                $("#modal_update_collection_failure_return").find('.modal-error-message p').text(message);
+                                $("#modal_update_collection_failure_return").modal()
+                            }
+                        });
 
-                            });
                     }
                 });
 
@@ -5094,14 +5392,14 @@ var search_connect_main_table = new SearchManager({
 
             $("#btn_modal_update_collection").click(function() {
 
-                console.log("Start collection update");
+                //console.log("Start collection update");
 
                 // Define the query
                 var searchQuery = "| savedsearch \"Update Kafka Infrastructure components inventory\"";
 
                 // Set the search parameters--specify a time range
                 var searchParams = {
-                    earliest_time: "-60m",
+                    earliest_time: "-4h",
                     latest_time: "now"
                 };
 
@@ -5111,66 +5409,91 @@ var search_connect_main_table = new SearchManager({
                     searchParams,
                     function(err, job) {
 
-                        // Display the job's search ID
-                        console.log("Job SID: ", job.sid);
+                        $("#loadingGray").remove()
+                        $("body").append('<div id="loadingGray" style="background: #e9e9e9; display: block; position: fixed; z-index: 100; top: 0; right: 0; bottom: 0; left: 0; height: 100%; opacity: 0.8;"><div style="width: 100%; margin-top: 250px; padding-bottom: 50px; text-align: center;"><p style="font-size: 18pt; font-weight: bolder;">Updating the KVstore collection...</p></div><div id="spinner"></div></div>')
 
-                        // Poll the status of the search job
-                        job.track({
-                            period: 200
-                        }, {
-                            done: function(job) {
-                                //console.log("Done!");
+                        require(["jquery",
+                                "/static/app/telegraf-kafka/spin.js"
+                            ],
+                            function($,
+                                Spinner
+                            ) {
+                                new Spinner({
+                                    lines: 12,
+                                    position: "relative"
+                                }).spin(document.getElementById('spinner'));
+                            })
 
-                                // Once the job is done, update all searches
-                                search_kafka_infra_nodes_mainsearch.startSearch();
-                                search_kafka_infra_nodes_no_components.startSearch();
-                                search_kafka_infra_nodes_no_components_enabled.startSearch();
-                                search_kafka_infra_nodes_no_components_disabled.startSearch();
-                                search_kafka_infra_nodes_main_table.startSearch();
-                                search_kafka_infra_nodes_search_env.startSearch();
-                                search_kafka_infra_nodes_search_label.startSearch();
-
-                                // This shares the same KVstore collection maintenance object
-                                search_kafka_infra_no_components.startSearch();
-                                search_kafka_infra_no_components_enabled.startSearch();
-                                search_kafka_infra_no_components_disabled.startSearch();
-                                search_kafka_infra_mainsearch.startSearch();
-                                search_kafka_infra_main_table.startSearch();
-                                search_kafka_infra_search_env.startSearch();
-                                search_kafka_infra_search_label.startSearch();
-
-                                $("#modal_update_collection_done").modal()
-
-                                // Print out the statics
-                                console.log("Job statistics:");
-                                console.log("  Event count:  " + job.properties().eventCount);
-                                console.log("  Result count: " + job.properties().resultCount);
-                                console.log("  Disk usage:   " + job.properties().diskUsage + " bytes");
-                                console.log("  Priority:     " + job.properties().priority);
-
-                            },
-                            failed: function(job) {
-                                console.log("Job failed")
-                            },
-                            error: function(err) {
-                                done(err);
+                        // Shall the search fail before we can get properties
+                        if (job == null) {
+                            let errorStr = "Unknown Error!";
+                            if (err && err.data && err.data.messages && err.data.messages[0]['text']) {
+                                errorStr = err.data.messages[0]['text'];
+                            } else if (err && err.data && err.data.messages) {
+                                errorStr = JSON.stringify(err.data.messages);
                             }
-                        });
+                            $("#loadingGray").remove()
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                            $("#modal_update_collection_failure_return").modal()
+                        } else {
 
+                            // Poll the status of the search job
+                            job.track({
+                                period: 200
+                            }, {
+                                done: function(job) {
+                                    //console.log("Done!");
+
+                                    // Once the job is done, update all searches
+                                    search_kafka_infra_nodes_mainsearch.startSearch();
+                                    search_kafka_infra_nodes_no_components.startSearch();
+                                    search_kafka_infra_nodes_no_components_enabled.startSearch();
+                                    search_kafka_infra_nodes_no_components_disabled.startSearch();
+                                    search_kafka_infra_nodes_main_table.startSearch();
+                                    search_kafka_infra_nodes_search_env.startSearch();
+                                    search_kafka_infra_nodes_search_label.startSearch();
+
+                                    // This shares the same KVstore collection maintenance object
+                                    search_kafka_infra_no_components.startSearch();
+                                    search_kafka_infra_no_components_enabled.startSearch();
+                                    search_kafka_infra_no_components_disabled.startSearch();
+                                    search_kafka_infra_mainsearch.startSearch();
+                                    search_kafka_infra_main_table.startSearch();
+                                    search_kafka_infra_search_env.startSearch();
+                                    search_kafka_infra_search_label.startSearch();
+
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_done").modal()
+
+                                },
+                                failed: function(properties) {
+                                    let errorStr = "Unknown Error!";
+                                    if (properties && properties._properties && properties._properties.messages && properties._properties.messages[0]['text']) {
+                                        errorStr = properties._properties.messages[0]['text'];
+                                    } else if (properties && properties._properties && properties._properties.messages) {
+                                        errorStr = JSON.stringify(properties._properties.messages);
+                                    }
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                                    $("#modal_update_collection_failure_return").modal()
+                                },
+                                error: function(err) {
+                                    done(err);
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_failure").modal()
+                                }
+                            });
+                        }
                     }
                 );
-
             });
-
         });
-
 
         //
         // RESET COLLECTION
         //
 
         // Call this function when the erase collection button is clicked
-
         $("#btn_manage_content_kafka_infra_nodenumber2").click(function() {
             submitTokens();
 
@@ -5181,14 +5504,12 @@ var search_connect_main_table = new SearchManager({
 
             $("#btn_modal_rebuild_collection").click(function() {
 
-                console.log("Flushing KVstore collection");
-
                 // Define the query
                 var searchQuery = "| outputlookup kafka_infra_nodes_inventory";
 
                 // Set the search parameters--specify a time range
                 var searchParams = {
-                    earliest_time: "-60m",
+                    earliest_time: "-4h",
                     latest_time: "now"
                 };
 
@@ -5197,85 +5518,127 @@ var search_connect_main_table = new SearchManager({
                     searchQuery,
                     searchParams,
                     function(err, job) {
-                        console.log("...done!\n");
 
-                        // Get the job from the server to display more info
-                        job.fetch(function(err) {
-                            // Display properties of the job
-                            console.log("Search job properties\n---------------------");
-                            console.log("Search job ID:         " + job.sid);
-                            console.log("The number of events:  " + job.properties().eventCount);
-                            console.log("The number of results: " + job.properties().resultCount);
-                            console.log("Search duration:       " + job.properties().runDuration + " seconds");
-                            console.log("This job expires in:   " + job.properties().ttl + " seconds");
+                        $("#loadingGray").remove()
+                        $("body").append('<div id="loadingGray" style="background: #e9e9e9; display: block; position: fixed; z-index: 100; top: 0; right: 0; bottom: 0; left: 0; height: 100%; opacity: 0.8;"><div style="width: 100%; margin-top: 250px; padding-bottom: 50px; text-align: center;"><p style="font-size: 18pt; font-weight: bolder;">Flushing and updating the KVstore collection...</p></div><div id="spinner"></div></div>')
 
-                        });
+                        require(["jquery",
+                                "/static/app/telegraf-kafka/spin.js"
+                            ],
+                            function($,
+                                Spinner
+                            ) {
+                                new Spinner({
+                                    lines: 12,
+                                    position: "relative"
+                                }).spin(document.getElementById('spinner'));
+                            })
 
-                        console.log("Start collection update");
-
-                        // Define the query
-                        var searchQuery = "| savedsearch \"Update Kafka Infrastructure components inventory\"";
-
-                        // Set the search parameters--specify a time range
-                        var searchParams = {
-                            earliest_time: "-60m",
-                            latest_time: "now"
-                        };
-
-                        // Run a normal search that immediately returns the job's SID
-                        service.search(
-                            searchQuery,
-                            searchParams,
-                            function(err, job) {
-
-                                // Display the job's search ID
-                                console.log("Job SID: ", job.sid);
-
-                                // Poll the status of the search job
-                                job.track({
-                                    period: 200
-                                }, {
-                                    done: function(job) {
-                                        //console.log("Done!");
-
-                                        // Once the job is done, update all searches
-                                        search_kafka_infra_nodes_mainsearch.startSearch();
-                                        search_kafka_infra_nodes_no_components.startSearch();
-                                        search_kafka_infra_nodes_no_components_enabled.startSearch();
-                                        search_kafka_infra_nodes_no_components_disabled.startSearch();
-                                        search_kafka_infra_nodes_main_table.startSearch();
-                                        search_kafka_infra_nodes_search_env.startSearch();
-                                        search_kafka_infra_nodes_search_label.startSearch();
-
-                                        // This shares the same KVstore collection maintenance object
-                                        search_kafka_infra_no_components.startSearch();
-                                        search_kafka_infra_no_components_enabled.startSearch();
-                                        search_kafka_infra_no_components_disabled.startSearch();
-                                        search_kafka_infra_mainsearch.startSearch();
-                                        search_kafka_infra_main_table.startSearch();
-                                        search_kafka_infra_search_env.startSearch();
-                                        search_kafka_infra_search_label.startSearch();
-
-                                        // Print out the statics
-                                        console.log("Job statistics:");
-                                        console.log("  Event count:  " + job.properties().eventCount);
-                                        console.log("  Result count: " + job.properties().resultCount);
-                                        console.log("  Disk usage:   " + job.properties().diskUsage + " bytes");
-                                        console.log("  Priority:     " + job.properties().priority);
-
-                                        $("#modal_update_collection_done").modal()
-
-                                    },
-                                    failed: function(job) {
-                                        console.log("Job failed")
-                                    },
-                                    error: function(err) {
-                                        done(err);
-                                    }
-                                });
-
+                        // Shall the search fail before we can get properties
+                        if (job == null) {
+                            let errorStr = "Unknown Error!";
+                            if (err && err.data && err.data.messages && err.data.messages[0]['text']) {
+                                errorStr = err.data.messages[0]['text'];
+                            } else if (err && err.data && err.data.messages) {
+                                errorStr = JSON.stringify(err.data.messages);
                             }
-                        );
+                            $("#loadingGray").remove()
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                            $("#modal_update_collection_failure_return").modal()
+                        } else {
+
+                            // Poll the status of the search job
+                            job.track({
+                                period: 200
+                            }, {
+                                done: function(job) {
+
+                                    // Define the query
+                                    var searchQuery = "| savedsearch \"Update Kafka Infrastructure components inventory\"";
+
+                                    // Set the search parameters--specify a time range
+                                    var searchParams = {
+                                        earliest_time: "-4h",
+                                        latest_time: "now"
+                                    };
+
+                                    // Run a normal search that immediately returns the job's SID
+                                    service.search(
+                                        searchQuery,
+                                        searchParams,
+                                        function(err, job) {
+
+                                            // Poll the status of the search job
+                                            job.track({
+                                                period: 200
+                                            }, {
+                                                done: function(job) {
+                                                    //console.log("Done!");
+
+                                                    // Once the job is done, update all searches
+                                                    search_kafka_infra_nodes_mainsearch.startSearch();
+                                                    search_kafka_infra_nodes_no_components.startSearch();
+                                                    search_kafka_infra_nodes_no_components_enabled.startSearch();
+                                                    search_kafka_infra_nodes_no_components_disabled.startSearch();
+                                                    search_kafka_infra_nodes_main_table.startSearch();
+                                                    search_kafka_infra_nodes_search_env.startSearch();
+                                                    search_kafka_infra_nodes_search_label.startSearch();
+
+                                                    // This shares the same KVstore collection maintenance object
+                                                    search_kafka_infra_no_components.startSearch();
+                                                    search_kafka_infra_no_components_enabled.startSearch();
+                                                    search_kafka_infra_no_components_disabled.startSearch();
+                                                    search_kafka_infra_mainsearch.startSearch();
+                                                    search_kafka_infra_main_table.startSearch();
+                                                    search_kafka_infra_search_env.startSearch();
+                                                    search_kafka_infra_search_label.startSearch();
+
+                                                    $("#loadingGray").remove()
+                                                    $("#modal_update_collection_done").modal()
+
+                                                },
+                                                failed: function(properties) {
+                                                    let errorStr = "Unknown Error!";
+                                                    if (properties && properties._properties && properties._properties.messages && properties._properties.messages[0]['text']) {
+                                                        errorStr = properties._properties.messages[0]['text'];
+                                                    } else if (properties && properties._properties && properties._properties.messages) {
+                                                        errorStr = JSON.stringify(properties._properties.messages);
+                                                    }
+                                                    $("#loadingGray").remove()
+                                                    $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                                                    $("#modal_update_collection_failure_return").modal()
+                                                },
+                                                error: function(err) {
+                                                    done(err);
+                                                    $("#loadingGray").remove()
+                                                    $("#modal_update_collection_failure").modal()
+                                                }
+
+                                            });
+
+                                        }
+                                    );
+
+                                },
+                                failed: function(properties) {
+                                    let errorStr = "Unknown Error!";
+                                    if (properties && properties._properties && properties._properties.messages && properties._properties.messages[0]['text']) {
+                                        errorStr = properties._properties.messages[0]['text'];
+                                    } else if (properties && properties._properties && properties._properties.messages) {
+                                        errorStr = JSON.stringify(properties._properties.messages);
+                                    }
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                                    $("#modal_update_collection_failure_return").modal()
+                                },
+                                error: function(err) {
+                                    done(err);
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_failure_flush").modal()
+                                }
+                            });
+
+                        }
 
                     }
                 );
@@ -5304,26 +5667,20 @@ var search_connect_main_table = new SearchManager({
             var modify_key = tokens.get("tk_kafka_infra_nodes_keyid");
 
             // Create the endpoint URL
-            var myendpoint_URl = "storage/collections/data/kv_kafka_infra_nodes_inventory/" + modify_key;
+            var myendpoint_URl = "/en-US/splunkd/__raw/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_kafka_infra_nodes_inventory/" + modify_key;
 
-            //console.log("endpoint URL is:" + myendpoint_URl);
-
-            if (!modify_key || !modify_key.length) {
-                // Show an error message
-                $("#modal_entry_update_invalid").modal()
-                return;
-            } else {
+            if (modify_key && modify_key.length) {
 
                 $("#modal_entry_deletion").modal()
-
                 $("#btn_modal_entry_deletion").click(function() {
 
-                    // Get the value of the key ID field
-
-                    // Use the request method to send a REST POST request
-                    // to the storage/collections/data/{collection}/entry_key endpoint
-                    service.del(myendpoint_URl)
-                        .done(function() {
+                    $.ajax({
+                        url: myendpoint_URl,
+                        type: "DELETE",
+                        async: true,
+                        contentType: "application/json",
+                        success: function(returneddata) {
+                            //console.log("Updated!", returneddata)
                             // Run the search again to update the table
                             search_kafka_infra_nodes_mainsearch.startSearch();
                             search_kafka_infra_nodes_no_components.startSearch();
@@ -5333,7 +5690,20 @@ var search_connect_main_table = new SearchManager({
                             search_kafka_infra_nodes_search_env.startSearch();
                             search_kafka_infra_nodes_search_label.startSearch();
 
-                        });
+                            // house cleaning
+                            myendpoint_URl = undefined;
+                            delete(myendpoint_URl);
+                            modify_key = undefined;
+                            delete(modify_key);
+                            return;
+                        },
+                        error: function(xhr, textStatus, error) {
+                            message = "Error Updating!" + xhr + textStatus + error;
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(message);
+                            $("#modal_update_collection_failure_return").modal()
+                        }
+
+                    });
 
                 });
 
@@ -5365,7 +5735,7 @@ var search_connect_main_table = new SearchManager({
             var tk_kafka_infra_nodes_monitoring_state = tokens.get("tk_kafka_infra_nodes_monitoring_state");
 
             // Create the endpoint URL
-            var myendpoint_URl = "storage/collections/data/kv_kafka_infra_nodes_inventory/" + modify_key;
+            var myendpoint_URl = "/en-US/splunkd/__raw/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_kafka_infra_nodes_inventory/" + modify_key;
 
             // Create a dictionary to store the field names and values
             var record = {
@@ -5395,20 +5765,14 @@ var search_connect_main_table = new SearchManager({
 
                 $("#btn_modal_entry_modification").click(function() {
 
-                    // Get the value of the key ID field
-
-                    // Use the request method to send a REST POST request
-                    // to the storage/collections/data/{collection}/entry_key endpoint
-                    service.request(
-                            myendpoint_URl,
-                            "POST",
-                            null,
-                            null,
-                            JSON.stringify(record), {
-                                "Content-Type": "application/json"
-                            },
-                            null)
-                        .done(function() {
+                    $.ajax({
+                        url: myendpoint_URl,
+                        type: "POST",
+                        async: true,
+                        contentType: "application/json",
+                        data: JSON.stringify(record),
+                        success: function(returneddata) {
+                            //console.log("Updated!", returneddata)
                             // Run the search again to update the table
                             search_kafka_infra_nodes_mainsearch.startSearch();
                             search_kafka_infra_nodes_no_components.startSearch();
@@ -5417,8 +5781,13 @@ var search_connect_main_table = new SearchManager({
                             search_kafka_infra_nodes_main_table.startSearch();
                             search_kafka_infra_nodes_search_env.startSearch();
                             search_kafka_infra_nodes_search_label.startSearch();
-
-                        });
+                        },
+                        error: function(xhr, textStatus, error) {
+                            message = "Error Updating!" + xhr + textStatus + error;
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(message);
+                            $("#modal_update_collection_failure_return").modal()
+                        }
+                    });
 
                 });
 
@@ -5446,7 +5815,7 @@ var search_connect_main_table = new SearchManager({
             var tk_kafka_infra_nodes_monitoring_state = tokens.get("tk_kafka_infra_nodes_monitoring_state");
 
             // Create the endpoint URL
-            var myendpoint_URl = "storage/collections/data/kv_kafka_infra_nodes_inventory/" + modify_key;
+            var myendpoint_URl = "/en-US/splunkd/__raw/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_kafka_infra_nodes_inventory/" + modify_key;
 
             // Create a dictionary to store the field names and values
             var record = {
@@ -5476,20 +5845,14 @@ var search_connect_main_table = new SearchManager({
 
                 $("#btn_modal_entry_modification").click(function() {
 
-                    // Get the value of the key ID field
-
-                    // Use the request method to send a REST POST request
-                    // to the storage/collections/data/{collection}/entry_key endpoint
-                    service.request(
-                            myendpoint_URl,
-                            "POST",
-                            null,
-                            null,
-                            JSON.stringify(record), {
-                                "Content-Type": "application/json"
-                            },
-                            null)
-                        .done(function() {
+                    $.ajax({
+                        url: myendpoint_URl,
+                        type: "POST",
+                        async: true,
+                        contentType: "application/json",
+                        data: JSON.stringify(record),
+                        success: function(returneddata) {
+                            //console.log("Updated!", returneddata)
                             // Run the search again to update the table
                             search_kafka_infra_nodes_mainsearch.startSearch();
                             search_kafka_infra_nodes_no_components.startSearch();
@@ -5498,8 +5861,13 @@ var search_connect_main_table = new SearchManager({
                             search_kafka_infra_nodes_main_table.startSearch();
                             search_kafka_infra_nodes_search_env.startSearch();
                             search_kafka_infra_nodes_search_label.startSearch();
-
-                        });
+                        },
+                        error: function(xhr, textStatus, error) {
+                            message = "Error Updating!" + xhr + textStatus + error;
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(message);
+                            $("#modal_update_collection_failure_return").modal()
+                        }
+                    });
 
                 });
 
@@ -5532,7 +5900,7 @@ var search_connect_main_table = new SearchManager({
             //console.log("Value of tk_kafka_infra_nodes_minimal_nodes_number is: " + tk_kafka_infra_nodes_minimal_nodes_number);
 
             // Create the endpoint URL
-            var myendpoint_URl = "storage/collections/data/kv_kafka_infra_nodes_inventory/" + modify_key;
+            var myendpoint_URl = "/en-US/splunkd/__raw/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_kafka_infra_nodes_inventory/" + modify_key;
 
             if (!modify_key || !modify_key.length) {
                 // Show an error message
@@ -5566,22 +5934,14 @@ var search_connect_main_table = new SearchManager({
                             "monitoring_state": "disabled"
                         };
 
-                        //console.log("Value of tk_kafka_infra_nodes_minimal_nodes_number is: " + tk_kafka_infra_nodes_minimal_nodes_number);
-
-                        // Get the value of the key ID field
-
-                        // Use the request method to send a REST POST request
-                        // to the storage/collections/data/{collection}/entry_key endpoint
-                        service.request(
-                                myendpoint_URl,
-                                "POST",
-                                null,
-                                null,
-                                JSON.stringify(record), {
-                                    "Content-Type": "application/json"
-                                },
-                                null)
-                            .done(function() {
+                        $.ajax({
+                            url: myendpoint_URl,
+                            type: "POST",
+                            async: true,
+                            contentType: "application/json",
+                            data: JSON.stringify(record),
+                            success: function(returneddata) {
+                                //console.log("Updated!", returneddata)
                                 // Run the search again to update the table
                                 search_kafka_infra_nodes_mainsearch.startSearch();
                                 search_kafka_infra_nodes_no_components.startSearch();
@@ -5590,8 +5950,14 @@ var search_connect_main_table = new SearchManager({
                                 search_kafka_infra_nodes_main_table.startSearch();
                                 search_kafka_infra_nodes_search_env.startSearch();
                                 search_kafka_infra_nodes_search_label.startSearch();
+                            },
+                            error: function(xhr, textStatus, error) {
+                                message = "Error Updating!" + xhr + textStatus + error;
+                                $("#modal_update_collection_failure_return").find('.modal-error-message p').text(message);
+                                $("#modal_update_collection_failure_return").modal()
+                            }
+                        });
 
-                            });
                     }
                 });
 
@@ -5619,14 +5985,14 @@ var search_connect_main_table = new SearchManager({
 
             $("#btn_modal_update_collection").click(function() {
 
-                console.log("Start collection update");
+                //console.log("Start collection update");
 
                 // Define the query
                 var searchQuery = "| savedsearch \"Update Kafka Burrow group consumers inventory\"";
 
                 // Set the search parameters--specify a time range
                 var searchParams = {
-                    earliest_time: "-60m",
+                    earliest_time: "-4h",
                     latest_time: "now"
                 };
 
@@ -5636,58 +6002,83 @@ var search_connect_main_table = new SearchManager({
                     searchParams,
                     function(err, job) {
 
-                        // Display the job's search ID
-                        console.log("Job SID: ", job.sid);
+                        $("#loadingGray").remove()
+                        $("body").append('<div id="loadingGray" style="background: #e9e9e9; display: block; position: fixed; z-index: 100; top: 0; right: 0; bottom: 0; left: 0; height: 100%; opacity: 0.8;"><div style="width: 100%; margin-top: 250px; padding-bottom: 50px; text-align: center;"><p style="font-size: 18pt; font-weight: bolder;">Updating the KVstore collection...</p></div><div id="spinner"></div></div>')
 
-                        // Poll the status of the search job
-                        job.track({
-                            period: 200
-                        }, {
-                            done: function(job) {
-                                //console.log("Done!");
+                        require(["jquery",
+                                "/static/app/telegraf-kafka/spin.js"
+                            ],
+                            function($,
+                                Spinner
+                            ) {
+                                new Spinner({
+                                    lines: 12,
+                                    position: "relative"
+                                }).spin(document.getElementById('spinner'));
+                            })
 
-                                // Once the job is done, update all searches
-                                search_burrow_mainsearch.startSearch();
-                                search_burrow_no_consumers.startSearch();
-                                search_burrow_no_consumers_enabled.startSearch();
-                                search_burrow_no_consumers_disabled.startSearch();
-                                search_burrow_main_table.startSearch();
-                                search_burrow_search_env.startSearch();
-                                search_burrow_search_label.startSearch();
-                                search_burrow_search_cluster.startSearch();
-
-                                $("#modal_update_collection_done").modal()
-
-                                // Print out the statics
-                                console.log("Job statistics:");
-                                console.log("  Event count:  " + job.properties().eventCount);
-                                console.log("  Result count: " + job.properties().resultCount);
-                                console.log("  Disk usage:   " + job.properties().diskUsage + " bytes");
-                                console.log("  Priority:     " + job.properties().priority);
-
-                            },
-                            failed: function(job) {
-                                console.log("Job failed")
-                            },
-                            error: function(err) {
-                                done(err);
+                        // Shall the search fail before we can get properties
+                        if (job == null) {
+                            let errorStr = "Unknown Error!";
+                            if (err && err.data && err.data.messages && err.data.messages[0]['text']) {
+                                errorStr = err.data.messages[0]['text'];
+                            } else if (err && err.data && err.data.messages) {
+                                errorStr = JSON.stringify(err.data.messages);
                             }
-                        });
+                            $("#loadingGray").remove()
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                            $("#modal_update_collection_failure_return").modal()
+                        } else {
 
+                            // Poll the status of the search job
+                            job.track({
+                                period: 200
+                            }, {
+                                done: function(job) {
+                                    //console.log("Done!");
+
+                                    // Once the job is done, update all searches
+                                    search_burrow_mainsearch.startSearch();
+                                    search_burrow_no_consumers.startSearch();
+                                    search_burrow_no_consumers_enabled.startSearch();
+                                    search_burrow_no_consumers_disabled.startSearch();
+                                    search_burrow_main_table.startSearch();
+                                    search_burrow_search_env.startSearch();
+                                    search_burrow_search_label.startSearch();
+                                    search_burrow_search_cluster.startSearch();
+
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_done").modal()
+
+                                },
+                                failed: function(properties) {
+                                    let errorStr = "Unknown Error!";
+                                    if (properties && properties._properties && properties._properties.messages && properties._properties.messages[0]['text']) {
+                                        errorStr = properties._properties.messages[0]['text'];
+                                    } else if (properties && properties._properties && properties._properties.messages) {
+                                        errorStr = JSON.stringify(properties._properties.messages);
+                                    }
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                                    $("#modal_update_collection_failure_return").modal()
+                                },
+                                error: function(err) {
+                                    done(err);
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_failure").modal()
+                                }
+                            });
+                        }
                     }
                 );
-
             });
-
         });
-
 
         //
         // RESET COLLECTION
         //
 
         // Call this function when the erase collection button is clicked
-
         $("#btn_manage_content_kafka_consumers2").click(function() {
             submitTokens();
 
@@ -5698,14 +6089,12 @@ var search_connect_main_table = new SearchManager({
 
             $("#btn_modal_rebuild_collection").click(function() {
 
-                console.log("Flushing KVstore collection");
-
                 // Define the query
                 var searchQuery = "| outputlookup kafka_burrow_consumers_monitoring";
 
                 // Set the search parameters--specify a time range
                 var searchParams = {
-                    earliest_time: "-60m",
+                    earliest_time: "-4h",
                     latest_time: "now"
                 };
 
@@ -5714,77 +6103,119 @@ var search_connect_main_table = new SearchManager({
                     searchQuery,
                     searchParams,
                     function(err, job) {
-                        console.log("...done!\n");
 
-                        // Get the job from the server to display more info
-                        job.fetch(function(err) {
-                            // Display properties of the job
-                            console.log("Search job properties\n---------------------");
-                            console.log("Search job ID:         " + job.sid);
-                            console.log("The number of events:  " + job.properties().eventCount);
-                            console.log("The number of results: " + job.properties().resultCount);
-                            console.log("Search duration:       " + job.properties().runDuration + " seconds");
-                            console.log("This job expires in:   " + job.properties().ttl + " seconds");
+                        $("#loadingGray").remove()
+                        $("body").append('<div id="loadingGray" style="background: #e9e9e9; display: block; position: fixed; z-index: 100; top: 0; right: 0; bottom: 0; left: 0; height: 100%; opacity: 0.8;"><div style="width: 100%; margin-top: 250px; padding-bottom: 50px; text-align: center;"><p style="font-size: 18pt; font-weight: bolder;">Flushing and updating the KVstore collection...</p></div><div id="spinner"></div></div>')
 
-                        });
+                        require(["jquery",
+                                "/static/app/telegraf-kafka/spin.js"
+                            ],
+                            function($,
+                                Spinner
+                            ) {
+                                new Spinner({
+                                    lines: 12,
+                                    position: "relative"
+                                }).spin(document.getElementById('spinner'));
+                            })
 
-                        console.log("Start collection update");
-
-                        // Define the query
-                        var searchQuery = "| savedsearch \"Update Kafka Burrow group consumers inventory\"";
-
-                        // Set the search parameters--specify a time range
-                        var searchParams = {
-                            earliest_time: "-60m",
-                            latest_time: "now"
-                        };
-
-                        // Run a normal search that immediately returns the job's SID
-                        service.search(
-                            searchQuery,
-                            searchParams,
-                            function(err, job) {
-
-                                // Display the job's search ID
-                                console.log("Job SID: ", job.sid);
-
-                                // Poll the status of the search job
-                                job.track({
-                                    period: 200
-                                }, {
-                                    done: function(job) {
-                                        //console.log("Done!");
-
-                                        // Once the job is done, update all searches
-                                        search_burrow_mainsearch.startSearch();
-                                        search_burrow_no_consumers.startSearch();
-                                        search_burrow_no_consumers_enabled.startSearch();
-                                        search_burrow_no_consumers_disabled.startSearch();
-                                        search_burrow_main_table.startSearch();
-                                        search_burrow_search_env.startSearch();
-                                        search_burrow_search_label.startSearch();
-                                        search_burrow_search_cluster.startSearch();
-
-                                        // Print out the statics
-                                        console.log("Job statistics:");
-                                        console.log("  Event count:  " + job.properties().eventCount);
-                                        console.log("  Result count: " + job.properties().resultCount);
-                                        console.log("  Disk usage:   " + job.properties().diskUsage + " bytes");
-                                        console.log("  Priority:     " + job.properties().priority);
-
-                                        $("#modal_update_collection_done").modal()
-
-                                    },
-                                    failed: function(job) {
-                                        console.log("Job failed")
-                                    },
-                                    error: function(err) {
-                                        done(err);
-                                    }
-                                });
-
+                        // Shall the search fail before we can get properties
+                        if (job == null) {
+                            let errorStr = "Unknown Error!";
+                            if (err && err.data && err.data.messages && err.data.messages[0]['text']) {
+                                errorStr = err.data.messages[0]['text'];
+                            } else if (err && err.data && err.data.messages) {
+                                errorStr = JSON.stringify(err.data.messages);
                             }
-                        );
+                            $("#loadingGray").remove()
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                            $("#modal_update_collection_failure_return").modal()
+                        } else {
+
+                            // Poll the status of the search job
+                            job.track({
+                                period: 200
+                            }, {
+                                done: function(job) {
+
+                                    // Define the query
+                                    var searchQuery = "| savedsearch \"Update Kafka Burrow group consumers inventory\"";
+
+                                    // Set the search parameters--specify a time range
+                                    var searchParams = {
+                                        earliest_time: "-4h",
+                                        latest_time: "now"
+                                    };
+
+                                    // Run a normal search that immediately returns the job's SID
+                                    service.search(
+                                        searchQuery,
+                                        searchParams,
+                                        function(err, job) {
+
+                                            // Poll the status of the search job
+                                            job.track({
+                                                period: 200
+                                            }, {
+                                                done: function(job) {
+                                                    //console.log("Done!");
+
+                                                    // Once the job is done, update all searches
+                                                    search_burrow_mainsearch.startSearch();
+                                                    search_burrow_no_consumers.startSearch();
+                                                    search_burrow_no_consumers_enabled.startSearch();
+                                                    search_burrow_no_consumers_disabled.startSearch();
+                                                    search_burrow_main_table.startSearch();
+                                                    search_burrow_search_env.startSearch();
+                                                    search_burrow_search_label.startSearch();
+                                                    search_burrow_search_cluster.startSearch();
+
+                                                    $("#loadingGray").remove()
+                                                    $("#modal_update_collection_done").modal()
+
+                                                },
+                                                failed: function(properties) {
+                                                    let errorStr = "Unknown Error!";
+                                                    if (properties && properties._properties && properties._properties.messages && properties._properties.messages[0]['text']) {
+                                                        errorStr = properties._properties.messages[0]['text'];
+                                                    } else if (properties && properties._properties && properties._properties.messages) {
+                                                        errorStr = JSON.stringify(properties._properties.messages);
+                                                    }
+                                                    $("#loadingGray").remove()
+                                                    $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                                                    $("#modal_update_collection_failure_return").modal()
+                                                },
+                                                error: function(err) {
+                                                    done(err);
+                                                    $("#loadingGray").remove()
+                                                    $("#modal_update_collection_failure").modal()
+                                                }
+
+                                            });
+
+                                        }
+                                    );
+
+                                },
+                                failed: function(properties) {
+                                    let errorStr = "Unknown Error!";
+                                    if (properties && properties._properties && properties._properties.messages && properties._properties.messages[0]['text']) {
+                                        errorStr = properties._properties.messages[0]['text'];
+                                    } else if (properties && properties._properties && properties._properties.messages) {
+                                        errorStr = JSON.stringify(properties._properties.messages);
+                                    }
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                                    $("#modal_update_collection_failure_return").modal()
+                                },
+                                error: function(err) {
+                                    done(err);
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_failure_flush").modal()
+                                }
+                            });
+
+                        }
 
                     }
                 );
@@ -5798,6 +6229,7 @@ var search_connect_main_table = new SearchManager({
         //
 
         // Call this function when the Delete Record button is clicked
+
         // delete entry
 
         $("#btn_delete_modal_manage_kafka_consumer").click(function() {
@@ -5814,26 +6246,20 @@ var search_connect_main_table = new SearchManager({
             var modify_key = tokens.get("tk_burrow_keyid");
 
             // Create the endpoint URL
-            var myendpoint_URl = "storage/collections/data/kv_kafka_burrow_consumers_monitoring/" + modify_key;
+            var myendpoint_URl = "/en-US/splunkd/__raw/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_kafka_burrow_consumers_monitoring/" + modify_key;
 
-            //console.log("endpoint URL is:" + myendpoint_URl);
-
-            if (!modify_key || !modify_key.length) {
-                // Show an error message
-                $("#modal_entry_update_invalid").modal()
-                return;
-            } else {
+            if (modify_key && modify_key.length) {
 
                 $("#modal_entry_deletion").modal()
-
                 $("#btn_modal_entry_deletion").click(function() {
 
-                    // Get the value of the key ID field
-
-                    // Use the request method to send a REST POST request
-                    // to the storage/collections/data/{collection}/entry_key endpoint
-                    service.del(myendpoint_URl)
-                        .done(function() {
+                    $.ajax({
+                        url: myendpoint_URl,
+                        type: "DELETE",
+                        async: true,
+                        contentType: "application/json",
+                        success: function(returneddata) {
+                            //console.log("Updated!", returneddata)
                             // Run the search again to update the table
                             search_burrow_mainsearch.startSearch();
                             search_burrow_no_consumers.startSearch();
@@ -5844,7 +6270,20 @@ var search_connect_main_table = new SearchManager({
                             search_burrow_search_label.startSearch();
                             search_burrow_search_cluster.startSearch();
 
-                        });
+                            // house cleaning
+                            myendpoint_URl = undefined;
+                            delete(myendpoint_URl);
+                            modify_key = undefined;
+                            delete(modify_key);
+                            return;
+                        },
+                        error: function(xhr, textStatus, error) {
+                            message = "Error Updating!" + xhr + textStatus + error;
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(message);
+                            $("#modal_update_collection_failure_return").modal()
+                        }
+
+                    });
 
                 });
 
@@ -5875,7 +6314,7 @@ var search_connect_main_table = new SearchManager({
             var tk_burrow_monitoring_state = "enabled";
 
             // Create the endpoint URL
-            var myendpoint_URl = "storage/collections/data/kv_kafka_burrow_consumers_monitoring/" + modify_key;
+            var myendpoint_URl = "/en-US/splunkd/__raw/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_kafka_burrow_consumers_monitoring/" + modify_key;
 
             // Create a dictionary to store the field names and values
             var record = {
@@ -5896,20 +6335,14 @@ var search_connect_main_table = new SearchManager({
 
                 $("#btn_modal_entry_modification").click(function() {
 
-                    // Get the value of the key ID field
-
-                    // Use the request method to send a REST POST request
-                    // to the storage/collections/data/{collection}/entry_key endpoint
-                    service.request(
-                            myendpoint_URl,
-                            "POST",
-                            null,
-                            null,
-                            JSON.stringify(record), {
-                                "Content-Type": "application/json"
-                            },
-                            null)
-                        .done(function() {
+                    $.ajax({
+                        url: myendpoint_URl,
+                        type: "POST",
+                        async: true,
+                        contentType: "application/json",
+                        data: JSON.stringify(record),
+                        success: function(returneddata) {
+                            //console.log("Updated!", returneddata)
                             // Run the search again to update the table
                             search_burrow_mainsearch.startSearch();
                             search_burrow_no_consumers.startSearch();
@@ -5919,8 +6352,13 @@ var search_connect_main_table = new SearchManager({
                             search_burrow_search_env.startSearch();
                             search_burrow_search_label.startSearch();
                             search_burrow_search_cluster.startSearch();
-
-                        });
+                        },
+                        error: function(xhr, textStatus, error) {
+                            message = "Error Updating!" + xhr + textStatus + error;
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(message);
+                            $("#modal_update_collection_failure_return").modal()
+                        }
+                    });
 
                 });
 
@@ -5947,7 +6385,7 @@ var search_connect_main_table = new SearchManager({
             var tk_burrow_monitoring_state = "disabled";
 
             // Create the endpoint URL
-            var myendpoint_URl = "storage/collections/data/kv_kafka_burrow_consumers_monitoring/" + modify_key;
+            var myendpoint_URl = "/en-US/splunkd/__raw/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_kafka_burrow_consumers_monitoring/" + modify_key;
 
             // Create a dictionary to store the field names and values
             var record = {
@@ -5968,20 +6406,14 @@ var search_connect_main_table = new SearchManager({
 
                 $("#btn_modal_entry_modification").click(function() {
 
-                    // Get the value of the key ID field
-
-                    // Use the request method to send a REST POST request
-                    // to the storage/collections/data/{collection}/entry_key endpoint
-                    service.request(
-                            myendpoint_URl,
-                            "POST",
-                            null,
-                            null,
-                            JSON.stringify(record), {
-                                "Content-Type": "application/json"
-                            },
-                            null)
-                        .done(function() {
+                    $.ajax({
+                        url: myendpoint_URl,
+                        type: "POST",
+                        async: true,
+                        contentType: "application/json",
+                        data: JSON.stringify(record),
+                        success: function(returneddata) {
+                            //console.log("Updated!", returneddata)
                             // Run the search again to update the table
                             search_burrow_mainsearch.startSearch();
                             search_burrow_no_consumers.startSearch();
@@ -5991,8 +6423,13 @@ var search_connect_main_table = new SearchManager({
                             search_burrow_search_env.startSearch();
                             search_burrow_search_label.startSearch();
                             search_burrow_search_cluster.startSearch();
-
-                        });
+                        },
+                        error: function(xhr, textStatus, error) {
+                            message = "Error Updating!" + xhr + textStatus + error;
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(message);
+                            $("#modal_update_collection_failure_return").modal()
+                        }
+                    });
 
                 });
 
@@ -6020,14 +6457,14 @@ var search_connect_main_table = new SearchManager({
 
             $("#btn_modal_update_collection").click(function() {
 
-                console.log("Start collection update");
+                //console.log("Start collection update");
 
                 // Define the query
                 var searchQuery = "| savedsearch \"Update Kafka Connect tasks inventory\"";
 
                 // Set the search parameters--specify a time range
                 var searchParams = {
-                    earliest_time: "-60m",
+                    earliest_time: "-4h",
                     latest_time: "now"
                 };
 
@@ -6037,57 +6474,82 @@ var search_connect_main_table = new SearchManager({
                     searchParams,
                     function(err, job) {
 
-                        // Display the job's search ID
-                        console.log("Job SID: ", job.sid);
+                        $("#loadingGray").remove()
+                        $("body").append('<div id="loadingGray" style="background: #e9e9e9; display: block; position: fixed; z-index: 100; top: 0; right: 0; bottom: 0; left: 0; height: 100%; opacity: 0.8;"><div style="width: 100%; margin-top: 250px; padding-bottom: 50px; text-align: center;"><p style="font-size: 18pt; font-weight: bolder;">Updating the KVstore collection...</p></div><div id="spinner"></div></div>')
 
-                        // Poll the status of the search job
-                        job.track({
-                            period: 200
-                        }, {
-                            done: function(job) {
-                                //console.log("Done!");
+                        require(["jquery",
+                                "/static/app/telegraf-kafka/spin.js"
+                            ],
+                            function($,
+                                Spinner
+                            ) {
+                                new Spinner({
+                                    lines: 12,
+                                    position: "relative"
+                                }).spin(document.getElementById('spinner'));
+                            })
 
-                                // Once the job is done, update all searches
-                                search_connect_no_connectors_mainsearch.startSearch();
-                                search_connect_no_connectors.startSearch();
-                                search_connect_no_connectors_enabled.startSearch();
-                                search_connect_no_connectors_disabled.startSearch();
-                                search_connect_main_table.startSearch();
-                                search_connect_search_env.startSearch();
-                                search_connect_search_label.startSearch();
-
-                                $("#modal_update_collection_done").modal()
-
-                                // Print out the statics
-                                console.log("Job statistics:");
-                                console.log("  Event count:  " + job.properties().eventCount);
-                                console.log("  Result count: " + job.properties().resultCount);
-                                console.log("  Disk usage:   " + job.properties().diskUsage + " bytes");
-                                console.log("  Priority:     " + job.properties().priority);
-
-                            },
-                            failed: function(job) {
-                                console.log("Job failed")
-                            },
-                            error: function(err) {
-                                done(err);
+                        // Shall the search fail before we can get properties
+                        if (job == null) {
+                            let errorStr = "Unknown Error!";
+                            if (err && err.data && err.data.messages && err.data.messages[0]['text']) {
+                                errorStr = err.data.messages[0]['text'];
+                            } else if (err && err.data && err.data.messages) {
+                                errorStr = JSON.stringify(err.data.messages);
                             }
-                        });
+                            $("#loadingGray").remove()
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                            $("#modal_update_collection_failure_return").modal()
+                        } else {
 
+                            // Poll the status of the search job
+                            job.track({
+                                period: 200
+                            }, {
+                                done: function(job) {
+                                    //console.log("Done!");
+
+                                    // Once the job is done, update all searches
+                                    search_connect_no_connectors_mainsearch.startSearch();
+                                    search_connect_no_connectors.startSearch();
+                                    search_connect_no_connectors_enabled.startSearch();
+                                    search_connect_no_connectors_disabled.startSearch();
+                                    search_connect_main_table.startSearch();
+                                    search_connect_search_env.startSearch();
+                                    search_connect_search_label.startSearch();
+
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_done").modal()
+
+                                },
+                                failed: function(properties) {
+                                    let errorStr = "Unknown Error!";
+                                    if (properties && properties._properties && properties._properties.messages && properties._properties.messages[0]['text']) {
+                                        errorStr = properties._properties.messages[0]['text'];
+                                    } else if (properties && properties._properties && properties._properties.messages) {
+                                        errorStr = JSON.stringify(properties._properties.messages);
+                                    }
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                                    $("#modal_update_collection_failure_return").modal()
+                                },
+                                error: function(err) {
+                                    done(err);
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_failure").modal()
+                                }
+                            });
+                        }
                     }
                 );
-
             });
-
         });
-
 
         //
         // RESET COLLECTION
         //
 
         // Call this function when the erase collection button is clicked
-
         $("#btn_manage_content_kafka_connect2").click(function() {
             submitTokens();
 
@@ -6098,14 +6560,12 @@ var search_connect_main_table = new SearchManager({
 
             $("#btn_modal_rebuild_collection").click(function() {
 
-                console.log("Flushing KVstore collection");
-
                 // Define the query
                 var searchQuery = "| outputlookup kafka_connect_tasks_monitoring";
 
                 // Set the search parameters--specify a time range
                 var searchParams = {
-                    earliest_time: "-60m",
+                    earliest_time: "-4h",
                     latest_time: "now"
                 };
 
@@ -6114,76 +6574,118 @@ var search_connect_main_table = new SearchManager({
                     searchQuery,
                     searchParams,
                     function(err, job) {
-                        console.log("...done!\n");
 
-                        // Get the job from the server to display more info
-                        job.fetch(function(err) {
-                            // Display properties of the job
-                            console.log("Search job properties\n---------------------");
-                            console.log("Search job ID:         " + job.sid);
-                            console.log("The number of events:  " + job.properties().eventCount);
-                            console.log("The number of results: " + job.properties().resultCount);
-                            console.log("Search duration:       " + job.properties().runDuration + " seconds");
-                            console.log("This job expires in:   " + job.properties().ttl + " seconds");
+                        $("#loadingGray").remove()
+                        $("body").append('<div id="loadingGray" style="background: #e9e9e9; display: block; position: fixed; z-index: 100; top: 0; right: 0; bottom: 0; left: 0; height: 100%; opacity: 0.8;"><div style="width: 100%; margin-top: 250px; padding-bottom: 50px; text-align: center;"><p style="font-size: 18pt; font-weight: bolder;">Flushing and updating the KVstore collection...</p></div><div id="spinner"></div></div>')
 
-                        });
+                        require(["jquery",
+                                "/static/app/telegraf-kafka/spin.js"
+                            ],
+                            function($,
+                                Spinner
+                            ) {
+                                new Spinner({
+                                    lines: 12,
+                                    position: "relative"
+                                }).spin(document.getElementById('spinner'));
+                            })
 
-                        console.log("Start collection update");
-
-                        // Define the query
-                        var searchQuery = "| savedsearch \"Update Kafka Connect tasks inventory\"";
-
-                        // Set the search parameters--specify a time range
-                        var searchParams = {
-                            earliest_time: "-60m",
-                            latest_time: "now"
-                        };
-
-                        // Run a normal search that immediately returns the job's SID
-                        service.search(
-                            searchQuery,
-                            searchParams,
-                            function(err, job) {
-
-                                // Display the job's search ID
-                                console.log("Job SID: ", job.sid);
-
-                                // Poll the status of the search job
-                                job.track({
-                                    period: 200
-                                }, {
-                                    done: function(job) {
-                                        //console.log("Done!");
-
-                                        // Once the job is done, update all searches
-                                        search_connect_no_connectors_mainsearch.startSearch();
-                                        search_connect_no_connectors.startSearch();
-                                        search_connect_no_connectors_enabled.startSearch();
-                                        search_connect_no_connectors_disabled.startSearch();
-                                        search_connect_main_table.startSearch();
-                                        search_connect_search_env.startSearch();
-                                        search_connect_search_label.startSearch();
-
-                                        // Print out the statics
-                                        console.log("Job statistics:");
-                                        console.log("  Event count:  " + job.properties().eventCount);
-                                        console.log("  Result count: " + job.properties().resultCount);
-                                        console.log("  Disk usage:   " + job.properties().diskUsage + " bytes");
-                                        console.log("  Priority:     " + job.properties().priority);
-
-                                        $("#modal_update_collection_done").modal()
-
-                                    },
-                                    failed: function(job) {
-                                        console.log("Job failed")
-                                    },
-                                    error: function(err) {
-                                        done(err);
-                                    }
-                                });
-
+                        // Shall the search fail before we can get properties
+                        if (job == null) {
+                            let errorStr = "Unknown Error!";
+                            if (err && err.data && err.data.messages && err.data.messages[0]['text']) {
+                                errorStr = err.data.messages[0]['text'];
+                            } else if (err && err.data && err.data.messages) {
+                                errorStr = JSON.stringify(err.data.messages);
                             }
-                        );
+                            $("#loadingGray").remove()
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                            $("#modal_update_collection_failure_return").modal()
+                        } else {
+
+                            // Poll the status of the search job
+                            job.track({
+                                period: 200
+                            }, {
+                                done: function(job) {
+
+                                    // Define the query
+                                    var searchQuery = "| savedsearch \"Update Kafka Connect tasks inventory\"";
+
+                                    // Set the search parameters--specify a time range
+                                    var searchParams = {
+                                        earliest_time: "-4h",
+                                        latest_time: "now"
+                                    };
+
+                                    // Run a normal search that immediately returns the job's SID
+                                    service.search(
+                                        searchQuery,
+                                        searchParams,
+                                        function(err, job) {
+
+                                            // Poll the status of the search job
+                                            job.track({
+                                                period: 200
+                                            }, {
+                                                done: function(job) {
+                                                    //console.log("Done!");
+
+                                                    // Once the job is done, update all searches
+                                                    search_connect_no_connectors_mainsearch.startSearch();
+                                                    search_connect_no_connectors.startSearch();
+                                                    search_connect_no_connectors_enabled.startSearch();
+                                                    search_connect_no_connectors_disabled.startSearch();
+                                                    search_connect_main_table.startSearch();
+                                                    search_connect_search_env.startSearch();
+                                                    search_connect_search_label.startSearch();
+
+                                                    $("#loadingGray").remove()
+                                                    $("#modal_update_collection_done").modal()
+
+                                                },
+                                                failed: function(properties) {
+                                                    let errorStr = "Unknown Error!";
+                                                    if (properties && properties._properties && properties._properties.messages && properties._properties.messages[0]['text']) {
+                                                        errorStr = properties._properties.messages[0]['text'];
+                                                    } else if (properties && properties._properties && properties._properties.messages) {
+                                                        errorStr = JSON.stringify(properties._properties.messages);
+                                                    }
+                                                    $("#loadingGray").remove()
+                                                    $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                                                    $("#modal_update_collection_failure_return").modal()
+                                                },
+                                                error: function(err) {
+                                                    done(err);
+                                                    $("#loadingGray").remove()
+                                                    $("#modal_update_collection_failure").modal()
+                                                }
+
+                                            });
+
+                                        }
+                                    );
+
+                                },
+                                failed: function(properties) {
+                                    let errorStr = "Unknown Error!";
+                                    if (properties && properties._properties && properties._properties.messages && properties._properties.messages[0]['text']) {
+                                        errorStr = properties._properties.messages[0]['text'];
+                                    } else if (properties && properties._properties && properties._properties.messages) {
+                                        errorStr = JSON.stringify(properties._properties.messages);
+                                    }
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_failure_return").find('.modal-error-message p').text(errorStr);
+                                    $("#modal_update_collection_failure_return").modal()
+                                },
+                                error: function(err) {
+                                    done(err);
+                                    $("#loadingGray").remove()
+                                    $("#modal_update_collection_failure_flush").modal()
+                                }
+                            });
+
+                        }
 
                     }
                 );
@@ -6212,26 +6714,20 @@ var search_connect_main_table = new SearchManager({
             var modify_key = tokens.get("tk_kafka_connector_keyid");
 
             // Create the endpoint URL
-            var myendpoint_URl = "storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring/" + modify_key;
+            var myendpoint_URl = "/en-US/splunkd/__raw/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring/" + modify_key;
 
-            //console.log("endpoint URL is:" + myendpoint_URl);
-
-            if (!modify_key || !modify_key.length) {
-                // Show an error message
-                $("#modal_entry_update_invalid").modal()
-                return;
-            } else {
+            if (modify_key && modify_key.length) {
 
                 $("#modal_entry_deletion").modal()
-
                 $("#btn_modal_entry_deletion").click(function() {
 
-                    // Get the value of the key ID field
-
-                    // Use the request method to send a REST POST request
-                    // to the storage/collections/data/{collection}/entry_key endpoint
-                    service.del(myendpoint_URl)
-                        .done(function() {
+                    $.ajax({
+                        url: myendpoint_URl,
+                        type: "DELETE",
+                        async: true,
+                        contentType: "application/json",
+                        success: function(returneddata) {
+                            //console.log("Updated!", returneddata)
                             // Run the search again to update the table
                             search_connect_no_connectors_mainsearch.startSearch();
                             search_connect_no_connectors.startSearch();
@@ -6241,7 +6737,20 @@ var search_connect_main_table = new SearchManager({
                             search_connect_search_env.startSearch();
                             search_connect_search_label.startSearch();
 
-                        });
+                            // house cleaning
+                            myendpoint_URl = undefined;
+                            delete(myendpoint_URl);
+                            modify_key = undefined;
+                            delete(modify_key);
+                            return;
+                        },
+                        error: function(xhr, textStatus, error) {
+                            message = "Error Updating!" + xhr + textStatus + error;
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(message);
+                            $("#modal_update_collection_failure_return").modal()
+                        }
+
+                    });
 
                 });
 
@@ -6272,7 +6781,7 @@ var search_connect_main_table = new SearchManager({
             var tk_kafka_connector_grace_period = tokens.get("modal_input_kafka_connector_grace_period");
 
             // Create the endpoint URL
-            var myendpoint_URl = "storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring/" + modify_key;
+            var myendpoint_URl = "/en-US/splunkd/__raw/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring/" + modify_key;
 
             // Create a dictionary to store the field names and values
             var record = {
@@ -6294,20 +6803,14 @@ var search_connect_main_table = new SearchManager({
 
                 $("#btn_modal_entry_modification").click(function() {
 
-                    // Get the value of the key ID field
-
-                    // Use the request method to send a REST POST request
-                    // to the storage/collections/data/{collection}/entry_key endpoint
-                    service.request(
-                            myendpoint_URl,
-                            "POST",
-                            null,
-                            null,
-                            JSON.stringify(record), {
-                                "Content-Type": "application/json"
-                            },
-                            null)
-                        .done(function() {
+                    $.ajax({
+                        url: myendpoint_URl,
+                        type: "POST",
+                        async: true,
+                        contentType: "application/json",
+                        data: JSON.stringify(record),
+                        success: function(returneddata) {
+                            //console.log("Updated!", returneddata)
                             // Run the search again to update the table
                             search_connect_no_connectors_mainsearch.startSearch();
                             search_connect_no_connectors.startSearch();
@@ -6316,8 +6819,13 @@ var search_connect_main_table = new SearchManager({
                             search_connect_main_table.startSearch();
                             search_connect_search_env.startSearch();
                             search_connect_search_label.startSearch();
-
-                        });
+                        },
+                        error: function(xhr, textStatus, error) {
+                            message = "Error Updating!" + xhr + textStatus + error;
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(message);
+                            $("#modal_update_collection_failure_return").modal()
+                        }
+                    });
 
                 });
 
@@ -6344,7 +6852,7 @@ var search_connect_main_table = new SearchManager({
             var tk_kafka_connector_grace_period = tokens.get("tk_kafka_connector_grace_period");
 
             // Create the endpoint URL
-            var myendpoint_URl = "storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring/" + modify_key;
+            var myendpoint_URl = "/en-US/splunkd/__raw/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring/" + modify_key;
 
             // Create a dictionary to store the field names and values
             var record = {
@@ -6366,20 +6874,14 @@ var search_connect_main_table = new SearchManager({
 
                 $("#btn_modal_entry_modification").click(function() {
 
-                    // Get the value of the key ID field
-
-                    // Use the request method to send a REST POST request
-                    // to the storage/collections/data/{collection}/entry_key endpoint
-                    service.request(
-                            myendpoint_URl,
-                            "POST",
-                            null,
-                            null,
-                            JSON.stringify(record), {
-                                "Content-Type": "application/json"
-                            },
-                            null)
-                        .done(function() {
+                    $.ajax({
+                        url: myendpoint_URl,
+                        type: "POST",
+                        async: true,
+                        contentType: "application/json",
+                        data: JSON.stringify(record),
+                        success: function(returneddata) {
+                            //console.log("Updated!", returneddata)
                             // Run the search again to update the table
                             search_connect_no_connectors_mainsearch.startSearch();
                             search_connect_no_connectors.startSearch();
@@ -6388,8 +6890,13 @@ var search_connect_main_table = new SearchManager({
                             search_connect_main_table.startSearch();
                             search_connect_search_env.startSearch();
                             search_connect_search_label.startSearch();
-
-                        });
+                        },
+                        error: function(xhr, textStatus, error) {
+                            message = "Error Updating!" + xhr + textStatus + error;
+                            $("#modal_update_collection_failure_return").find('.modal-error-message p').text(message);
+                            $("#modal_update_collection_failure_return").modal()
+                        }
+                    });
 
                 });
 
@@ -6422,7 +6929,7 @@ var search_connect_main_table = new SearchManager({
             //console.log("Value of tk_kafka_connector_grace_period is: " + tk_kafka_connector_grace_period);
 
             // Create the endpoint URL
-            var myendpoint_URl = "storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring/" + modify_key;
+            var myendpoint_URl = "/en-US/splunkd/__raw/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring/" + modify_key;
 
             if (!modify_key || !modify_key.length) {
                 // Show an error message
@@ -6450,22 +6957,14 @@ var search_connect_main_table = new SearchManager({
                             "monitoring_state": tk_kafka_connector_monitoring_state
                         };
 
-                        //console.log("Value of tk_kafka_connector_grace_period is: " + tk_kafka_connector_grace_period);
-
-                        // Get the value of the key ID field
-
-                        // Use the request method to send a REST POST request
-                        // to the storage/collections/data/{collection}/entry_key endpoint
-                        service.request(
-                                myendpoint_URl,
-                                "POST",
-                                null,
-                                null,
-                                JSON.stringify(record), {
-                                    "Content-Type": "application/json"
-                                },
-                                null)
-                            .done(function() {
+                        $.ajax({
+                            url: myendpoint_URl,
+                            type: "POST",
+                            async: true,
+                            contentType: "application/json",
+                            data: JSON.stringify(record),
+                            success: function(returneddata) {
+                                //console.log("Updated!", returneddata)
                                 // Run the search again to update the table
                                 search_connect_no_connectors_mainsearch.startSearch();
                                 search_connect_no_connectors.startSearch();
@@ -6474,8 +6973,14 @@ var search_connect_main_table = new SearchManager({
                                 search_connect_main_table.startSearch();
                                 search_connect_search_env.startSearch();
                                 search_connect_search_label.startSearch();
+                            },
+                            error: function(xhr, textStatus, error) {
+                                message = "Error Updating!" + xhr + textStatus + error;
+                                $("#modal_update_collection_failure_return").find('.modal-error-message p').text(message);
+                                $("#modal_update_collection_failure_return").modal()
+                            }
+                        });
 
-                            });
                     }
                 });
 

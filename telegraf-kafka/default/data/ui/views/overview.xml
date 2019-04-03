@@ -1,4 +1,4 @@
-<dashboard stylesheet="common.css,hover.css,overview.css" script="active_button.js,overview.js" hideEdit="True" isVisible="True">
+<dashboard stylesheet="common.css,hover.css,overview.css" script="active_button.js,overview.js,configcheck.js" hideEdit="True" isVisible="True">
     <label>Overview</label>
 
     <search id="main_populate">
@@ -286,6 +286,75 @@
     <row>
         <panel>
             <html>
+                <!-- configCheck: env or label with one or more space characters are not supported -->
+                <div class="modal fade" id="modal_tagcheck_error" role="dialog">
+                    <div class="modal-dialog">
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&amp;times;</button>
+                                <h3 style="color: indianred; font-size: 20px;"><span class="glyphicon glyphicon-lock"></span>Oops! Unsupported configuration detected</h3>
+                            </div>
+                            <div class="modal-body">
+                                <p>Sorry but we detected an unsupported configuration in your installation.<br /><br />
+                                    <b>The Telegraf tags for env and/or label contain unsupported characters.</b>
+                                    <b>Recommended characters are:</b>
+                                    <lu>
+                                        <li>A to Z, in lower or upper case</li>
+                                        <li>0-9</li>
+                                        <li>Underscores, dots and hyphens</li>
+                                    </lu>
+                                    <br />
+                                    <b>White spaces or tabs are not supported, and will produce unexpected errors during token exchanges.</b>
+                                    <br /><br />
+                                    <i>Review your telegraf.conf configuration file:</i>
+                                    <br />
+                                    <pre>[global_tags]<br />env = "my_env"<br />label = "my_env_label"</pre>
+                                    <br />
+                                    <a target="_blank" href="https://telegraf-kafka.readthedocs.io/en/latest/kafka_monitoring.html#telegraf-output-configuration">Visit telegraf-kafka.readthedocs.io</a>
+                                </p>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- configCheck: nothing there -->
+                <div class="modal fade" id="modal_check_nodata" role="dialog">
+                    <div class="modal-dialog">
+
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&amp;times;</button>
+                                <h3 style="color: indianred; font-size: 20px;"><span class="glyphicon glyphicon-lock"></span>Oops! Metrics, do you have metrics?</h3>
+                            </div>
+                            <div class="modal-body">
+                                <b>Sorry but that place is pretty much empty so far, a happy Splunk is a Splunk you feed!</b><br /><br />
+                                <div style="margin-left: 15px;">
+                                    <p>
+                                        <img style="float: left; margin: 0px 15px 15px 0px;" src="../../static/app/telegraf-kafka/icons/sorry_poney.png"/>
+                                        If you are just starting, follow the documentation bellow.<br /><br />
+                                        If you have metrics but see this message, we couldn't find data we expected:<br />
+                                        <lu>
+                                            <li>Verify and update the macro "telegraf_kafka_index" if you use custom index name(s)</li>
+                                            <li>Make sure telegraf configurations contains tag values for env and label</li>
+                                        </lu>
+                                        <br />
+                                        <a target="_blank" href="https://telegraf-kafka.readthedocs.io/en/latest/kafka_monitoring.html">Visit telegraf-kafka.readthedocs.io</a>
+                                        <br style="clear: both;" />
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="dashseparator">
                     <div class="box">
                       <img src="../../static/app/telegraf-kafka/icons/zookeeper.png"/>
