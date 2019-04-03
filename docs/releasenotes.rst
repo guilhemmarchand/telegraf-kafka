@@ -2,6 +2,16 @@ Release notes
 #############
 
 ==============
+Version 1.1.16
+==============
+
+- feature: Spinner during update / rebuild of KVstore collections within the management of embedded alerting UI
+- feature: Manage unprivileged user access to the UI, and proper error handling due to lack of permission against the KVstore collections
+- fix: Improved handling of topics / connectors / consumers discovery reports
+- feature: Kafka Brokers OOTB alerts and Kafka Connect connector or task startup failure detected are not linked to a monitoring_state that can be deactivated via the KVstore collections
+- feature: Configuration error checker which verifies at overview loading page for unsupported tags in env/label such as white spaces.
+
+==============
 Version 1.1.15
 ==============
 
