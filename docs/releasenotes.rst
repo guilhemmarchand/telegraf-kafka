@@ -2,6 +2,16 @@ Release notes
 #############
 
 ==============
+Version 1.1.17
+==============
+
+- fix: Expose units for Zookeeper latency metrics in Overview and entity view
+- feature: Introducing the smart component enablement, which allows enabling / disabling a Kafka component to be visible from the Overview, to be managed via the configuration user interface
+- feature: Expose Zookeeper leader and Broker active controller in Overview dashboard when mono tenancy (environment) detected or selected
+- feature: Configuration checker, detect incomplete installation (Kafka inventory not updated) when loading Overview, and provide modal update user interaction
+- fix: Prevents multiple endpoint calls in Alerting User Interface management in Ajax
+
+==============
 Version 1.1.16
 ==============
 
