@@ -1,4 +1,4 @@
-<dashboard stylesheet="common.css,hover.css,overview.css" script="active_button.js,overview.js,configcheck.js" hideEdit="True" isVisible="True">
+<dashboard stylesheet="common.css,hover.css,overview.css" script="load_spinner.js,load_components.js,configcheck.js,active_button.js,overview.js," hideEdit="True" isVisible="True">
     <label>Overview</label>
 
     <search id="main_populate">
@@ -6,33 +6,19 @@
 | stats count by env, label | fields env, label</query>
     </search>
 
+    <search base="main_populate" id="detect_multienv">
+        <query>search $env$ $label$ | stats dc(env) as count | where count=1</query>
+        <progress>
+            <condition match="$job.resultCount$ == 0">
+                <unset token="monoenv_detected"></unset>
+            </condition>
+            <condition>
+                <set token="monoenv_detected">true</set>
+            </condition>
+        </progress>
+    </search>
+
     <fieldset submitButton="false">
-        <input type="dropdown" token="env" searchWhenChanged="true">
-            <label>Env:</label>
-            <!-- Populating Data Model Search -->
-            <search base="main_populate">
-                <query>dedup env | sort 0 env</query>
-            </search>
-            <prefix>env="</prefix>
-            <suffix>"</suffix>
-            <choice value="*">ANY</choice>
-            <initialValue>*</initialValue>
-            <fieldForLabel>env</fieldForLabel>
-            <fieldForValue>env</fieldForValue>
-        </input>
-        <input type="dropdown" token="label" searchWhenChanged="true">
-            <label>Label:</label>
-            <!-- Populating Data Model Search -->
-            <search base="main_populate">
-                <query>search $env$ | dedup label | sort 0 label</query>
-            </search>
-            <prefix>label="</prefix>
-            <suffix>"</suffix>
-            <choice value="*">ANY</choice>
-            <initialValue>*</initialValue>
-            <fieldForLabel>label</fieldForLabel>
-            <fieldForValue>label</fieldForValue>
-        </input>
     </fieldset>
 
     <!-- Retrieve all metrics available for all components -->
@@ -285,6 +271,34 @@
 
     <row>
         <panel>
+
+            <input type="dropdown" token="env" searchWhenChanged="true">
+                <label>Env:</label>
+                <!-- Populating Data Model Search -->
+                <search base="main_populate">
+                    <query>dedup env | sort 0 env</query>
+                </search>
+                <prefix>env="</prefix>
+                <suffix>"</suffix>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>env</fieldForLabel>
+                <fieldForValue>env</fieldForValue>
+            </input>
+            <input type="dropdown" token="label" searchWhenChanged="true">
+                <label>Label:</label>
+                <!-- Populating Data Model Search -->
+                <search base="main_populate">
+                    <query>search $env$ | dedup label | sort 0 label</query>
+                </search>
+                <prefix>label="</prefix>
+                <suffix>"</suffix>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>label</fieldForLabel>
+                <fieldForValue>label</fieldForValue>
+            </input>
+
             <html>
                 <!-- configCheck: env or label with one or more space characters are not supported -->
                 <div class="modal fade" id="modal_tagcheck_error" role="dialog">
@@ -321,6 +335,33 @@
                         </div>
                     </div>
                 </div>
+                <!-- configCheck: incomplete setup with Kafka inventory empty -->
+                <div class="modal fade" id="modal_time_to_configure" role="dialog">
+                    <div class="modal-dialog">
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&amp;times;</button>
+                                <h3 style="color: indianred; font-size: 20px;"><span class="glyphicon glyphicon-lock"></span>Oops! It's time for some configuration.</h3>
+                            </div>
+                            <div class="modal-body">
+                                <p>Sorry but it looks like the installation is not complete yet, as the Kafka component inventory collection is sadly empty.<br /><br />
+                                    <b>The Kafka inventory is automatically updated at the search head restart, on a regular scheduled basis, and can be triggered manually via the embedded user interface.</b>
+                                    <br /><br />
+                                    <i>Consult the documentation for more information.</i>
+                                    <br /><br />
+                                    <a target="_blank" href="https://telegraf-kafka.readthedocs.io/en/latest/ootb_alerting.html">Visit telegraf-kafka.readthedocs.io</a>
+                                </p>
+                            </div>
+
+                            <div class="modal-footer update-collection">
+                                <button type="submit" class="btn btn-default btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+                                <button id="btn_modal_update_collection" class="update-collection btn btn-default btn-primary" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Update collection now</button>
+                                <a target="_blank" class="btn btn-primary" href="telegraf-kafka-alerting" role="button"> Open management interface</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <!-- configCheck: nothing there -->
                 <div class="modal fade" id="modal_check_nodata" role="dialog">
                     <div class="modal-dialog">
@@ -348,13 +389,78 @@
                                     </p>
                                 </div>
                             </div>
-                            
+
                             <div class="modal-footer">
                                 <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
                             </div>
                         </div>
                     </div>
                 </div>
+                <!-- Update KVstore collection done -->
+                <div class="modal fade" id="modal_update_collection_done" role="dialog">
+                    <div class="modal-dialog">
+
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&amp;times;</button>
+                                <h3 style="color: indianred; font-size: 20px;"><span class="glyphicon glyphicon-lock"></span>KVstore collection update</h3>
+                            </div>
+                            <div class="modal-body">
+                                <p>The KVstore collection was updated successfully.<br /><br />
+                                    <b>It is recommended to reload the dashboard, using the button bellow.</b>
+                                </p>
+                            </div>
+
+                            <div class="dashboard-refresh modal-footer">
+                                <button type="submit" id="btn_modal_reload" class="btn btn-default btn-primary pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close &amp; refresh</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Update KVstore collection done -->
+                <div class="modal fade" id="modal_update_collection_noresults" role="dialog">
+                    <div class="modal-dialog">
+
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&amp;times;</button>
+                                <h3 style="color: indianred; font-size: 20px;"><span class="glyphicon glyphicon-lock"></span>Oops!</h3>
+                            </div>
+                            <div class="modal-body">
+                                <b>Sorry but the KVstore collection update job could not find any results, and the Kafka inventory remains empty.</b><br /><br />
+
+                                <div style="margin-left: 15px;">
+                                    <p>
+                                        <img style="float: left; margin: 0px 15px 15px 0px;" src="../../static/app/telegraf-kafka/icons/sorry_poney.png"/>
+                                        If you are just starting, follow the documentation bellow.<br /><br />
+                                        If you have metrics but see this message, we couldn't find data we expected:<br />
+                                        <lu>
+                                            <li>Verify and update the macro "telegraf_kafka_index" if you use custom index name(s)</li>
+                                            <li>Make sure telegraf configurations contains tag values for env and label</li>
+                                        </lu>
+                                        <br />
+                                        <a target="_blank" href="https://telegraf-kafka.readthedocs.io/en/latest/kafka_monitoring.html">Visit telegraf-kafka.readthedocs.io</a>
+                                        <br style="clear: both;" />
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="dashboard-refresh modal-footer">
+                                <button type="submit" class="btn btn-default pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+
+    <row depends="$load_zookeeper$">
+        <panel>
+            <html>
                 <div class="dashseparator">
                     <div class="box">
                       <img src="../../static/app/telegraf-kafka/icons/zookeeper.png"/>
@@ -365,7 +471,7 @@
         </panel>
     </row>
 
-    <row depends="$zookeeper_detected$">
+    <row depends="$load_zookeeper$ $zookeeper_detected$">
         <panel>
             <single>
                 <search depends="$zookeeper_detected$">
@@ -388,12 +494,13 @@
                 <search base="server_activity_summary">
                     <query>fields avg_latency</query>
                 </search>
+                <option name="numberPrecision">0.00</option>
                 <option name="colorMode">block</option>
                 <option name="drilldown">none</option>
                 <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
                 <option name="rangeValues">[10]</option>
                 <option name="refresh.display">progressbar</option>
-                <option name="underLabel">AVERAGE LATENCY</option>
+                <option name="underLabel">AVERAGE LATENCY (millisecond)</option>
                 <option name="useColors">1</option>
             </single>
         </panel>
@@ -425,9 +532,31 @@
                 <option name="useColors">1</option>
             </single>
         </panel>
+        <panel depends="$monoenv_detected$">
+            <single>
+                <search depends="$zookeeper_detected$ $monoenv_detected$">
+                    <query>| mstats prestats=t latest(_value) where `telegraf_kafka_index` metric_name="zookeeper.followers" $env$ $label$ by env, label, server span=10s
+| stats latest(_value) as value by _time, env, label, server
+| stats latest(server) as leader by env, label
+| stats values(leader) as leader</query>
+                    <earliest>-5m</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">ZOOKEEPER LEADER</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
     </row>
 
-    <row depends="$zookeeper_detected$">
+    <row depends="$load_zookeeper$ $zookeeper_detected$">
         <panel>
             <html>
                 <div class="mainbutton_container_nomargin">
@@ -439,7 +568,7 @@
         </panel>
     </row>
 
-    <row rejects="$zookeeper_detected$">
+    <row depends="$load_zookeeper$" rejects="$zookeeper_detected$">
         <panel>
             <html>
                 <div style="text-align: left; font-style: italic;">
@@ -455,7 +584,7 @@
 
     -->
 
-    <row>
+    <row depends="$load_kafka_broker$">
         <panel>
             <html>
                 <div class="dashseparator">
@@ -468,7 +597,7 @@
         </panel>
     </row>
 
-    <row depends="$kafka_broker_detected$">
+    <row depends="$load_kafka_broker$ $kafka_broker_detected$">
         <panel>
             <single>
                 <search depends="$kafka_broker_detected$">
@@ -580,9 +709,32 @@
                 <option name="useColors">1</option>
             </single>
         </panel>
+        <panel depends="$monoenv_detected$">
+            <single>
+                <search depends="$kafka_broker_detected$ $monoenv_detected$">
+                    <query>| mstats latest(_value) prestats=t where `telegraf_kafka_index` metric_name="kafka_controller.ActiveControllerCount.Value" $env$ $label$ by env, label, jolokia_agent_url span=10s
+| stats latest(_value) as ActiveController by _time, env, label, jolokia_agent_url
+| rex field=jolokia_agent_url "//(?&lt;kafka_broker&gt;[^:]*)\:"
+| where ActiveController=1
+| stats latest(kafka_broker) as kafka_broker by env, label | stats values(kafka_broker) as kafka_broker | fields kafka_broker</query>
+                    <earliest>-5m</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">ACTIVE CONTROLLER</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
     </row>
 
-    <row depends="$kafka_broker_detected$">
+    <row depends="$load_kafka_broker$ $kafka_broker_detected$">
         <panel>
             <html>
                 <div class="mainbutton_highmargin">
@@ -623,7 +775,7 @@
         <latest>$brokers_time.latest$</latest>
     </search>
 
-    <row depends="$show_brokers_overview$">
+    <row depends="$load_kafka_broker$ $show_brokers_overview$">
         <panel>
             <title>Kafka brokers overview</title>
             <input type="time" token="brokers_time" searchWhenChanged="true">
@@ -676,7 +828,7 @@
         </panel>
     </row>
 
-    <row depends="$show_brokers_overview$">
+    <row depends="$load_kafka_broker$ $show_brokers_overview$">
         <panel>
             <title>All topics messages per sec</title>
             <chart>
@@ -697,7 +849,7 @@
             </chart>
         </panel>
     </row>
-    <row depends="$show_brokers_overview$">
+    <row depends="$load_kafka_broker$ $show_brokers_overview$">
         <panel>
             <title>All topics KBytesInPerSec</title>
             <chart>
@@ -740,13 +892,13 @@
         </panel>
     </row>
 
-    <search depends="$show_topics_overview$" id="main_populate_topics">
+    <search depends="$load_kafka_broker$ $show_topics_overview$" id="main_populate_topics">
         <query>| savedsearch telegraf-kafka-kafka-topics | search $env$ $label$</query>
         <earliest>$topics_time.earliest$</earliest>
         <latest>$topics_time.latest$</latest>
     </search>
 
-    <row depends="$show_topics_overview$">
+    <row depends="$load_kafka_broker$ $show_topics_overview$">
         <panel>
             <title>Kafka topics overview</title>
             <input type="time" token="topics_time" searchWhenChanged="true">
@@ -799,7 +951,7 @@
         </panel>
     </row>
 
-    <row depends="$show_topics_overview$">
+    <row depends="$load_kafka_broker$ $show_topics_overview$">
         <panel>
             <title>Messages/sec</title>
             <chart>
@@ -821,7 +973,7 @@
         </panel>
     </row>
 
-    <row depends="$show_topics_overview$">
+    <row depends="$load_kafka_broker$ $show_topics_overview$">
         <panel>
             <title>Traffic Kbps/In</title>
             <chart>
@@ -862,7 +1014,7 @@
         </panel>
     </row>
 
-    <row rejects="$kafka_broker_detected$">
+    <row depends="$load_kafka_broker$" rejects="$kafka_broker_detected$">
         <panel>
             <html>
                 <div style="text-align: left; font-style: italic;">
@@ -878,7 +1030,7 @@
 
     -->
 
-    <row>
+    <row depends="$load_kafka_connect$">
         <panel>
             <html>
                 <div class="dashseparator">
@@ -891,7 +1043,7 @@
         </panel>
     </row>
 
-    <row depends="$kafka_connect_detected$">
+    <row depends="$load_kafka_connect$ $kafka_connect_detected$">
         <panel>
             <single>
                 <search depends="$kafka_connect_detected$">
@@ -975,7 +1127,7 @@
         </panel>
     </row>
 
-    <row depends="$kafka_connect_detected$">
+    <row depends="$load_kafka_connect$ $kafka_connect_detected$">
         <panel>
             <html>
                 <div class="mainbutton_container_nomargin">
@@ -987,7 +1139,7 @@
         </panel>
     </row>
 
-    <row depends="$kafka_connect_detected$">
+    <row depends="$load_kafka_connect$ $kafka_connect_detected$">
         <panel>
             <html>
                 <div class="dashseparator">
@@ -1004,7 +1156,7 @@
         </panel>
     </row>
 
-    <row depends="$kafka_connect_detected$">
+    <row depends="$load_kafka_connect$ $kafka_connect_detected$">
         <panel>
             <single>
                 <search base="connect_tasks_summary">
@@ -1121,7 +1273,7 @@
         </panel>
     </row>
 
-    <row depends="$kafka_connect_detected$">
+    <row depends="$load_kafka_connect$ $kafka_connect_detected$">
         <panel>
             <html>
                 <div class="mainbutton_container_nomargin">
@@ -1160,7 +1312,7 @@
         </panel>
     </row>
 
-    <row depends="$show_source_tasks$">
+    <row depends="$load_kafka_connect$ $show_source_tasks$">
         <panel>
             <input type="dropdown" token="env" searchWhenChanged="true">
                 <label>Env:</label>
@@ -1205,7 +1357,7 @@
         </panel>
     </row>
 
-    <row depends="$show_sink_tasks$">
+    <row depends="$load_kafka_connect$ $show_sink_tasks$">
         <panel>
             <input type="dropdown" token="env" searchWhenChanged="true">
                 <label>Env:</label>
@@ -1250,7 +1402,7 @@
         </panel>
     </row>
 
-    <row rejects="$kafka_connect_detected$">
+    <row depends="$load_kafka_connect$" rejects="$kafka_connect_detected$">
         <panel>
             <html>
                 <div style="text-align: left; font-style: italic;">
@@ -1266,7 +1418,7 @@
 
     -->
 
-    <row>
+    <row depends="$load_kafka_burrow$">
         <panel>
             <html>
                 <div class="dashseparator">
@@ -1279,7 +1431,7 @@
         </panel>
     </row>
 
-    <row depends="$burrow_detected$">
+    <row depends="$load_kafka_burrow$ $burrow_detected$">
         <panel>
             <single>
                 <search base="burrow" depends="$burrow_detected$">
@@ -1327,7 +1479,7 @@
         </panel>
     </row>
 
-    <row depends="$burrow_detected$">
+    <row depends="$load_kafka_burrow$ $burrow_detected$">
         <panel>
             <html>
                 <div class="mainbutton_container_nomargin">
@@ -1348,7 +1500,7 @@
         </panel>
     </row>
 
-    <row depends="$show_consumers_status$">
+    <row depends="$load_kafka_burrow$ $show_consumers_status$">
         <panel>
             <table id="table_consumers">
             <title>Kafka Consumers Lag Burrow Monitoring</title>
@@ -1374,7 +1526,7 @@
         </panel>
     </row>
 
-    <row rejects="$burrow_detected$">
+    <row depends="$load_kafka_burrow$" rejects="$burrow_detected$">
         <panel>
             <html>
                 <div style="text-align: left; font-style: italic;">
@@ -1390,7 +1542,7 @@
 
     -->
 
-    <row>
+    <row depends="$load_confluent_schema_registry$">
         <panel>
             <html>
                 <div class="dashseparator">
@@ -1403,7 +1555,7 @@
         </panel>
     </row>
 
-    <row depends="$schema_registry_detected$">
+    <row depends="$load_confluent_schema_registry$ $schema_registry_detected$">
         <panel>
             <single>
                 <search depends="$schema_registry_detected$">
@@ -1483,7 +1635,7 @@
         </panel>
     </row>
 
-    <row depends="$schema_registry_detected$">
+    <row depends="$load_confluent_schema_registry$ $schema_registry_detected$">
         <panel>
             <html>
                 <div class="mainbutton_container_nomargin">
@@ -1495,7 +1647,7 @@
         </panel>
     </row>
 
-    <row rejects="$schema_registry_detected$">
+    <row depends="$load_confluent_schema_registry$" rejects="$schema_registry_detected$">
         <panel>
             <html>
                 <div style="text-align: left; font-style: italic;">
@@ -1511,7 +1663,7 @@
 
     -->
 
-    <row>
+    <row depends="$load_confluent_ksql_server$">
         <panel>
             <html>
                 <div class="dashseparator">
@@ -1524,7 +1676,7 @@
         </panel>
     </row>
 
-    <row depends="$ksql_server_detected$">
+    <row depends="$load_confluent_ksql_server$ $ksql_server_detected$">
         <panel>
             <single>
                 <search depends="$ksql_server_detected$">
@@ -1605,7 +1757,7 @@
         </panel>
     </row>
 
-    <row depends="$ksql_server_detected$">
+    <row depends="$load_confluent_ksql_server$ $ksql_server_detected$">
         <panel>
             <html>
                 <div class="mainbutton_container_nomargin">
@@ -1617,7 +1769,7 @@
         </panel>
     </row>
 
-    <row rejects="$ksql_server_detected$">
+    <row depends="$load_confluent_ksql_server$" rejects="$ksql_server_detected$">
         <panel>
             <html>
                 <div style="text-align: left; font-style: italic;">
@@ -1633,7 +1785,7 @@
 
     -->
 
-    <row>
+    <row depends="$load_confluent_kafka_rest$">
         <panel>
             <html>
                 <div class="dashseparator">
@@ -1646,7 +1798,7 @@
         </panel>
     </row>
 
-    <row depends="$kafka_rest_detected$">
+    <row depends="$load_confluent_kafka_rest$ $kafka_rest_detected$">
         <panel>
             <single>
                 <search depends="$kafka_rest_detected$">
@@ -1726,7 +1878,7 @@
         </panel>
     </row>
 
-    <row depends="$kafka_rest_detected$">
+    <row depends="$load_confluent_kafka_rest$ $kafka_rest_detected$">
         <panel>
             <html>
                 <div class="mainbutton_container_nomargin">
@@ -1738,7 +1890,7 @@
         </panel>
     </row>
 
-    <row rejects="$kafka_rest_detected$">
+    <row depends="$load_confluent_kafka_rest$" rejects="$kafka_rest_detected$">
         <panel>
             <html>
                 <div style="text-align: left; font-style: italic;">
