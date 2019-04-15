@@ -2,6 +2,15 @@ Release notes
 #############
 
 ==============
+Version 1.1.18
+==============
+
+- feature: Introduction of the builtin kafka_admin role
+- feature: Provides default kafka_admin role member write access to the application name space and the KVstore based lookup collections
+- feature: Introduction of the Connected Experience dashboards, Health overview dashboards designed to be used with Splunk Connected Experience and Splunk Cloud Gateway (Splunk Mobile, Splunk TV)
+- fix: Static indexes references in Kafka Connect and Kafka Burrow dashboards
+
+==============
 Version 1.1.17
 ==============
 

@@ -1,9 +1,9 @@
 Kafka infrastructure OOTB alerting
 ==================================
 
-The Splunk application provides out of the box alerting for all the components of the Kafka and Confluent infrastructure.
+The application provides out of the box alerting for all the components of the Kafka and Confluent infrastructure.
 
-**Go straight to the Kafka alerting in app menu:**
+**Go to app menu / Settings / Management of Kafka alerting:**
 
 .. image:: img/ootb_alerting_menu.png
    :alt: ootb_alerting_menu.png
@@ -18,80 +18,434 @@ Management of Kafka alerting (user interface)
    :alt: ootb_alerting_user_ui1.png
    :align: center
 
-* The Kafka infrastructure collection (kv_telegraf_kafka_inventory) contains all the components that were discovered, and is used for the stale metrics life test monitoring
+KVstore collections and lookup definitions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* The Kafka topics collection (kv_telegraf_kafka_topics_monitoring) contains the topics discovered, with their monitoring status (enabled by default)
+The alerting framework relies on several KVstore collections and associated lookup definitions:
 
-* The Kafka Connect tasks collection (kv_telegraf_kafka_connect_tasks_monitoring) contains the list of source and sink Connect tasks disovered, with their monitoring status (enabled by default)
++----------------------------------+--------------------------------------+-----------------------------------+
+| Purpose                          | KVstore collection                   | Lookup definition                 |
++==================================+======================================+===================================+
+| Monitoring per component entity  | kv_telegraf_kafka_inventory          | kafka_infra_inventory             |
++----------------------------------+--------------------------------------+-----------------------------------+
+| Monitoring per nodes number      | kv_kafka_infra_nodes_inventory       | kafka_infra_nodes_inventory       |
++----------------------------------+--------------------------------------+-----------------------------------+
+| Monitoring of Kafka topics       | kv_telegraf_kafka_topics_monitoring  | kafka_topics_monitoring           |
++----------------------------------+--------------------------------------+-----------------------------------+
+| Monitoring per component entity  | kv_kafka_connect_tasks_monitoring    | kafka_connect_tasks_monitoring    |
++----------------------------------+--------------------------------------+-----------------------------------+
+| Monitoring per Burrow consumers  | kv_kafka_burrow_consumers_monitoring | kafka_burrow_consumers_monitoring |
++----------------------------------+--------------------------------------+-----------------------------------+
+| Maintenance mode management      | kv_kafka_alerting_maintenance        | kafka_alerting_maintenance        |
++----------------------------------+--------------------------------------+-----------------------------------+
+
+Permissions and authorizations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Managing the alerting framework and its objects require KVstore collection and lookup definition write permissions.
+
+<<<<<<< HEAD
+You can rely on the builtin role **kafka_admin** and configure your Kafka administrators to be member of the role.
+
+The role provides the level of permissions required to administrate the KVstore collections.
+
+=======
+>>>>>>> 00acf84... Documentation update (#20)
+Shall an unauthorized user attempt to perform an operation, or access to an object that is no readable, the following type of error window will be showed:
+
+.. image:: img/ootb_alerting_user_error1.png
+   :alt: ootb_alerting_user_error1.png
+   :align: center
 
 Maintenance mode
 ^^^^^^^^^^^^^^^^
 
-All alerts are by default driven by the status of the maintenance mode stored in the kv_telegraf_kafka_alerting_maintenance collection.
+All alerts are by default driven by the status of the maintenance mode stored in a KVstore collection.
+<<<<<<< HEAD
 
-If you action the maintenance mode within the UI, this flushes the KVstore collection and will enable the maintenance mode.
+Shall the maintenance be enabled by an administrator, Splunk will continue to run the schedule alerts but none of them will be able to trigger during the maintenance time window.
 
-Once the maintenance mode is activated, all alerts will still be running but none of them will be able to trigger during the maintenance time.
+When the end of maintenance time window is reached, its state will be automatically disabled and alerts will be able to trigger again.
 
-When the maintenance period is over, just disable the maintenance mode and any alert that would meet a condition will trigger as normally.
+Enabling the maintenance mode
+-----------------------------
 
-The maintenance mode has been designed to allow you massively disabling all alerts triggering at once from Splunk.
+- Click on the enable maintenance mode button:
 
-*Maintenance mode is activated:*
-
-.. image:: img/ootb_alerting_ui_enable_maintenance_mode.png
-   :alt: ootb_alerting_ui_enable_maintenance_mode.png
+.. image:: img/ootb_alerting_user_maintenance_mode1.png
+   :alt: ootb_alerting_user_maintenance_mode1.png
    :align: center
 
-Notes: The collection KVstore endpoint can be programmatically managed, as such it is easily possible to reproduce this behaviour from an external system. (https://docs.splunk.com/Documentation/Splunk/latest/RESTREF/RESTkvstore)
+- Within the modal configuration window, enter the date and hours of the end of the maintenance time window:
 
-Modifying entries (monitoring state, grace period)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+=======
 
-Each of the entities monitored, such as instances, topics and Connect tasks, have a monitoring status stored in the respective collection.
+Shall the maintenance be enabled by an administrator, Splunk will continue to run the schedule alerts but none of them will be able to trigger during the maintenance time window.
 
-* monitoring_state="enabled"
+When the end of maintenance time window is reached, its state will be automatically disabled and alerts will be able to trigger again.
 
-You can use the user interface to change this status to disabled, such that even if the conditions are met and the alert is activated, Splunk will not trigger an alert based on the status.
+Enabling the maintenance mode
+-----------------------------
 
-Select an entity to get the fields and key identifier populated automatically, achieve your modification and press the modify button:
+- Click on the enable maintenance mode button:
 
-.. image:: img/ootb_alerting_ui_monitoring_status.png
-   :alt: ootb_alerting_ui_monitoring_status.png
+.. image:: img/ootb_alerting_user_maintenance_mode1.png
+   :alt: ootb_alerting_user_maintenance_mode1.png
    :align: center
 
-When an entity monitoring status is disabled, the single form will account this information.
+- Within the modal configuration window, enter the date and hours of the end of the maintenance time window:
 
-Deleting entries
-^^^^^^^^^^^^^^^^
-
-You can use the interface to delete entries from the collections, entries (new components discovered) are added automatically but never deleted.
-
-Select the entity in the table to get the key identifier populated automatically, and use the delete button to remove this entity:
-
-.. image:: img/ootb_alerting_ui_monitoring_delete.png
-   :alt: ootb_alerting_ui_monitoring_delete.png
+>>>>>>> 00acf84... Documentation update (#20)
+.. image:: img/ootb_alerting_user_maintenance_mode2.png
+   :alt: ootb_alerting_user_maintenance_mode2.png
    :align: center
 
-If these entities are still active and reporting metrics, the entity will be re-created automatically. In such a case it is preferable to disable its monitored state as long as the entity remains active.
+- When the date and hours of the maintenance time window are reached, the scheduled report "Verify Kafka alerting maintenance status" will automatically disable the maintenance mode.
+
+Disabling the maintenance mode
+------------------------------
+
+During any time of the maintenance time window, an administrator can decide to disable the maintenance mode:
+
+.. image:: img/ootb_alerting_user_maintenance_mode3.png
+   :alt: ootb_alerting_user_maintenance_mode3.png
+   :align: center
+
+*The collection KVstore endpoint can be programmatically managed, as such it is easily possible to reproduce this behaviour from an external system.*
+
+(https://docs.splunk.com/Documentation/Splunk/latest/RESTREF/RESTkvstore)
+<<<<<<< HEAD
+
+Monitoring state default definition
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When new objects are automatically discovered such as Kafka components or topics, these objects are added to the different KVstore collection with a default enabled maintenance mode.
+
+The default maintenance mode that is applied on a per type of object basis can be customised via the associated macros definitions:
+
++---------------------------------------------+-------------------------------------------------+
+| Purpose                                     | Macro definition                                |
++=============================================+=================================================+
+| Type of component (nodes number monitoring) | zookeeper_default_monitoring_state              |
++---------------------------------------------+-------------------------------------------------+
+| Zookeeper nodes                             | zookeeper_default_monitoring_state              |
++---------------------------------------------+-------------------------------------------------+
+| Kafka Brokers                               | kafka_broker_default_monitoring_state           |
++---------------------------------------------+-------------------------------------------------+
+| Kafka Topics                                | kafka_topics_default_monitoring_state           |
++---------------------------------------------+-------------------------------------------------+
+| Kafka Connect workers                       | kafka_connect_default_monitoring_state          |
++---------------------------------------------+-------------------------------------------------+
+| Kafka Connect connectors                    | kafka_connect_tasks_default_monitoring_state    |
++---------------------------------------------+-------------------------------------------------+
+| Kafka Burrow group consumers                | kafka_burrow_consumers_default_monitoring_state |
++---------------------------------------------+-------------------------------------------------+
+| Confluent Schema registry                   | schema_registry_default_monitoring_state        |
++---------------------------------------------+-------------------------------------------------+
+| Confluent ksql-server                       | ksql_server_default_monitoring_state            |
++---------------------------------------------+-------------------------------------------------+
+| Confluent kafka-rest                        | kafka_rest_default_monitoring_state             |
++---------------------------------------------+-------------------------------------------------+
+| LinkedIn kafka-monitor                      | kafka_monitor_default_monitoring_state          |
++---------------------------------------------+-------------------------------------------------+
+
+The default macro definition does the following statement:
+
+::
+
+    eval monitoring_state="enabled"
+
+=======
+
+Monitoring state default definition
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When new objects are automatically discovered such as Kafka components or topics, these objects are added to the different KVstore collection with a default enabled maintenance mode.
+
+The default maintenance mode that is applied on a per type of object basis can be customised via the associated macros definitions:
+
++---------------------------------------------+-------------------------------------------------+
+| Purpose                                     | Macro definition                                |
++=============================================+=================================================+
+| Type of component (nodes number monitoring) | zookeeper_default_monitoring_state              |
++---------------------------------------------+-------------------------------------------------+
+| Zookeeper nodes                             | zookeeper_default_monitoring_state              |
++---------------------------------------------+-------------------------------------------------+
+| Kafka Brokers                               | kafka_broker_default_monitoring_state           |
++---------------------------------------------+-------------------------------------------------+
+| Kafka Topics                                | kafka_topics_default_monitoring_state           |
++---------------------------------------------+-------------------------------------------------+
+| Kafka Connect workers                       | kafka_connect_default_monitoring_state          |
++---------------------------------------------+-------------------------------------------------+
+| Kafka Connect connectors                    | kafka_connect_tasks_default_monitoring_state    |
++---------------------------------------------+-------------------------------------------------+
+| Kafka Burrow group consumers                | kafka_burrow_consumers_default_monitoring_state |
++---------------------------------------------+-------------------------------------------------+
+| Confluent Schema registry                   | schema_registry_default_monitoring_state        |
++---------------------------------------------+-------------------------------------------------+
+| Confluent ksql-server                       | ksql_server_default_monitoring_state            |
++---------------------------------------------+-------------------------------------------------+
+| Confluent kafka-rest                        | kafka_rest_default_monitoring_state             |
++---------------------------------------------+-------------------------------------------------+
+| LinkedIn kafka-monitor                      | kafka_monitor_default_monitoring_state          |
++---------------------------------------------+-------------------------------------------------+
+
+The default macro definition does the following statement:
+
+::
+
+    eval monitoring_state="enabled"
+
+>>>>>>> 00acf84... Documentation update (#20)
+A typical customisation can be to disable by default the monitoring state for non Production environments:
+
+::
+
+    eval monitoring_state=if(match(env, "(?i)PROD"), "enabled", "disabled")
+
+Such that if a new object is discovered for a development environment, this will not be monitored unless a manual update is performed via the user configuration interface.
+
+Administrating collection entries
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Each type of component can be administrated in a dedicated tab within the user management interface.
+
+When objects have been discovered, the administrator can eventually search for an object, and click on the object definition, which opens the modal interaction window:
+
+.. image:: img/ootb_alerting_manage_object1.png
+   :alt: ootb_alerting_manage_object1.png
+   :align: center
+
+The modal interaction window provides information about this object, and different action buttons depending on this type of object:
+
+.. image:: img/ootb_alerting_manage_object2.png
+   :alt: ootb_alerting_manage_object2.png
+   :align: center
+<<<<<<< HEAD
+
+Enable/Disabling monitoring state
+---------------------------------
+
+When an object has a disabled monitoring state, the button "enable monitoring" is automatically made available:
+
+.. image:: img/ootb_alerting_enable_monitoring_state.png
+   :alt: ootb_alerting_enable_monitoring_state.png
+   :align: center
+
+When an object has an enabled monitoring state, the button "disable monitoring" is automatically made available:
+
+.. image:: img/ootb_alerting_disable_monitoring_state.png
+   :alt: ootb_alerting_enable_monitoring_state.png
+   :align: center
+
+Shall the action be requested and confirmed, the object state will be updated, and the table exposing the object definition be refreshed.
+
+Deleting objects in the collection
+----------------------------------
+
+An object that was discovered and added to the collection automatically can be deleted via the UI:
+
+.. image:: img/ootb_alerting_delete_object.png
+   :alt: ootb_alerting_delete_object.png
+   :align: center
+
+Shall the action be requested and confirmed, the object state will be entirely removed from the collection, and the table exposing the object definition be refreshed.
+
+**Important:**
+
+By default, objects are discovered every 4 hours looking at metrics available for the last 4 hours.
+
+This means that is the object has been still generated metrics to Splunk, it will be re-created automatically by the workflow.
+
+To avoid having to re-delete the same object again, you should wait 4 hours minimum before purging the object that was decommissioned.
+
+Finally, note that if an object has not been generating metrics for a least 24 hours, its monitoring state will be disabled a special "disabled_autoforced" value.
+
+This state can still be manually updated via the UI, to permanently re-enable or disable the monitoring state if the component is still an active component.
+
+Modifying an object in the collection
+-------------------------------------
+
+Depending on the type of object, the modal interaction window can provide a modification button:
+
+.. image:: img/ootb_alerting_modify_object1.png
+   :alt: ootb_alerting_modify_object1.png
+   :align: center
+
+The type of modification that can be applied depends on type of component, example:
+
+.. image:: img/ootb_alerting_modify_object2.png
+   :alt: ootb_alerting_modify_object2.png
+   :align: center
+
+Manually request a collection update job
+----------------------------------------
+
+A collection update can be requested at any time within the UI:
+
+.. image:: img/ootb_alerting_request_update.png
+   :alt: ootb_alerting_request_update.png
+   :align: center
+
+Shall the action be requested and confirmed, the UI will automatically run the object discovery report, any new object that was not yet discovered since the last run of the report, will be added to the collection and made available within the UI.
+
+.. image:: img/ootb_alerting_request_update_run1.png
+   :alt: ootb_alerting_request_update_run1.png
+   :align: center
+
+Once the job has run, click on the refresh button:
+
+.. image:: img/ootb_alerting_request_update_run2.png
+   :alt: ootb_alerting_request_update_run2.png
+   :align: center
+
+=======
+
+Enable/Disabling monitoring state
+---------------------------------
+
+When an object has a disabled monitoring state, the button "enable monitoring" is automatically made available:
+
+.. image:: img/ootb_alerting_enable_monitoring_state.png
+   :alt: ootb_alerting_enable_monitoring_state.png
+   :align: center
+
+When an object has an enabled monitoring state, the button "disable monitoring" is automatically made available:
+
+.. image:: img/ootb_alerting_disable_monitoring_state.png
+   :alt: ootb_alerting_enable_monitoring_state.png
+   :align: center
+
+Shall the action be requested and confirmed, the object state will be updated, and the table exposing the object definition be refreshed.
+
+Deleting objects in the collection
+----------------------------------
+
+An object that was discovered and added to the collection automatically can be deleted via the UI:
+
+.. image:: img/ootb_alerting_delete_object.png
+   :alt: ootb_alerting_delete_object.png
+   :align: center
+
+Shall the action be requested and confirmed, the object state will be entirely removed from the collection, and the table exposing the object definition be refreshed.
+
+**Important:**
+
+By default, objects are discovered every 4 hours looking at metrics available for the last 4 hours.
+
+This means that is the object has been still generated metrics to Splunk, it will be re-created automatically by the workflow.
+
+To avoid having to re-delete the same object again, you should wait 4 hours minimum before purging the object that was decommissioned.
+
+Finally, note that if an object has not been generating metrics for a least 24 hours, its monitoring state will be disabled a special "disabled_autoforced" value.
+
+This state can still be manually updated via the UI, to permanently re-enable or disable the monitoring state if the component is still an active component.
+
+Modifying an object in the collection
+-------------------------------------
+
+Depending on the type of object, the modal interaction window can provide a modification button:
+
+.. image:: img/ootb_alerting_modify_object1.png
+   :alt: ootb_alerting_modify_object1.png
+   :align: center
+
+The type of modification that can be applied depends on type of component, example:
+
+.. image:: img/ootb_alerting_modify_object2.png
+   :alt: ootb_alerting_modify_object2.png
+   :align: center
+
+Manually request a collection update job
+----------------------------------------
+
+A collection update can be requested at any time within the UI:
+
+.. image:: img/ootb_alerting_request_update.png
+   :alt: ootb_alerting_request_update.png
+   :align: center
+
+Shall the action be requested and confirmed, the UI will automatically run the object discovery report, any new object that was not yet discovered since the last run of the report, will be added to the collection and made available within the UI.
+
+.. image:: img/ootb_alerting_request_update_run1.png
+   :alt: ootb_alerting_request_update_run1.png
+   :align: center
+
+Once the job has run, click on the refresh button:
+
+.. image:: img/ootb_alerting_request_update_run2.png
+   :alt: ootb_alerting_request_update_run2.png
+   :align: center
+
+>>>>>>> 00acf84... Documentation update (#20)
+Shall the job fail for some reasons such as a lack of permissions, an error window with the Splunk error message would be exposed automatically.
+
+Manually request a collection rebuild job
+-----------------------------------------
+
+A collection reset can be requested at any time within the UI:
+
+.. image:: img/ootb_alerting_request_reset1.png
+   :alt: ootb_alerting_request_reset1.png
+   :align: center
+
+**Important:** When requesting a reset of the collection, all changes will be irremediably lost.
+All matching objects will be reset to their default discovered values.
+
+Shall the action be requested and confirmed, the UI will automatically run the object discovery report, any new object that was not yet discovered since the last run of the report, will be added to the collection and made available within the UI.
+
+.. image:: img/ootb_alerting_request_reset2.png
+   :alt: ootb_alerting_request_reset2.png
+   :align: center
+
+Once the job has run, click on the refresh button:
+
+.. image:: img/ootb_alerting_request_update_run2.png
+   :alt: ootb_alerting_request_update_run2.png
+   :align: center
+
+Shall the job fail for some reasons such as a lack of permissions, an error window with the Splunk error message would be exposed automatically.
 
 Enabling OOTB alerts
 ####################
 
-**By default, all alerts are disabled.**
+**Important: By default, all alerts are disabled, you must enable the alerts within Splunk Web depending on your needs.**
 
 You need to decide which alert must be enabled depending on your needs and environments, and achieve any additional alert actions that would be required such as creating an incident in a ticketing system.
 
 Splunk alerts can easily be extended by alert actions.
 
-**Go straight to the Kafka alerting / Alerts configuration in app menu and enable your alerts.**
+Alert configuration summary user interface
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+**The summary alert tab exposes most valuable information about the alerts, and provides a shortcut access to the management of the alerts:**
+
+.. image:: img/ootb_alerting_alerts_summary1.png
+   :alt: ootb_alerting_alerts_summary1.png
+   :align: center
+
+**Click on any alert to open the modal interaction window:**
+
+.. image:: img/ootb_alerting_alerts_summary2.png
+   :alt: ootb_alerting_alerts_summary2.png
+   :align: center
+
+**Click on the "Review and edit alert" button to open the Splunk alert configuration UI for this alert:**
+
+.. image:: img/ootb_alerting_alerts_manage.png
+   :alt: ootb_alerting_alerts_manage.png
+   :align: center
+
+**Click on the "Search alert history" button to automatically open a search against the triggering history for this alert**
+
+.. image:: img/ootb_alerting_alerts_search.png
+   :alt: ootb_alerting_alerts_search.png
+   :align: center
 
 Stale metrics life test by component
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**Important: All alerts are disabled by default, and must be enabled depending on your needs**
-
-Life test monitoring alerts perform a verification of the metric availability to alert on a potential downtime or issue with a component.
+**Life test monitoring alerts perform a verification of the metric availability to alert on a potential downtime or issue with a component.**
 
 * Kafka monitoring - [ component ] - stale metrics life test
 
@@ -102,45 +456,21 @@ Life test monitoring alerts perform a verification of the metric availability to
 * grace_period: The grace value in seconds before assuming a severe status (difference in seconds between the last communication and time of the check)
 * monitoring_state: A value of "enabled" activates verification, any other value disables it
 
-**Collection content update:**
-
-The content of the collection is automatically generated by the night time scheduled report:
-
-* Update Kafka Infrastructure components inventory
-
-Once a component has been added to the collection, it will not be overwritten nor modified or deleted, and modifications can be made and saved safely.
-
-**Use the UI to define which nodes are being monitored:**
-
-.. image:: img/ootb_alerting_nodes.png
-   :alt: ootb_alerting_nodes.png
-   :align: center
-
 Stale metrics life test by number of nodes per type of component
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**Important: All alerts are disabled by default, and must be enabled depending on your needs**
-
-If you are running the Kafka components in a container based architecture, you can monitor your infrastructure availability by monitoring the number of active nodes per type of component.
+**If you are running the Kafka components in a container based architecture, you can monitor your infrastructure availability by monitoring the number of active nodes per type of component.**
 
 As such, you will be monitoring how many nodes are active at a time, rather than specific nodes identities which will change with the life cycle of the containers.
 
 * All Kafka components - active node numbers - stale metrics life test
-
-**Use the UI above to define the minimal number of nodes per component that are expected to be up and running.**
-
-.. image:: img/ootb_alerting_nodes_number.png
-   :alt: ootb_alerting_nodes_number.png
-   :align: center
 
 Shall an upgrade of a statefullSet or deployment in Kubernetes fail and new containers fail to start, the OOTB alerting will report this bad condition on per type of component basis.
 
 Kafka brokers monitoring
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-**Important: All alerts are disabled by default, and must be enabled depending on your needs**
-
-**Alerts are available to monitor the main and most important items for Kafka brokers:**
+**The following alerts are available to monitor the main and most important aspects of Kafka Broker clusters:**
 
 * Abnormal number of Active Controllers
 * Offline or Under-replicated partitions
@@ -150,23 +480,13 @@ Kafka brokers monitoring
 Kafka topics monitoring
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-**Important: All alerts are disabled by default, and must be enabled depending on your needs**
-
-Topics are monitored depending on their monitored state:
+**The following alerts are available to monitor Kafka topics:**
 
 * Under-replicated partitions detected on topics
 * Errors reported on topics (bytes rejected, failed fetch requests, failed produce requests)
 
-**Use the UI to define which topics are being monitored:**
-
-.. image:: img/ootb_alerting_topics.png
-   :alt: ootb_alerting_topics.png
-   :align: center
-
 Kafka Connect task monitoring
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-**Important: All alerts are disabled by default, and must be enabled depending on your needs**
 
 **Alerts are available to monitor the state of connectors and tasks for Kafka Connect:**
 
@@ -177,24 +497,8 @@ Kafka Connect task monitoring
 * grace_period: The grace value in seconds before assuming a severe status (difference in seconds between the last communication and time of the check)
 * monitoring_state: A value of "enabled" activates verification, any other value disables it
 
-**Collection content update:**
-
-The content of the collection is automatically generated by the night time scheduled report:
-
-* Update Kafka Infrastructure components inventory
-
-Once a component has been added to the collection, it will not be overwritten nor modified or deleted, and modifications can be made and saved safely.
-
-**Use the UI to define which Kafka Connect tasks are being monitored:**
-
-.. image:: img/ootb_alerting_connect_tasks.png
-   :alt: ootb_alerting_connect_tasks.png
-   :align: center
-
 Kafka Consumers monitoring with Burrow
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-**Important: All alerts are disabled by default, and must be enabled depending on your needs**
 
 **Alerts are available to monitor and report the state of Kafka Consumers via Burrow:**
 
@@ -203,19 +507,5 @@ Kafka Consumers monitoring with Burrow
 **Alerts can be controlled by changing values of the fields:**
 
 * monitoring_state: A value of "enabled" activates verification, any other value disables it
-
-**Collection content update:**
-
-The content of the collection is automatically generated by the night time scheduled report:
-
-* Update Kafka Burrow group consumers inventory
-
-Once a component has been added to the collection, it will not be overwritten nor modified or deleted, and modifications can be made and saved safely.
-
-**Use the UI to define which group consumers are being monitored:**
-
-.. image:: img/ootb_alerting_consumers.png
-   :alt: ootb_alerting_consumers.png
-   :align: center
 
 Notes: Kafka Connect source and sink connectors depending on their type are as well consumers, Burrow will monitor the way the connectors behave by analysing their lagging metrics and type of activity, this is a different, complimentary and advanced type of monitoring than analysing the state of the tasks.

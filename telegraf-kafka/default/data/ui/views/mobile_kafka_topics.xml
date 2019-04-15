@@ -1,0 +1,102 @@
+<dashboard hideEdit="False" isVisible="True" theme="dark">
+    <label>Kafka Topics - Health</label>
+    <row>
+        <panel>
+            <title>Total number of under-replicated partitions</title>
+            <single>
+                <search>
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name=kafka_partition.UnderReplicatedPartitions env=* label=* by jolokia_agent_url, partition | stats sum(value) as value</query>
+                    <earliest>-5m</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">UNDER-REPLICATED PARITTIONS</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <title>Failed produce requests per second</title>
+            <single>
+                <search>
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.FailedProduceRequestsPerSec.OneMinuteRate" env=* label=* | eval value=round(value, 2)</query>
+                    <earliest>-5m</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">FAILED PRODUCE REQUESTS/SEC</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <title>Failed fetched requests per second</title>
+            <single>
+                <search>
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_topic.FailedFetchRequestsPerSec.OneMinuteRate" env=* label=* | eval value=round(value, 2)</query>
+                    <earliest>-5m</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">FAILED FETCHED REQUESTS/SEC</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+    </row>
+    <row>
+        <panel>
+            <title>Failed produce requests per second</title>
+            <chart>
+                <search>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.FailedProduceRequestsPerSec.OneMinuteRate" env="*" label="*" topic="*" span=10s by jolokia_agent_url
+| eval value=round(value, 3)
+| timechart span=5m avg(_value) as "Avg" limit=20 useother=false by jolokia_agent_url</query>
+                    <earliest>-4h@m</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.chart">line</option>
+                <option name="charting.drilldown">none</option>
+                <option name="charting.legend.placement">top</option>
+            </chart>
+        </panel>
+        <panel>
+            <title>Failed fetched requests per second</title>
+            <chart>
+                <search>
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_topic.FailedFetchRequestsPerSec.OneMinuteRate" env="*" label="*" topic="*" span=10s by jolokia_agent_url
+| eval value=round(value, 3)
+| timechart span=5m avg(_value) as "Avg" limit=20 useother=false by jolokia_agent_url</query>
+                    <earliest>-4h@m</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.chart">line</option>
+                <option name="charting.drilldown">none</option>
+                <option name="charting.legend.placement">top</option>
+            </chart>
+        </panel>
+    </row>
+</dashboard>
