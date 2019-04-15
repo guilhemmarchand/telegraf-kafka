@@ -10,6 +10,20 @@ The Splunk application home page provides an overview of the Kafka infrastructur
    :alt: coremain.png
    :align: center
 
+**By default, all Kafka components including Confluent components are shown in the Overview page.**
+
+Shall a component be not detected, an informational panel replaces the metric related panel.
+
+**A configuration user interface is available in the app menu bar:**
+
+- Settings / Management of enable components
+
+Use this UI to enable or disable any of the components depending on your needs:
+
+.. image:: img/config-overview.png
+   :alt: config-overview.png
+   :align: center
+
 Overview Brokers
 ################
 
