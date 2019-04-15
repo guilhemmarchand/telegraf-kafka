@@ -1,5 +1,5 @@
-Implementation
-##############
+Implementation & data collection
+################################
 
 *Data collection diagram overview:*
 
@@ -96,6 +96,12 @@ For Splunk customers, this solution has various advantages as you can deploy and
 
 - https://hub.docker.com/r/_/telegraf/
 
+**Data collection environment design:**
+
+The most scalalable and highly available design in term of where placing the Telegraf instances is to deploy Telegraf locally on each server to be monitored (and collect locally the component) or running as a side car container for Kubernetes based environments.
+
+It is to possible to collect multiple instances of multiple components via a unique Telegraf instance, however there will be a limit where issues can start, and this design will not provide high availability as the failure of this instance will impact the whole metric collection.
+
 Telegraf output configuration
 =============================
 
@@ -153,11 +159,23 @@ The recommendation is to rely either on Splunk HEC or TCP inputs to forward Tele
 Jolokia JVM monitoring
 ======================
 
-**Kafka components are being monitored through the very powerful Jolokia agent:**
+.. image:: img/jolokia_logo.png
+   :alt: jolokia_logo.png
+   :align: center
+
+**The following Kafka components require Jolokia to be deployed and started, as the modern and efficient interface to JMX that is collected by Telegraf:**
+
+* Apache Kafka Brokers
+* Apache Kafka Connect
+* Confluent schema-registry
+* Confluent ksql-server
+* Confluent kafka-rest
+
+**For the complete documentation of Jolokia, see:**
 
 - https://jolokia.org
 
-**Basically, Jolokia JVM agent can be started in 2 modes, either as using the -javaagent argument during the start of the JVM, or on the fly by attaching Jolokia to the JVM running PID:**
+**Jolokia JVM agent can be started in 2 ways, either as using the -javaagent argument during the start of the JVM, or on the fly by attaching Jolokia to the PID ot the JVM:**
 
 - https://jolokia.org/reference/html/agents.html#agents-jvm
 
@@ -168,7 +186,7 @@ Starting Jolokia with the JVM
 
 ::
 
-    -javaagent:/opt/jolokia/jolokia-jvm-1.6.0-agent.jar=port=8778,host=0.0.0.0
+    -javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0
 
 *Note: This method is the method used in the docker example within this documentation by using the environment variables of the container.*
 
@@ -177,38 +195,225 @@ Starting Jolokia with the JVM
 For Kafka brokers
 -----------------
 
+**For bare-metals and dedicated VMs:**
+
+- Edit: ``/lib/systemd/system/confluent-kafka.service``
+
+- Add ``-javaagent`` argument:
+
 ::
 
-    Environment="KAFKA_OPTS=-javaagent:/opt/jolokia/jolokia-jvm-1.6.0-agent.jar=port=8778,host=0.0.0.0"
+    [Unit]
+    Description=Apache Kafka - broker
+    Documentation=http://docs.confluent.io/
+    After=network.target confluent-zookeeper.target
+
+    [Service]
+    Type=simple
+    User=cp-kafka
+    Group=confluent
+    ExecStart=/usr/bin/kafka-server-start /etc/kafka/server.properties
+    Environment="KAFKA_OPTS=-javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0"
+    TimeoutStopSec=180
+    Restart=no
+
+    [Install]
+    WantedBy=multi-user.target
+
+- Reload systemd and restart:
+
+::
+
+    sudo systemctl daemon-restart
+    sudo systemctl restart confluent-kafka
+
+**For container based environments:**
+
+*Define the following environment variable when starting the containers:*
+
+::
+
+    KAFKA_OPTS: "-javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0"
 
 For Kafka Connect
 -----------------
 
+**For bare-metals and dedicated VMs:**
+
+- Edit: ``/lib/systemd/system/confluent-kafka-connect.service``
+
+- Add ``-javaagent`` argument:
+
 ::
 
-    Environment="KAFKA_OPTS=-javaagent:/opt/jolokia/jolokia-jvm-1.6.0-agent.jar=port=8778,host=0.0.0.0"
+    [Unit]
+    Description=Apache Kafka Connect - distributed
+    Documentation=http://docs.confluent.io/
+    After=network.target confluent-kafka.target
+
+    [Service]
+    Type=simple
+    User=cp-kafka-connect
+    Group=confluent
+    ExecStart=/usr/bin/connect-distributed /etc/kafka/connect-distributed.properties
+    Environment="KAFKA_OPTS=-javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0"
+    Environment="LOG_DIR=/var/log/connect"
+    TimeoutStopSec=180
+    Restart=no
+
+    [Install]
+    WantedBy=multi-user.target
+
+- Reload systemd and restart:
+
+::
+
+    sudo systemctl daemon-restart
+    sudo systemctl restart confluent-kafka-connect
+
+**For container based environments:**
+
+*Define the following environment variable when starting the containers:*
+
+::
+
+    KAFKA_OPTS: "-javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0"
 
 For Confluent schema-registry
 -----------------------------
 
+**For bare-metals and dedicated VMs:**
+
+- Edit: ``/lib/systemd/system/confluent-schema-registry.service``
+
+- Add ``-javaagent`` argument:
+
 ::
 
-    Environment="KAFKA_OPTS=-javaagent:/opt/jolokia/jolokia-jvm-1.6.0-agent.jar=port=8778,host=0.0.0.0"
+    [Unit]
+    Description=RESTful Avro schema registry for Apache Kafka
+    Documentation=http://docs.confluent.io/
+    After=network.target confluent-kafka.target
+
+    [Service]
+    Type=simple
+    User=cp-schema-registry
+    Group=confluent
+    Environment="LOG_DIR=/var/log/confluent/schema-registry"
+    Environment="SCHEMA_REGISTRY_OPTS=-javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0"
+    ExecStart=/usr/bin/schema-registry-start /etc/schema-registry/schema-registry.properties
+    TimeoutStopSec=180
+    Restart=no
+
+    [Install]
+    WantedBy=multi-user.target
+
+- Reload systemd and restart:
+
+::
+
+    sudo systemctl daemon-restart
+    sudo systemctl restart confluent-schema-registry
+
+**For container based environments:**
+
+*Define the following environment variable when starting the containers:*
+
+::
+
+    SCHEMA_REGISTRY_OPTS: "-javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0"
 
 For Confluent ksql-server
 -------------------------
 
+**For bare-metals and dedicated VMs:**
+
+- Edit: ``/lib/systemd/system/confluent-ksql.service``
+
+- Add ``-javaagent`` argument:
+
 ::
 
-    Environment="KSQL_OPTS=-javaagent:/opt/jolokia/jolokia-jvm-1.6.0-agent.jar=port=8778,host=0.0.0.0"
+    [Unit]
+    Description=Streaming SQL engine for Apache Kafka
+    Documentation=http://docs.confluent.io/
+    After=network.target confluent-kafka.target confluent-schema-registry.target
+
+    [Service]
+    Type=simple
+    User=cp-ksql
+    Group=confluent
+    Environment="LOG_DIR=/var/log/confluent/ksql"
+    Environment="KSQL_OPTS=-javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0"
+    ExecStart=/usr/bin/ksql-server-start /etc/ksql/ksql-server.properties
+    TimeoutStopSec=180
+    Restart=no
+
+    [Install]
+    WantedBy=multi-user.target
+
+- Reload systemd and restart:
+
+::
+
+    sudo systemctl daemon-restart
+    sudo systemctl restart confluent-ksql
+
+**For container based environments:**
+
+*Define the following environment variable when starting the containers:*
+
+::
+
+    KSQL_OPTS: "-javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0"
 
 For Confluent kafka-rest
 ------------------------
 
+**For bare-metals and dedicated VMs:**
+
+- Edit: ``/lib/systemd/system/confluent-kafka-rest.service``
+
+- Add ``-javaagent`` argument:
+
 ::
 
-    Environment="KAFKAREST_OPTS=-javaagent:/opt/jolokia/jolokia-jvm-1.6.0-agent.jar=port=8778,host=0.0.0.0"
+    [Unit]
+    Description=A REST proxy for Apache Kafka
+    Documentation=http://docs.confluent.io/
+    After=network.target confluent-kafka.target
 
+    [Service]
+    Type=simple
+    User=cp-kafka-rest
+    Group=confluent
+    Environment="LOG_DIR=/var/log/confluent/kafka-rest"
+    Environment="KAFKAREST_OPTS=-javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0"
+
+
+    ExecStart=/usr/bin/kafka-rest-start /etc/kafka-rest/kafka-rest.properties
+    TimeoutStopSec=180
+    Restart=no
+
+    [Install]
+    WantedBy=multi-user.target
+
+- Reload systemd and restart:
+
+::
+
+    sudo systemctl daemon-restart
+    sudo systemctl restart confluent-kafka-rest
+
+**For container based environments:**
+
+*Define the following environment variable when starting the containers:*
+
+::
+
+    KAFKAREST_OPTS: "-javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0"
+
+Notes: "KAFKAREST_OPTS" is not a typo, this is the real name of the environment variable for some reason.
 
 Starting Jolokia on the fly
 ===========================
@@ -223,7 +428,7 @@ Starting Jolokia on the fly
 
 ::
 
-    java -jar /opt/jolokia/jolokia-jvm-1.6.0-agent.jar --host 0.0.0.0 --port 8778 start <PID>
+    java -jar /opt/jolokia/jolokia.jar --host 0.0.0.0 --port 8778 start <PID>
 
 *Add this operation to any custom init scripts you use to start the Kafka components.*
 
@@ -301,19 +506,6 @@ Full telegraf.conf example
 
 Kafka brokers monitoring with Jolokia
 =====================================
-
-Jolokia
--------
-
-**example: Jolokia start in docker environment:**
-
-::
-
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:12181,zookeeper-2:12181,zookeeper-3:12181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:19092
-      KAFKA_OPTS: "-javaagent:/opt/jolokia/jolokia-jvm-1.6.0-agent.jar=port=8778,host=0.0.0.0"
 
 Collecting with Telegraf
 ------------------------
@@ -470,17 +662,6 @@ Full telegraf.conf example
 
 Kafka connect monitoring
 ========================
-
-Jolokia
--------
-
-**example: Jolokia start in docker environment:**
-
-::
-
-    environment:
-      KAFKA_OPTS: "-javaagent:/opt/jolokia/jolokia-jvm-1.6.0-agent.jar=port=18779,host=0.0.0.0"
-    command: "/usr/bin/connect-distributed /etc/kafka-connect/config/connect-distributed.properties-kafka-connect-1"
 
 Collecting with Telegraf
 ------------------------
@@ -666,19 +847,6 @@ As a builtin configuration, the kafka-monitor implements a jolokia agent, so col
 Confluent schema-registry
 =========================
 
-Jolokia
--------
-
-**example: Jolokia start in docker environment:**
-
-::
-
-    environment:
-      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper-1:12181,zookeeper-2:12181,zookeeper-3:12181
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
-      SCHEMA_REGISTRY_OPTS: "-javaagent:/opt/jolokia/jolokia-jvm-1.6.0-agent.jar=port=18783,host=0.0.0.0"
-
 Collecting with Telegraf
 ------------------------
 
@@ -765,19 +933,6 @@ Full telegraf.conf example
 Confluent ksql-server
 =====================
 
-Jolokia
--------
-
-**example: Jolokia start in docker environment:**
-
-::
-
-    environment:
-      KSQL_BOOTSTRAP_SERVERS: PLAINTEXT://kafka-1:19092,PLAINTEXT://kafka-2:29092,PLAINTEXT://kafka-3:39092
-      KSQL_KSQL_SERVICE_ID: confluent_standalone_1_
-      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
-      KSQL_OPTS: "-javaagent:/opt/jolokia/jolokia-jvm-1.6.0-agent.jar=port=18784,host=0.0.0.0"
-
 Collecting with Telegraf
 ------------------------
 
@@ -853,22 +1008,6 @@ Full telegraf.conf example
 
 Confluent kafka-rest
 ====================
-
-Jolokia
--------
-
-**example: Jolokia start in docker environment:**
-
-::
-
-    environment:
-      KAFKA_REST_ZOOKEEPER_CONNECT: "zookeeper-1:12181,zookeeper-2:22181,zookeeper-3:32181"
-      KAFKA_REST_LISTENERS: "http://localhost:18089"
-      KAFKA_REST_SCHEMA_REGISTRY_URL: "http://schema-registry-1:18083"
-      KAFKAREST_OPTS: "-javaagent:/opt/jolokia/jolokia-jvm-1.6.0-agent.jar=port=18785,host=0.0.0.0"
-      KAFKA_REST_HOST_NAME: "kafka-rest"
-
-*notes: KAFKAREST_OPTS is not a typo, this is (strangely) the right name to configuration java options.*
 
 Collecting with Telegraf
 ------------------------
