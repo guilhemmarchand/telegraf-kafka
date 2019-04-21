@@ -1,0 +1,255 @@
+<dashboard theme="dark">
+    <label>Kafka Connect - Health</label>
+    <row>
+        <panel>
+            <title>Kafka Connect workers</title>
+            <single>
+                <search>
+                    <query>| mcatalog values(metric_name) as metric_name where index="kafka_metrics" metric_name="kafka_connect.worker.connector-count" by env, label, jolokia_agent_url
+| search (env="*" label="*")
+| stats count</query>
+                    <earliest>-5m</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">KAFKA CONNECT WORKERS</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <title>Failed connectors startup</title>
+            <single>
+                <search>
+                    <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.worker.connector-startup-failure-total" env="*" label="*" by metric_name, env, label, jolokia_agent_url
+| stats sum(value) as value</query>
+                    <earliest>-5m</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">FAILED WORKER STARTUP</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <title>Failed tasks startup</title>
+            <single>
+                <search>
+                    <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.worker.task-startup-failure-total" env="*" label="*" by metric_name, env, label, jolokia_agent_url
+| stats sum(value) as value</query>
+                    <earliest>-5m</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">FAILED TASKS STARTUP</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+    </row>
+    <row>
+        <panel>
+            <title>Number of active source connectors</title>
+            <single>
+                <search>
+                    <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" connector="*" env="*" label="*" by metric_name, env, label, task, connector
+| eval {metric_name}=value
+| stats min(kafka_connect.connector-task.status) as connector-task.status by env, label, connector
+| fields env, label, connector connector-task.status | rename connector-task.status as integer_status
+| eval status=case(integer_status=0, "paused", integer_status=1, "running", integer_status=2, "unassigned", integer_status=3, "failed", integer_status=4, "destroyed")
+| join env, label, connector [ | inputlookup kafka_connect_tasks_monitoring ] | where monitoring_state="enabled" | where role="kafka_source_task" | stats count</query>
+                    <earliest>-5m</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">SOURCE CONNECTORS (ACTIVE AND MONITORED)</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <title>Source connectors aggregated state</title>
+            <single>
+                <search>
+                    <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" env="*" label="*" by metric_name, env, label, task, connector
+| eval {metric_name}=value
+| stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*" by env, label, connector
+| eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2) | fields env, label, connector connector-task.status | rename connector-task.status as integer_status
+| eval status=case(integer_status=0, "paused", integer_status=1, "running", integer_status=2, "unassigned", integer_status=3, "failed", integer_status=4, "destroyed")
+| join env, label, connector [ | inputlookup kafka_connect_tasks_monitoring ] | where monitoring_state="enabled" | where role="kafka_source_task"
+| fillnull value=5 integer_status
+| fillnull value="unknown" status
+| eval range_status=case(status="running", 0, status="paused", 1, status!="running" AND status!="paused", 2)
+| rangemap field=range_status low=0-0 high=1-1 severe=2-5 default=severe
+| fields status, range, integer_status, range_status
+| sort - limit=0 range_status
+| append [ makeresults ] | fillnull value="unknown" status | fillnull value="elevated" range | fields - _time</query>
+                    <earliest>-5m</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorBy">value</option>
+                <option name="colorMode">block</option>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">AGGREGATED STATE</option>
+                <option name="useColors">0</option>
+            </single>
+        </panel>
+        <panel>
+            <title>Number of monitored souce connectors not running</title>
+            <single>
+                <search>
+                    <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" env="*" label="*" by metric_name, task, connector| eval {metric_name}=value| stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*" by connector| eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2) | fields connector connector-task.status | rename connector-task.status as integer_status| eval status=case(integer_status=0, "paused", integer_status=1, "running", integer_status=2, "unassigned", integer_status=3, "failed", integer_status=4, "destroyed")| join connector [ | inputlookup kafka_connect_tasks_monitoring ] | where monitoring_state="enabled" | where role="kafka_source_task" | fillnull value="severe" status
+| where status!="running"
+| stats count</query>
+                    <earliest>-5m</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">MONITORED CONNECTORS NOT RUNNING</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+    </row>
+    <row>
+        <panel>
+            <title>Number of active sink connectors</title>
+            <single>
+                <search>
+                    <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" connector="*" env="*" label="*" by metric_name, env, label, task, connector
+| eval {metric_name}=value
+| stats min(kafka_connect.connector-task.status) as connector-task.status by env, label, connector
+| fields env, label, connector connector-task.status | rename connector-task.status as integer_status
+| eval status=case(integer_status=0, "paused", integer_status=1, "running", integer_status=2, "unassigned", integer_status=3, "failed", integer_status=4, "destroyed")
+| join env, label, connector [ | inputlookup kafka_connect_tasks_monitoring ] | where monitoring_state="enabled" | where role="kafka_sink_task" | stats count</query>
+                    <earliest>-5m</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">SINK CONNECTORS (ACTIVE AND MONITORED)</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <title>Sink connectors aggregated state</title>
+            <single>
+                <search>
+                    <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" env="*" label="*" by metric_name, env, label, task, connector
+| eval {metric_name}=value
+| stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*" by env, label, connector
+| eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2) | fields env, label, connector connector-task.status | rename connector-task.status as integer_status
+| eval status=case(integer_status=0, "paused", integer_status=1, "running", integer_status=2, "unassigned", integer_status=3, "failed", integer_status=4, "destroyed")
+| join env, label, connector [ | inputlookup kafka_connect_tasks_monitoring ] | where monitoring_state="enabled" | where role="kafka_sink_task"
+| fillnull value=5 integer_status
+| fillnull value="unknown" status
+| eval range_status=case(status="running", 0, status="paused", 1, status!="running" AND status!="paused", 2)
+| rangemap field=range_status low=0-0 high=1-1 severe=2-5 default=severe
+| fields status, range, integer_status, range_status
+| sort - limit=0 range_status
+| append [ makeresults ] | fillnull value="unknown" status | fillnull value="elevated" range | fields - _time</query>
+                    <earliest>-5m</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorBy">value</option>
+                <option name="colorMode">block</option>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">AGGREGATED STATE</option>
+                <option name="useColors">0</option>
+            </single>
+        </panel>
+        <panel>
+            <title>Number of monitored sink connectors not running</title>
+            <single>
+                <search>
+                    <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" env="*" label="*" by metric_name, task, connector| eval {metric_name}=value| stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*" by connector| eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2) | fields connector connector-task.status | rename connector-task.status as integer_status| eval status=case(integer_status=0, "paused", integer_status=1, "running", integer_status=2, "unassigned", integer_status=3, "failed", integer_status=4, "destroyed")| join connector [ | inputlookup kafka_connect_tasks_monitoring ] | where monitoring_state="enabled" | where role="kafka_sink_task" | fillnull value="severe" status
+| where status!="running"
+| stats count</query>
+                    <earliest>-5m</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">MONITORED CONNECTORS NOT RUNNING</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+    </row>
+    <row>
+        <panel>
+            <title>Source connectors monitored in alert</title>
+            <table>
+                <search>
+                    <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" env="*" label="*" by metric_name, task, connector| eval {metric_name}=value| stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*" by connector| eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2) | fields connector connector-task.status | rename connector-task.status as integer_status| eval status=case(integer_status=0, "paused", integer_status=1, "running", integer_status=2, "unassigned", integer_status=3, "failed", integer_status=4, "destroyed")| join connector [ | inputlookup kafka_connect_tasks_monitoring ] | where monitoring_state="enabled" | where role="kafka_source_task" | fillnull value="severe" status
+| where status!="running" | fields connector, status | fields - _time, _timediff</query>
+                    <earliest>-5m</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="count">100</option>
+            </table>
+        </panel>
+        <panel>
+            <title>Sink connectors monitored in alert</title>
+            <table>
+                <search>
+                    <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" env="*" label="*" by metric_name, task, connector| eval {metric_name}=value| stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*" by connector| eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2) | fields connector connector-task.status | rename connector-task.status as integer_status| eval status=case(integer_status=0, "paused", integer_status=1, "running", integer_status=2, "unassigned", integer_status=3, "failed", integer_status=4, "destroyed")| join connector [ | inputlookup kafka_connect_tasks_monitoring ] | where monitoring_state="enabled" | where role="kafka_sink_task" | fillnull value="severe" status
+| where status!="running" | fields connector, status | fields - _time, _timediff</query>
+                    <earliest>-5m</earliest>
+                    <latest>now</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="count">100</option>
+            </table>
+        </panel>
+    </row>
+</dashboard>

@@ -56,9 +56,10 @@ Deployment and configuration:
    :maxdepth: 2
 
    deployment
-   kafka_monitoring
+   implementation
    docker_testing
    health_view
+   connected_experience
    ootb_alerting
 
 Troubleshoot:

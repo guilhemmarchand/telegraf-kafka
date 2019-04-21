@@ -44,6 +44,10 @@ Permissions and authorizations
 
 Managing the alerting framework and its objects require KVstore collection and lookup definition write permissions.
 
+You can rely on the builtin role **kafka_admin** and configure your Kafka administrators to be member of the role.
+
+The role provides the level of permissions required to administrate the KVstore collections.
+
 Shall an unauthorized user attempt to perform an operation, or access to an object that is no readable, the following type of error window will be showed:
 
 .. image:: img/ootb_alerting_user_error1.png

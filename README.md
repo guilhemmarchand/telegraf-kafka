@@ -28,6 +28,8 @@ The Splunk application for Telegraf Kafka monitoring provides smart insight moni
 
 ![screen1](./docs/img/main2.png)
 
+![screen1](./docs/img/splunk_experience_dashboards.png)
+
 **Please consult the online documentation:** https://telegraf-kafka.readthedocs.io
 
 **The ITSI module and the Splunk core application for Apache Kafka end to end monitoring leverage the best components to provide a key layer monitoring for your Kafka infrastructure :**
@@ -37,5 +39,6 @@ The Splunk application for Telegraf Kafka monitoring provides smart insight moni
 - Telegraf Jolokia2 input plugin (https://github.com/influxdata/telegraf/tree/master/plugins/inputs/jolokia2)
 - Telegraf Zookeeper input plugin (https://github.com/influxdata/telegraf/tree/master/plugins/inputs/zookeeper)
 - LinkedIn Kafka monitor to provide end to end monitoring (https://github.com/linkedin/kafka-monitor)
+- Kafka Consumers lag monitoring with Burrow (https://github.com/linkedin/Burrow)
 
 ![screen1](./docs/img/draw.io/overview_diagram.png)

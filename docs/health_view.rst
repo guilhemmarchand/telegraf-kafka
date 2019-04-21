@@ -18,7 +18,7 @@ Shall a component be not detected, an informational panel replaces the metric re
 
 - Settings / Management of enable components
 
-Use this UI to enable or disable any of the components depending on your needs:
+**Use this user interface to enable or disable any of the components depending on your needs:**
 
 .. image:: img/config-overview.png
    :alt: config-overview.png

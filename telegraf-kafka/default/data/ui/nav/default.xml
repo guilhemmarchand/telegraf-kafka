@@ -125,6 +125,19 @@
 
     <!--
     ####################################################################################################################
+    VIEW OPTIMIZED FOR MOBILE VISUALIZATION
+    ####################################################################################################################
+    -->
+
+    <collection label="Connected Experience">
+        <a href="mobile_kafka_brokers">Kafka Brokers Health</a>
+        <a href="mobile_kafka_topics">Kafka Topics Health</a>
+        <a href="mobile_kafka_connect">Kafka Connect Health</a>
+        <a href="mobile_kafka_burrow">Kafka Burrow Health</a>
+    </collection>
+
+    <!--
+    ####################################################################################################################
     Configuration
     ####################################################################################################################
     -->

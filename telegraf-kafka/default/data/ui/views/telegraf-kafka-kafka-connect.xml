@@ -15,13 +15,13 @@
     </search>
 
     <search id="connect_task_summary">
-        <query>| mstats latest(_value) as status WHERE index="kafka_metrics" metric_name="kafka_connect.connector-task.status" $env$ $label$ $jolokia_agent_url$ by metric_name, env, label, jolokia_agent_url, connector, task span=1s
+        <query>| mstats latest(_value) as status WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" $env$ $label$ $jolokia_agent_url$ by metric_name, env, label, jolokia_agent_url, connector, task span=1s
 | stats max(_time) as lastTime, latest(status) as integer_status, latest(jolokia_agent_url) as jolokia_agent_url by env, label, connector, task
 | eval status=case((integer_status == 0),"paused",(integer_status == 1),"running",(integer_status == 2),"unassigned",(integer_status == 3),"failed",(integer_status == 4),"destroyed")
 | sort limit=0 env, label, connector, task
 | stats list(jolokia_agent_url) as jolokia_agent_url, list(task) as task, list(integer_status) as integer_status, list(status) as status, max(lastTime) as lastTime by env, label, connector
 | join max=1 overwrite=1 type=inner usetime=0 connector env label
-    [| mcatalog values(metric_name) as metric_name where index="kafka_metrics" OR index="kafka_monitoring" metric_name="kafka_connect.source-task.source-record-poll-total" OR metric_name="kafka_connect.sink-task.sink-record-read-total" $env$ $label$ $jolokia_agent_url$ by env, label, jolokia_agent_url, connector
+    [| mcatalog values(metric_name) as metric_name where `telegraf_kafka_index` metric_name="kafka_connect.source-task.source-record-poll-total" OR metric_name="kafka_connect.sink-task.sink-record-read-total" $env$ $label$ $jolokia_agent_url$ by env, label, jolokia_agent_url, connector
     | eval role=case(match(metric_name,"sink-task"),"kafka_sink_task",match(metric_name,"source-task"),"kafka_source_task")
     | fields env, label, connector, role]
 | fields env, label, jolokia_agent_url, connector, role, task, status, integer_status, lastTime
