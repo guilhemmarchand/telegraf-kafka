@@ -241,7 +241,7 @@
                     <option name="height">25</option>
                 </format>
                 <drilldown>
-                  <link target="_blank">search?q=%7C%20mstats%20avg(_value)%20prestats=t%20where%20metric_name=%22burrow_partition.lag%22%20index=%22telegraf_kafka%22%20env=$row.env$%20label=$row.label$%20cluster=$row.cluster$%20group=$row.group$%20topic=$row.topic$%20partition=$row.partition$%20by%20topic,%20partition%20span=10s%0A%7C%20stats%20avg(_value)%20as%20value%20by%20_time,%20topic,%20partition%0A%7C%20eval%20key%20=%20topic%20.%20%22:%22%20.%20partition%0A%7C%20timechart%20span=1m%20avg(value)%20as%20%22avg_lag%22%20by%20key&amp;display.page.search.tab=visualizations&amp;display.general.type=visualizations&amp;earliest=-4h@m&amp;latest=now</link>
+                  <link target="_blank">search?q=%7C%20mstats%20avg(_value)%20prestats=t%20where%20metric_name=%22burrow_partition.lag%22%20`telegraf_kafka_index`%20env=$row.env$%20label=$row.label$%20cluster=$row.cluster$%20group=$row.group$%20topic=$row.topic$%20partition=$row.partition$%20by%20topic,%20partition%20span=10s%0A%7C%20stats%20avg(_value)%20as%20value%20by%20_time,%20topic,%20partition%0A%7C%20eval%20key%20=%20topic%20.%20%22:%22%20.%20partition%0A%7C%20timechart%20span=1m%20avg(value)%20as%20%22avg_lag%22%20by%20key&amp;display.page.search.tab=visualizations&amp;display.general.type=visualizations&amp;earliest=-4h@m&amp;latest=now</link>
                 </drilldown>
             </table>
         </panel>

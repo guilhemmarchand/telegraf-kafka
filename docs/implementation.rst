@@ -39,6 +39,17 @@ All Splunk searches included in the added refer to the utilisation of a macro ca
 
 If you wish to use a different index model, this macro shall be customized to override the default model.
 
+Role membership
+---------------
+
+The application creates a builtin Splunk role called "**kafka_admin**" that provides:
+
+- write permissions to the application name space
+- write permissions to the various KVstore based lookups used for configuration purposes of the application
+- can be used to automatically notify the Kafka administrators if you use Splunk Cloud Gateway and Splunk Mobile Connected Experience
+
+We suggest that you configure the Kafka administrators to be member of this role. (by user configuration, role mapping or inheritance)
+
 HEC input ingestion and definition
 ----------------------------------
 

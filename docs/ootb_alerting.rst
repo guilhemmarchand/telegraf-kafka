@@ -44,6 +44,10 @@ Permissions and authorizations
 
 Managing the alerting framework and its objects require KVstore collection and lookup definition write permissions.
 
+You can rely on the builtin role **kafka_admin** and configure your Kafka administrators to be member of the role.
+
+The role provides the level of permissions required to administrate the KVstore collections.
+
 Shall an unauthorized user attempt to perform an operation, or access to an object that is no readable, the following type of error window will be showed:
 
 .. image:: img/ootb_alerting_user_error1.png
@@ -152,6 +156,84 @@ The modal interaction window provides information about this object, and differe
 .. image:: img/ootb_alerting_manage_object2.png
    :alt: ootb_alerting_manage_object2.png
    :align: center
+
+Enable/Disabling monitoring state
+---------------------------------
+
+When an object has a disabled monitoring state, the button "enable monitoring" is automatically made available:
+
+.. image:: img/ootb_alerting_enable_monitoring_state.png
+   :alt: ootb_alerting_enable_monitoring_state.png
+   :align: center
+
+When an object has an enabled monitoring state, the button "disable monitoring" is automatically made available:
+
+.. image:: img/ootb_alerting_disable_monitoring_state.png
+   :alt: ootb_alerting_enable_monitoring_state.png
+   :align: center
+
+Shall the action be requested and confirmed, the object state will be updated, and the table exposing the object definition be refreshed.
+
+Deleting objects in the collection
+----------------------------------
+
+An object that was discovered and added to the collection automatically can be deleted via the UI:
+
+.. image:: img/ootb_alerting_delete_object.png
+   :alt: ootb_alerting_delete_object.png
+   :align: center
+
+Shall the action be requested and confirmed, the object state will be entirely removed from the collection, and the table exposing the object definition be refreshed.
+
+**Important:**
+
+By default, objects are discovered every 4 hours looking at metrics available for the last 4 hours.
+
+This means that is the object has been still generated metrics to Splunk, it will be re-created automatically by the workflow.
+
+To avoid having to re-delete the same object again, you should wait 4 hours minimum before purging the object that was decommissioned.
+
+Finally, note that if an object has not been generating metrics for a least 24 hours, its monitoring state will be disabled a special "disabled_autoforced" value.
+
+This state can still be manually updated via the UI, to permanently re-enable or disable the monitoring state if the component is still an active component.
+
+Modifying an object in the collection
+-------------------------------------
+
+Depending on the type of object, the modal interaction window can provide a modification button:
+
+.. image:: img/ootb_alerting_modify_object1.png
+   :alt: ootb_alerting_modify_object1.png
+   :align: center
+
+The type of modification that can be applied depends on type of component, example:
+
+.. image:: img/ootb_alerting_modify_object2.png
+   :alt: ootb_alerting_modify_object2.png
+   :align: center
+
+Manually request a collection update job
+----------------------------------------
+
+A collection update can be requested at any time within the UI:
+
+.. image:: img/ootb_alerting_request_update.png
+   :alt: ootb_alerting_request_update.png
+   :align: center
+
+Shall the action be requested and confirmed, the UI will automatically run the object discovery report, any new object that was not yet discovered since the last run of the report, will be added to the collection and made available within the UI.
+
+.. image:: img/ootb_alerting_request_update_run1.png
+   :alt: ootb_alerting_request_update_run1.png
+   :align: center
+
+Once the job has run, click on the refresh button:
+
+.. image:: img/ootb_alerting_request_update_run2.png
+   :alt: ootb_alerting_request_update_run2.png
+   :align: center
+
+=======
 
 Enable/Disabling monitoring state
 ---------------------------------

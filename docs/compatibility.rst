@@ -24,3 +24,10 @@ Kafka and Confluent compatibility
 #################################
 
 Qualification and certification is made against Kafka V2.x and Confluent V5.x, earlier versions might however work with no issues but are not being tested.
+
+Web Browser compatibility
+#########################
+
+The application can be used with any of the supported Web Browser by Splunk:
+
+https://docs.splunk.com/Documentation/Splunk/latest/Installation/Systemrequirements
