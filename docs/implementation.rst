@@ -323,28 +323,6 @@ For Confluent schema-registry
 
 ::
 
-    [Unit]
-    Description=RESTful Avro schema registry for Apache Kafka
-    Documentation=http://docs.confluent.io/
-    After=network.target confluent-kafka.target
-
-    [Service]
-    Type=simple
-    User=cp-schema-registry
-    Group=confluent
-    Environment="LOG_DIR=/var/log/confluent/schema-registry"
-    Environment="SCHEMA_REGISTRY_OPTS=-javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0"
-    ExecStart=/usr/bin/schema-registry-start /etc/schema-registry/schema-registry.properties
-    TimeoutStopSec=180
-    Restart=no
-
-    [Install]
-    WantedBy=multi-user.target
-
-- Reload systemd and restart:
-
-::
-
     sudo systemctl daemon-restart
     sudo systemctl restart confluent-schema-registry
 
@@ -364,28 +342,6 @@ For Confluent ksql-server
 - Edit: ``/lib/systemd/system/confluent-ksql.service``
 
 - Add ``-javaagent`` argument:
-
-::
-
-    [Unit]
-    Description=Streaming SQL engine for Apache Kafka
-    Documentation=http://docs.confluent.io/
-    After=network.target confluent-kafka.target confluent-schema-registry.target
-
-    [Service]
-    Type=simple
-    User=cp-ksql
-    Group=confluent
-    Environment="LOG_DIR=/var/log/confluent/ksql"
-    Environment="KSQL_OPTS=-javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0"
-    ExecStart=/usr/bin/ksql-server-start /etc/ksql/ksql-server.properties
-    TimeoutStopSec=180
-    Restart=no
-
-    [Install]
-    WantedBy=multi-user.target
-
-- Reload systemd and restart:
 
 ::
 
