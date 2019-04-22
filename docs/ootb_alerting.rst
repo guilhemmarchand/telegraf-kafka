@@ -44,13 +44,10 @@ Permissions and authorizations
 
 Managing the alerting framework and its objects require KVstore collection and lookup definition write permissions.
 
-<<<<<<< HEAD
 You can rely on the builtin role **kafka_admin** and configure your Kafka administrators to be member of the role.
 
 The role provides the level of permissions required to administrate the KVstore collections.
 
-=======
->>>>>>> 00acf84... Documentation update (#20)
 Shall an unauthorized user attempt to perform an operation, or access to an object that is no readable, the following type of error window will be showed:
 
 .. image:: img/ootb_alerting_user_error1.png
@@ -61,7 +58,6 @@ Maintenance mode
 ^^^^^^^^^^^^^^^^
 
 All alerts are by default driven by the status of the maintenance mode stored in a KVstore collection.
-<<<<<<< HEAD
 
 Shall the maintenance be enabled by an administrator, Splunk will continue to run the schedule alerts but none of them will be able to trigger during the maintenance time window.
 
@@ -95,7 +91,6 @@ Enabling the maintenance mode
 
 - Within the modal configuration window, enter the date and hours of the end of the maintenance time window:
 
->>>>>>> 00acf84... Documentation update (#20)
 .. image:: img/ootb_alerting_user_maintenance_mode2.png
    :alt: ootb_alerting_user_maintenance_mode2.png
    :align: center
@@ -114,7 +109,6 @@ During any time of the maintenance time window, an administrator can decide to d
 *The collection KVstore endpoint can be programmatically managed, as such it is easily possible to reproduce this behaviour from an external system.*
 
 (https://docs.splunk.com/Documentation/Splunk/latest/RESTREF/RESTkvstore)
-<<<<<<< HEAD
 
 Monitoring state default definition
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -196,7 +190,6 @@ The default macro definition does the following statement:
 
     eval monitoring_state="enabled"
 
->>>>>>> 00acf84... Documentation update (#20)
 A typical customisation can be to disable by default the monitoring state for non Production environments:
 
 ::
@@ -221,7 +214,6 @@ The modal interaction window provides information about this object, and differe
 .. image:: img/ootb_alerting_manage_object2.png
    :alt: ootb_alerting_manage_object2.png
    :align: center
-<<<<<<< HEAD
 
 Enable/Disabling monitoring state
 ---------------------------------
@@ -377,7 +369,6 @@ Once the job has run, click on the refresh button:
    :alt: ootb_alerting_request_update_run2.png
    :align: center
 
->>>>>>> 00acf84... Documentation update (#20)
 Shall the job fail for some reasons such as a lack of permissions, an error window with the Splunk error message would be exposed automatically.
 
 Manually request a collection rebuild job

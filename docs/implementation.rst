@@ -299,7 +299,6 @@ For Confluent schema-registry
 
 - Add ``-javaagent`` argument:
 
-<<<<<<< HEAD:docs/implementation.rst
 ::
 
     [Unit]
@@ -349,7 +348,6 @@ For Confluent schema-registry
 
 ::
 
->>>>>>> 00acf84... Documentation update (#20):docs/kafka_monitoring.rst
     sudo systemctl daemon-restart
     sudo systemctl restart confluent-schema-registry
 
@@ -370,7 +368,6 @@ For Confluent ksql-server
 
 - Add ``-javaagent`` argument:
 
-<<<<<<< HEAD:docs/implementation.rst
 ::
 
     [Unit]
@@ -420,7 +417,6 @@ For Confluent ksql-server
 
 ::
 
->>>>>>> 00acf84... Documentation update (#20):docs/kafka_monitoring.rst
     sudo systemctl daemon-restart
     sudo systemctl restart confluent-ksql
 
