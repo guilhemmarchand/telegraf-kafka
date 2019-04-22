@@ -74,23 +74,6 @@ Enabling the maintenance mode
 
 - Within the modal configuration window, enter the date and hours of the end of the maintenance time window:
 
-=======
-
-Shall the maintenance be enabled by an administrator, Splunk will continue to run the schedule alerts but none of them will be able to trigger during the maintenance time window.
-
-When the end of maintenance time window is reached, its state will be automatically disabled and alerts will be able to trigger again.
-
-Enabling the maintenance mode
------------------------------
-
-- Click on the enable maintenance mode button:
-
-.. image:: img/ootb_alerting_user_maintenance_mode1.png
-   :alt: ootb_alerting_user_maintenance_mode1.png
-   :align: center
-
-- Within the modal configuration window, enter the date and hours of the end of the maintenance time window:
-
 .. image:: img/ootb_alerting_user_maintenance_mode2.png
    :alt: ootb_alerting_user_maintenance_mode2.png
    :align: center
@@ -109,47 +92,6 @@ During any time of the maintenance time window, an administrator can decide to d
 *The collection KVstore endpoint can be programmatically managed, as such it is easily possible to reproduce this behaviour from an external system.*
 
 (https://docs.splunk.com/Documentation/Splunk/latest/RESTREF/RESTkvstore)
-
-Monitoring state default definition
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-When new objects are automatically discovered such as Kafka components or topics, these objects are added to the different KVstore collection with a default enabled maintenance mode.
-
-The default maintenance mode that is applied on a per type of object basis can be customised via the associated macros definitions:
-
-+---------------------------------------------+-------------------------------------------------+
-| Purpose                                     | Macro definition                                |
-+=============================================+=================================================+
-| Type of component (nodes number monitoring) | zookeeper_default_monitoring_state              |
-+---------------------------------------------+-------------------------------------------------+
-| Zookeeper nodes                             | zookeeper_default_monitoring_state              |
-+---------------------------------------------+-------------------------------------------------+
-| Kafka Brokers                               | kafka_broker_default_monitoring_state           |
-+---------------------------------------------+-------------------------------------------------+
-| Kafka Topics                                | kafka_topics_default_monitoring_state           |
-+---------------------------------------------+-------------------------------------------------+
-| Kafka Connect workers                       | kafka_connect_default_monitoring_state          |
-+---------------------------------------------+-------------------------------------------------+
-| Kafka Connect connectors                    | kafka_connect_tasks_default_monitoring_state    |
-+---------------------------------------------+-------------------------------------------------+
-| Kafka Burrow group consumers                | kafka_burrow_consumers_default_monitoring_state |
-+---------------------------------------------+-------------------------------------------------+
-| Confluent Schema registry                   | schema_registry_default_monitoring_state        |
-+---------------------------------------------+-------------------------------------------------+
-| Confluent ksql-server                       | ksql_server_default_monitoring_state            |
-+---------------------------------------------+-------------------------------------------------+
-| Confluent kafka-rest                        | kafka_rest_default_monitoring_state             |
-+---------------------------------------------+-------------------------------------------------+
-| LinkedIn kafka-monitor                      | kafka_monitor_default_monitoring_state          |
-+---------------------------------------------+-------------------------------------------------+
-
-The default macro definition does the following statement:
-
-::
-
-    eval monitoring_state="enabled"
-
-=======
 
 Monitoring state default definition
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
