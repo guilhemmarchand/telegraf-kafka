@@ -323,9 +323,6 @@ For Confluent schema-registry
 
 ::
 
-=======
-::
-
     [Unit]
     Description=RESTful Avro schema registry for Apache Kafka
     Documentation=http://docs.confluent.io/
@@ -390,9 +387,6 @@ For Confluent ksql-server
 
 - Reload systemd and restart:
 
-::
-
-=======
 ::
 
     [Unit]
