@@ -149,6 +149,53 @@ The recommendation is to rely either on Splunk HEC or TCP inputs to forward Tele
       flush_interval = "10s"
       hostname = "$HOSTNAME"
 
+    # Regular OS monitoring for Linux OS
+
+    # Read metrics about cpu usage
+    [[inputs.cpu]]
+      ## Whether to report per-cpu stats or not
+      percpu = true
+      ## Whether to report total system cpu stats or not
+      totalcpu = true
+      ## If true, collect raw CPU time metrics.
+      collect_cpu_time = false
+      ## If true, compute and report the sum of all non-idle CPU states.
+      report_active = false
+
+    # Read metrics about disk usage by mount point
+    [[inputs.disk]]
+
+      ## Ignore mount points by filesystem type.
+      ignore_fs = ["tmpfs", "devtmpfs", "devfs"]
+
+    # Read metrics about disk IO by device
+    [[inputs.diskio]]
+
+    # Get kernel statistics from /proc/stat
+    [[inputs.kernel]]
+
+    # Read metrics about memory usage
+    [[inputs.mem]]
+
+    # Get the number of processes and group them by status
+    [[inputs.processes]]
+
+    # Read metrics about swap memory usage
+    [[inputs.swap]]
+
+    # Read metrics about system load & uptime
+    [[inputs.system]]
+
+    # # Read metrics about network interface usage
+    [[inputs.net]]
+
+    # # Read TCP metrics such as established, time wait and sockets counts.
+    [[inputs.netstat]]
+
+    # # Monitor process cpu and memory usage
+    [[inputs.procstat]]
+       pattern = ".*"
+
     # outputs
     [[outputs.http]]
        url = "https://splunk:8088/services/collector"
@@ -166,6 +213,10 @@ The recommendation is to rely either on Splunk HEC or TCP inputs to forward Tele
 **If for some reasons, you have to use either of the 2 other solutions, please consult:**
 
 * https://da-itsi-telegraf-os.readthedocs.io/en/latest/telegraf.html
+
+Notes: The configuration above provides out of the box OS monitoring for the hosts, which can be used by the Operating System monitoring application for Splunk:
+
+https://splunkbase.splunk.com/app/4271/
 
 Jolokia JVM monitoring
 ======================
