@@ -2,6 +2,15 @@ Release notes
 #############
 
 ==============
+Version 1.1.19
+==============
+
+- fix: Static index reference in new Splunk Connected experience Kafka Connect dashboard
+- fix: lag field name type in new Splunk Connected experience Burrow dashboard
+- fix: Remove restart required after installation to allow installation in Splunk Cloud via Self-services (SSAI)
+- feature: Adding Splunk Connected experience mobile dashboard for Zookeeper health
+
+==============
 Version 1.1.18
 ==============
 

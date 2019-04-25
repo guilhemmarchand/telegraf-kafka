@@ -159,7 +159,7 @@
         <search>
           <query>| mstats max(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_controller.OfflinePartitionsCount.Value" env=* label=* span=10s by jolokia_agent_url
 | rex field=jolokia_agent_url "//(?&lt;kafka_broker&gt;[^:]*)\:"
-| timechart limit=20 useother=f `telegraf_kafka_span` max(_value) as OfflinePartitions by kafka_broker</query>
+| timechart limit=20 useother=f span=5m max(_value) as OfflinePartitions by kafka_broker</query>
           <earliest>-4h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -182,7 +182,7 @@
         <search>
           <query>| mstats max(_value) prestats=true where `telegraf_kafka_index` metric_name="kafka_replica_manager.UnderReplicatedPartitions.Value" env=* label=* span=10s by jolokia_agent_url
 | rex field=jolokia_agent_url "//(?&lt;kafka_broker&gt;[^:]*)\:"
-| timechart limit=20 useother=f `telegraf_kafka_span` max(_value) as UnderReplicatedPartitions by kafka_broker</query>
+| timechart limit=20 useother=f span=5m max(_value) as UnderReplicatedPartitions by kafka_broker</query>
           <earliest>-4h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>

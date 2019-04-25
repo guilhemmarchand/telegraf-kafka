@@ -130,6 +130,7 @@
     -->
 
     <collection label="Connected Experience">
+        <a href="mobile_kafka_zookeeper">Kafka Zookeeper Health</a>
         <a href="mobile_kafka_brokers">Kafka Brokers Health</a>
         <a href="mobile_kafka_topics">Kafka Topics Health</a>
         <a href="mobile_kafka_connect">Kafka Connect Health</a>
