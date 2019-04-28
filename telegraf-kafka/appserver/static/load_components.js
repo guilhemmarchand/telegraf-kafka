@@ -30,7 +30,6 @@ require(['jquery',
         if (properties.content.resultCount == 0) {
             // If the search did not return any result, most likely the setup is not completed
             // All components will be activated by default, and a modal information window will popup
-            //console.log(searchName, "load config gave no results", properties)
 
             require(['splunkjs/mvc/simplexml/ready!'], function() {
                 require(['splunkjs/ready!', 'splunkjs/mvc'], function(mvc) {
@@ -73,71 +72,57 @@ require(['jquery',
                     var load_confluent_schema_registry = true;
 
                     if (load_zookeeper) {
-                        //console.log("load_zookeeper is true");
                         tk_name = "load_zookeeper"
                         setToken(tk_name, "true");
                     } else {
-                        //console.log("load_zookeeper is false");
                         tk_name = "load_zookeeper"
                         unsetToken(tk_name);
                     }
 
                     if (load_kafka_broker) {
-                        //console.log("load_kafka_broker is true");
                         tk_name = "load_kafka_broker"
                         setToken(tk_name, "true");
                     } else {
-                        //console.log("load_kafka_broker Zookeeper is false");
                         tk_name = "load_kafka_broker"
                         unsetToken(tk_name);
                     }
 
                     if (load_kafka_connect) {
-                        //console.log("load_kafka_connect is true");
                         tk_name = "load_kafka_connect"
                         setToken(tk_name, "true");
                     } else {
-                        //console.log("load_kafka_connect is false");
                         tk_name = "load_kafka_connect"
                         unsetToken(tk_name);
                     }
 
                     if (load_kafka_burrow) {
-                        //console.log("load_kafka_burrow is true");
                         tk_name = "load_kafka_burrow"
                         setToken(tk_name, "true");
                     } else {
-                        //console.log("load_kafka_burrow is false");
                         tk_name = "load_kafka_burrow"
                         unsetToken(tk_name);
                     }
 
                     if (load_confluent_kafka_rest) {
-                        //console.log("load_confluent_kafka_rest is true");
                         tk_name = "load_confluent_kafka_rest"
                         setToken(tk_name, "true");
                     } else {
-                        //console.log("load_confluent_kafka_rest is false");
                         tk_name = "load_confluent_kafka_rest"
                         unsetToken(tk_name);
                     }
 
                     if (load_confluent_ksql_server) {
-                        //console.log("load_confluent_ksql_server is true");
                         tk_name = "load_confluent_ksql_server"
                         setToken(tk_name, "true");
                     } else {
-                        //console.log("load_confluent_ksql_server is false");
                         tk_name = "load_confluent_ksql_server"
                         unsetToken(tk_name);
                     }
 
                     if (load_confluent_schema_registry) {
-                        //console.log("load_confluent_schema_registry is true");
                         tk_name = "load_confluent_schema_registry"
                         setToken(tk_name, "true");
                     } else {
-                        //console.log("load_confluent_schema_registry is false");
                         tk_name = "load_confluent_schema_registry"
                         unsetToken(tk_name);
                     }
@@ -263,71 +248,57 @@ require(['jquery',
                         }
 
                         if (load_zookeeper) {
-                            //console.log("load_zookeeper is true");
                             tk_name = "load_zookeeper"
                             setToken(tk_name, "true");
                         } else {
-                            //console.log("load_zookeeper is false");
                             tk_name = "load_zookeeper"
                             unsetToken(tk_name);
                         }
 
                         if (load_kafka_broker) {
-                            //console.log("load_kafka_broker is true");
                             tk_name = "load_kafka_broker"
                             setToken(tk_name, "true");
                         } else {
-                            //console.log("load_kafka_broker Zookeeper is false");
                             tk_name = "load_kafka_broker"
                             unsetToken(tk_name);
                         }
 
                         if (load_kafka_connect) {
-                            //console.log("load_kafka_connect is true");
                             tk_name = "load_kafka_connect"
                             setToken(tk_name, "true");
                         } else {
-                            //console.log("load_kafka_connect is false");
                             tk_name = "load_kafka_connect"
                             unsetToken(tk_name);
                         }
 
                         if (load_kafka_burrow) {
-                            //console.log("load_kafka_burrow is true");
                             tk_name = "load_kafka_burrow"
                             setToken(tk_name, "true");
                         } else {
-                            //console.log("load_kafka_burrow is false");
                             tk_name = "load_kafka_burrow"
                             unsetToken(tk_name);
                         }
 
                         if (load_confluent_kafka_rest) {
-                            //console.log("load_confluent_kafka_rest is true");
                             tk_name = "load_confluent_kafka_rest"
                             setToken(tk_name, "true");
                         } else {
-                            //console.log("load_confluent_kafka_rest is false");
                             tk_name = "load_confluent_kafka_rest"
                             unsetToken(tk_name);
                         }
 
                         if (load_confluent_ksql_server) {
-                            //console.log("load_confluent_ksql_server is true");
                             tk_name = "load_confluent_ksql_server"
                             setToken(tk_name, "true");
                         } else {
-                            //console.log("load_confluent_ksql_server is false");
                             tk_name = "load_confluent_ksql_server"
                             unsetToken(tk_name);
                         }
 
                         if (load_confluent_schema_registry) {
-                            //console.log("load_confluent_schema_registry is true");
                             tk_name = "load_confluent_schema_registry"
                             setToken(tk_name, "true");
                         } else {
-                            //console.log("load_confluent_schema_registry is false");
                             tk_name = "load_confluent_schema_registry"
                             unsetToken(tk_name);
                         }
