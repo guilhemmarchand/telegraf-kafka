@@ -121,6 +121,10 @@ access = read : [ * ], write : [ admin, kafka_admin ]
 
 # These views are shared globally, and designed to be used with Splunk mobile experience
 
+[views/mobile_kafka_zookeeper]
+access = read : [ * ], write : [ admin, kafka_admin ]
+export = system
+
 [views/mobile_kafka_brokers]
 access = read : [ * ], write : [ admin, kafka_admin ]
 export = system

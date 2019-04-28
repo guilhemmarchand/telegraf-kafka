@@ -79,7 +79,7 @@
 | eval avg_lag=round(avg_lag, 3), delta_lastTime=now()-lastTime, lastTime=strftime(lastTime, "%H:%M:%S")
 | eval status=if(delta_lastTime&gt;120, "UNKNOWN", status), description=if(delta_lastTime&gt;120, "The delta in seconds between the last state received and now has exceeded 120 seconds", description)
 | fields env, label, cluster, group, avg_lag, max_lag, current, sparkline, status, range, lastTime, description | rename description as "status description"
-| lookup kafka_burrow_consumers_monitoring env, label, cluster, group OUTPUT monitoring_state | rename current as lagg
+| lookup kafka_burrow_consumers_monitoring env, label, cluster, group OUTPUT monitoring_state | rename current as lag
 | fields group, lagg, status</query>
                     <earliest>-5m</earliest>
                     <latest>now</latest>
