@@ -2,6 +2,12 @@ Release notes
 #############
 
 ==============
+Version 1.1.20
+==============
+
+- fix: Remove any console.log (even while these are commented) in javascript to avoid manual check from appinspect
+
+==============
 Version 1.1.19
 ==============
 
