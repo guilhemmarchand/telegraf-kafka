@@ -1,0 +1,148 @@
+<form stylesheet="common.css" script="auditcheck.js">
+    <label>Audit - Scheduling performance overview</label>
+    <search id="mainScheduleSearch">
+        <query>index=_internal host="*" source=*scheduler.log status="*" AND status!="continued" savedsearch_name!="*_ACCELERATE_*" app="telegraf-kafka"
+| stats avg(run_time) AS avg_run_time, max(run_time) AS max_run_time, latest(run_time) AS latest_run_time, max(_time) AS "last_run (dd/mm/YYYY H:M:S)" by app,savedsearch_name
+| eval "last_run (dd/mm/YYYY H:M:S)"=strftime('last_run (dd/mm/YYYY H:M:S)', "%d/%m/%Y %H:%M:%S")
+| foreach *_run_time [ eval &lt;&lt;FIELD&gt;&gt;=round('&lt;&lt;FIELD&gt;&gt;', 2) ]
+| sort savedsearch_name | rename savedsearch_name AS "report (savedsearch_name)"
+| eval duration_avg=tostring(avg_run_time, "duration"), duration_max=tostring(max_run_time, "duration"), duration_latest=tostring(latest_run_time, "duration")
+| eval "Avg run time (seconds / duration)" = avg_run_time + " sec / " + duration_avg + " (HH:MM:SSS)"
+| eval "Max run time (seconds / duration)" = max_run_time + " sec / " + duration_avg + " (HH:MM:SSS)"
+| eval "Latest run time (seconds / duration)" = latest_run_time + " sec / " + duration_avg + " (HH:MM:SSS)"
+| fields app,report*,Avg*,Max*,Latest*,"last_run (dd/mm/YYYY H:M:S)"</query>
+        <earliest>$time.earliest$</earliest>
+        <latest>$time.latest$</latest>
+        <sampleRatio>1</sampleRatio>
+    </search>
+    <fieldset submitButton="false">
+        <input type="time" token="time" searchWhenChanged="true">
+            <label>time range:</label>
+            <default>
+                <earliest>-30d@d</earliest>
+                <latest>now</latest>
+            </default>
+        </input>
+    </fieldset>
+    <row>
+        <panel>
+            <title>Performance of scheduled reports related to the internal application workflow - update and maintenance of the different collections</title>
+            <html>
+                <tyle>
+
+                </tyle>
+                <!-- configCheck: nothing there -->
+                <div class="modal fade" id="modal_check_nodata" role="dialog">
+                    <div class="modal-dialog">
+
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&amp;times;</button>
+                                <h3 style="color: indianred; font-size: 20px;"><span class="glyphicon glyphicon-lock"></span>Oops!</h3>
+                            </div>
+                            <div class="modal-body">
+                                <b>Sorry but this audit dashboard requires access to Splunk internal indexes!</b><br /><br />
+                                <div style="margin-left: 15px;">
+                                    <p>
+                                        <img style="float: left; margin: 0px 15px 15px 0px;" src="../../static/app/telegraf-kafka/icons/sorry_poney.png"/>
+                                        Review your permissions and request access to _internal index to be able to use this audit dashboard.<br /><br />
+                                        Contact your Splunk administrator to request the permission to run searches against Splunk internal indexes.
+                                        <br style="clear: both;" />
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </html>
+            <single>
+                <search base="mainScheduleSearch">
+                    <query>search "report (savedsearch_name)"="Update *" OR "report (savedsearch_name)"="Verify *" | stats count</query>
+                </search>
+                <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+                <option name="underLabel">SCHEDULED REPORTS</option>
+            </single>
+            <table>
+                <search base="mainScheduleSearch">
+                    <query>search "report (savedsearch_name)"="Update *" OR "report (savedsearch_name)"="Verify *"</query>
+                </search>
+                <option name="count">20</option>
+                <option name="dataOverlayMode">none</option>
+                <option name="drilldown">none</option>
+                <option name="percentagesRow">false</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="rowNumbers">false</option>
+                <option name="totalsRow">false</option>
+                <option name="wrap">true</option>
+            </table>
+        </panel>
+    </row>
+    <row>
+        <panel>
+            <chart>
+                <search>
+                    <query>index=_internal host="*" source=*scheduler.log status="*" AND status!="continued" savedsearch_name!="*_ACCELERATE_*" ( savedsearch_name="Update *" OR savedsearch_name="Verify *" ) app="telegraf-kafka"
+| timechart span=1h avg(run_time) AS avg_run_time, median(run_time) AS median_run_time</query>
+                    <earliest>$time.earliest$</earliest>
+                    <latest>$time.latest$</latest>
+                </search>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.text">runtime in seconds</option>
+                <option name="charting.axisTitleY.visibility">visible</option>
+                <option name="charting.chart">line</option>
+                <option name="charting.drilldown">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="height">450</option>
+            </chart>
+        </panel>
+    </row>
+    <row>
+        <panel>
+            <title>Performance of scheduled alerts - these are the execution of the alerts monitoring the Kafka environment</title>
+            <single>
+                <search base="mainScheduleSearch">
+                    <query>search NOT ( "report (savedsearch_name)"="Update *" OR "report (savedsearch_name)"="Verify *" ) | stats count</query>
+                </search>
+                <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+                <option name="underLabel">SCHEDULED ALERTS</option>
+            </single>
+            <table>
+                <search base="mainScheduleSearch">
+                    <query>search NOT ( "report (savedsearch_name)"="Update *" OR "report (savedsearch_name)"="Verify *" )</query>
+                </search>
+                <option name="count">20</option>
+                <option name="dataOverlayMode">none</option>
+                <option name="drilldown">none</option>
+                <option name="percentagesRow">false</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="rowNumbers">false</option>
+                <option name="totalsRow">false</option>
+                <option name="wrap">true</option>
+            </table>
+        </panel>
+    </row>
+    <row>
+        <panel>
+            <chart>
+                <search>
+                    <query>index=_internal host="*" source=*scheduler.log status="*" AND status!="continued" savedsearch_name!="*_ACCELERATE_*" NOT ( savedsearch_name="Update *" OR savedsearch_name="Verify *" ) app="telegraf-kafka"
+| timechart span=1h avg(run_time) AS avg_run_time, median(run_time) AS median_run_time</query>
+                    <earliest>$time.earliest$</earliest>
+                    <latest>$time.latest$</latest>
+                </search>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.text">runtime in seconds</option>
+                <option name="charting.axisTitleY.visibility">visible</option>
+                <option name="charting.chart">line</option>
+                <option name="charting.drilldown">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="height">450</option>
+            </chart>
+        </panel>
+    </row>
+</form>

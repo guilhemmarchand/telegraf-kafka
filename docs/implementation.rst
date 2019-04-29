@@ -113,6 +113,21 @@ The most scalalable and highly available design in term of where placing the Tel
 
 It is to possible to collect multiple instances of multiple components via a unique Telegraf instance, however there will be a limit where issues can start, and this design will not provide high availability as the failure of this instance will impact the whole metric collection.
 
+Telegraf configuration generator
+================================
+
+**The application provides a builtin user interface you can use to generate a telegraf.conf configuration file based on your parameters and for all the components to be monitored:**
+
+* Menu Settings / Telegraf Configuration Generator
+
+.. image:: img/config-generator1.png
+   :alt: config-generator1.png
+   :align: center
+
+.. image:: img/config-generator2.png
+   :alt: config-generator2.png
+   :align: center
+
 Telegraf output configuration
 =============================
 
@@ -854,6 +869,33 @@ As a builtin configuration, the kafka-monitor implements a jolokia agent, so col
 **It is very straightforward to run the kafka-monitor in a docker container, first you need to create your own image:**
 
 * https://github.com/linkedin/kafka-monitor/tree/master/docker
+
+**In a nutshell, you would:**
+
+::
+
+    git clone https://github.com/linkedin/kafka-monitor.git
+    cd kafka-monitor
+    ./gradlew jar
+    cd docker
+
+*Edit the Makefile to match your needs*
+
+::
+
+    make container
+    make push
+
+**Then start your container, example with docker-compose:**
+
+::
+
+    kafka-monitor:
+    image: guilhemmarchand/kafka-monitor:2.0.3
+    hostname: kafka-monitor
+    volumes:
+      - ../kafka-monitor:/usr/local/share/kafka-monitor
+    command: "/opt/kafka-monitor/bin/kafka-monitor-start.sh /usr/local/share/kafka-monitor/kafka-monitor.properties"
 
 **Once your Kafka monitor is running, you need a Telegraf instance that will be collecting the JMX beans, example:**
 

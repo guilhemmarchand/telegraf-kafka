@@ -1,4 +1,4 @@
-<dashboard stylesheet="common.css,hover.css,overview.css" script="load_spinner.js,load_components.js,configcheck.js,active_button.js,overview.js," hideEdit="True" isVisible="True">
+<dashboard stylesheet="common.css,overview.css,boottsrap-btn.css" script="load_spinner.js,load_components.js,configcheck.js,token_buttons.js,overview.js," hideEdit="True" isVisible="True">
     <label>Overview</label>
 
     <search id="main_populate">
@@ -559,10 +559,8 @@
     <row depends="$load_zookeeper$ $zookeeper_detected$">
         <panel>
             <html>
-                <div class="mainbutton_container_nomargin">
-                    <div class="mainbutton_highmargin">
-                        <a class="button2_lowpadding glow" href="telegraf-kafka-zookeeper?form.env=$form.env$&amp;form.label=$form.label$">  OPEN ENTITY DASHBOARD VIEW  </a>
-                    </div>
+                <div style="text-align: center;">
+                    <a target="_blank" class="btn btn-primary" href="telegraf-kafka-zookeeper?form.env=$form.env$&amp;form.label=$form.label$" role="button"> OPEN ENTITY DASHBOARD VIEW</a>
                 </div>
             </html>
         </panel>
@@ -737,33 +735,29 @@
     <row depends="$load_kafka_broker$ $kafka_broker_detected$">
         <panel>
             <html>
-                <div class="mainbutton_highmargin">
-                    <a class="button2_lowpadding glow" href="telegraf-kafka-kafka-brokers?form.env=$form.env$&amp;form.label=$form.label$">  OPEN ENTITY DASHBOARD VIEW  </a>
+                <div style="text-align: center;">
+                    <a target="_blank" class="btn btn-primary" href="telegraf-kafka-kafka-brokers?form.env=$form.env$&amp;form.label=$form.label$" role="button"> OPEN ENTITY DASHBOARD VIEW</a>
                 </div>
             </html>
         </panel>
         <panel>
             <html>
-                <div class="custom-sub-nav" style="text-align: center;">
-                    <div class="mainbutton_highmargin">
-                        <button class="button2_lowpadding glow" data-token-name="show_brokers_overview" data-alt-label="HIDE OVERVIEW" data-token-value="fields *">SHOW BROKERS OVERVIEW</button>
-                    </div>
+                <div style="text-align: center;" class="active-button">
+                    <button class="btn btn-default btn-primary" data-token-name="show_brokers_overview" data-alt-label="HIDE OVERVIEW" data-token-value="fields *"><span class="glyphicon glyphicon-remove"></span> SHOW BROKERS OVERVIEW</button>
                 </div>
             </html>
         </panel>
         <panel>
             <html>
-                <div class="mainbutton_highmargin">
-                    <a class="button2_lowpadding glow" href="telegraf-kafka-kafka-topics?form.env=$form.env$&amp;form.label=$form.label$">  OPEN TOPIC DASHBOARD VIEW  </a>
+                <div style="text-align: center;">
+                    <a target="_blank" class="btn btn-primary" href="telegraf-kafka-kafka-topics?form.env=$form.env$&amp;form.label=$form.label$" role="button"> OPEN ENTITY DASHBOARD VIEW</a>
                 </div>
             </html>
         </panel>
         <panel>
             <html>
-                <div class="custom-sub-nav" style="text-align: center;">
-                    <div class="mainbutton_highmargin">
-                        <button class="button2_lowpadding glow" data-token-name="show_topics_overview" data-alt-label="HIDE OVERVIEW" data-token-value="fields *">SHOW TOPICS OVERVIEW</button>
-                    </div>
+                <div style="text-align: center;" class="active-button">
+                    <button class="btn btn-default btn-primary" data-token-name="show_topics_overview" data-alt-label="HIDE OVERVIEW" data-token-value="fields *"><span class="glyphicon glyphicon-remove"></span> SHOW TOPICS OVERVIEW</button>
                 </div>
             </html>
         </panel>
@@ -1067,12 +1061,15 @@
                     <query>fields worker.connector-startup-failure-total</query>
                 </search>
                 <option name="colorMode">block</option>
-                <option name="drilldown">none</option>
+                <option name="drilldown">all</option>
                 <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
                 <option name="underLabel">FAILED WORKER STARTUP</option>
                 <option name="useColors">1</option>
+                <drilldown>
+                  <link target="_blank">search?q=| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.worker.task-startup-failure-total" OR metric_name="kafka_connect.worker.connector-startup-failure-total" OR metric_name="kafka_connect.worker.time-since-last-rebalance-ms" OR metric_name="kafka_connect.worker.task-count" $env$ $label$ by metric_name, env, label, jolokia_agent_url | eval {metric_name}=value | stats first(kafka_connect.*) as "*" by env, label, jolokia_agent_url&amp;earliest=-90s&amp;latest=now</link>
+                </drilldown>
             </single>
         </panel>
         <panel>
@@ -1081,12 +1078,15 @@
                     <query>fields worker.task-startup-failure-total</query>
                 </search>
                 <option name="colorMode">block</option>
-                <option name="drilldown">none</option>
+                <option name="drilldown">all</option>
                 <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
                 <option name="underLabel">FAILED TASKS STARTUP</option>
                 <option name="useColors">1</option>
+                <drilldown>
+                  <link target="_blank">search?q=| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.worker.task-startup-failure-total" OR metric_name="kafka_connect.worker.connector-startup-failure-total" OR metric_name="kafka_connect.worker.time-since-last-rebalance-ms" OR metric_name="kafka_connect.worker.task-count" $env$ $label$ by metric_name, env, label, jolokia_agent_url | eval {metric_name}=value | stats first(kafka_connect.*) as "*" by env, label, jolokia_agent_url&amp;earliest=-90s&amp;latest=now</link>
+                </drilldown>
             </single>
         </panel>
         <panel>
@@ -1130,10 +1130,8 @@
     <row depends="$load_kafka_connect$ $kafka_connect_detected$">
         <panel>
             <html>
-                <div class="mainbutton_container_nomargin">
-                    <div class="mainbutton_highmargin">
-                        <a class="button2_lowpadding glow" href="telegraf-kafka-kafka-connect?form.env=$form.env$&amp;form.label=$form.label$">  OPEN ENTITY DASHBOARD VIEW  </a>
-                    </div>
+                <div style="text-align: center;">
+                    <a target="_blank" class="btn btn-primary" href="telegraf-kafka-kafka-connect?form.env=$form.env$&amp;form.label=$form.label$" role="button"> OPEN ENTITY DASHBOARD VIEW</a>
                 </div>
             </html>
         </panel>
@@ -1276,37 +1274,43 @@
     <row depends="$load_kafka_connect$ $kafka_connect_detected$">
         <panel>
             <html>
-                <div class="mainbutton_container_nomargin">
-                    <div class="mainbutton_highmargin">
-                        <a class="button2_lowpadding glow" href="telegraf-kafka-kafka-connect-source-task?form.env=$form.env$&amp;form.label=$form.label$">  SOURCE TASK DASHBOARD VIEW  </a>
-                    </div>
+                <div style="text-align: center;">
+                    <a target="_blank" class="btn btn-primary" href="telegraf-kafka-kafka-connect-source-task?form.env=$form.env$&amp;form.label=$form.label$" role="button"> SOURCE TASK DASHBOARD VIEW</a>
                 </div>
             </html>
         </panel>
         <panel>
             <html>
-                <div class="custom-sub-nav" style="text-align: center;">
-                    <div class="mainbutton_highmargin">
-                        <button class="button2_lowpadding glow" data-token-name="show_source_tasks" data-alt-label="HIDE TASKS STATUS" data-token-value="fields *">SHOW TASKS STATUS</button>
-                    </div>
+                <div style="text-align: center;" class="active-button">
+                    <button class="btn btn-default btn-primary" data-token-name="show_source_tasks" data-alt-label="HIDE ACTIVE TASKS" data-token-value="fields *"><span class="glyphicon glyphicon-remove"></span> SHOW ACTIVE TASKS</button>
                 </div>
             </html>
         </panel>
         <panel>
             <html>
-                <div class="mainbutton_container_nomargin">
-                    <div class="mainbutton_highmargin">
-                        <a class="button2_lowpadding glow" href="telegraf-kafka-kafka-connect-sink-task?form.env=$form.env$&amp;form.label=$form.label$">  SINK TASK DASHBOARD VIEW  </a>
-                    </div>
+                <div style="text-align: center;" class="active-button">
+                    <button class="btn btn-default btn-primary" data-token-name="show_source_tasks_alerts" data-alt-label="HIDE TASKS IN ALERT" data-token-value="fields *"><span class="glyphicon glyphicon-remove"></span> SHOW TASKS IN ALERT</button>
                 </div>
             </html>
         </panel>
         <panel>
             <html>
-                <div class="custom-sub-nav" style="text-align: center;">
-                    <div class="mainbutton_highmargin">
-                        <button class="button2_lowpadding glow" data-token-name="show_sink_tasks" data-alt-label="HIDE TASKS STATUS" data-token-value="fields *">SHOW TASKS STATUS</button>
-                    </div>
+                <div style="text-align: center;">
+                    <a target="_blank" class="btn btn-primary" href="telegraf-kafka-kafka-connect-sink-task?form.env=$form.env$&amp;form.label=$form.label$" role="button"> SINK TASK DASHBOARD VIEW</a>
+                </div>
+            </html>
+        </panel>
+        <panel>
+            <html>
+                <div style="text-align: center;" class="active-button">
+                    <button class="btn btn-default btn-primary" data-token-name="show_sink_tasks" data-alt-label="HIDE ACTIVE TASKS" data-token-value="fields *"><span class="glyphicon glyphicon-remove"></span> SHOW ACTIVE TASKS</button>
+                </div>
+            </html>
+        </panel>
+        <panel>
+            <html>
+                <div style="text-align: center;" class="active-button">
+                    <button class="btn btn-default btn-primary" data-token-name="show_sink_tasks_alerts" data-alt-label="HIDE TASKS IN ALERT" data-token-value="fields *"><span class="glyphicon glyphicon-remove"></span> SHOW TASKS IN ALERT</button>
                 </div>
             </html>
         </panel>
@@ -1357,6 +1361,70 @@
         </panel>
     </row>
 
+    <row depends="$load_kafka_connect$ $show_source_tasks_alerts$">
+        <panel>
+            <input type="dropdown" token="env" searchWhenChanged="true">
+                <label>Env:</label>
+                <!-- Populating Data Model Search -->
+                <search base="main_populate">
+                    <query>dedup env | sort 0 env</query>
+                </search>
+                <prefix>env="</prefix>
+                <suffix>"</suffix>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>env</fieldForLabel>
+                <fieldForValue>env</fieldForValue>
+            </input>
+            <input type="dropdown" token="label" searchWhenChanged="true">
+                <label>Label:</label>
+                <!-- Populating Data Model Search -->
+                <search base="main_populate">
+                    <query>search $env$ | dedup label | sort 0 label</query>
+                </search>
+                <prefix>label="</prefix>
+                <suffix>"</suffix>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>label</fieldForLabel>
+                <fieldForValue>label</fieldForValue>
+            </input>
+            <table id="table_source_tasks_alerts">
+            <title>Kafka Connect source connector in alert (click on the row to open entity view for that connector)</title>
+                <search depends="$show_source_tasks_alerts$">
+                    <query>| mstats latest(_value) as task_state_id where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" connector=* by env, label, connector, jolokia_agent_url, task span=1s
+| stats max(_time) as lasttime, values(jolokia_agent_url) as jolokia_agent_url, min(task_state_id) as task_state_id, values(task) as task by env, label, connector
+| eval task_state=case(task_state_id=0, "paused", task_state_id=1, "running", task_state_id=2, "unassigned", task_state_id=3, "failed", task_state_id=4, "destroyed")
+| append [ | inputlookup kafka_connect_tasks_monitoring ]
+| stats first(task_state) as task_state, values(jolokia_agent_url) as jolokia_agent_url, values(task) as task, max(lasttime) as lasttime, first(_key) as _key, first(role) as role, first(grace_period) as grace_period, first(monitoring_state) as monitoring_state by env, label, connector
+| where role="kafka_source_task"
+| appendpipe [ | stats dc(task) as number_tasks by env, label, connector ]
+| stats values(*) as "*" by env, label, connector
+| rename task as task_id | rex field=jolokia_agent_url "//(?&lt;connect_worker&gt;[^:]*)\:"
+| fields env, label, connector, connect_worker, monitoring_state, task_state, number_tasks, task_id, grace_period, lasttime
+| eval now=now(), delta_seconds=now-lasttime, now=strftime(now, "%d/%m/%Y %H:%M:%S"), lasttime=strftime(lasttime, "%d/%m/%Y %H:%M:%S")
+| eval state=case(number_tasks&lt;1 AND delta_seconds&gt;=grace_period AND task_state!="running", "severe",
+number_tasks&lt;1 AND isnull(delta_seconds) AND task_state!="running", "severe",
+number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "normal")
+| rename now as "check_time"
+| fillnull value="severe" state
+| appendcols [ | inputlookup kafka_alerting_maintenance ] | filldown maintenance_mode
+| where state="severe" AND monitoring_state="enabled" AND NOT maintenance_mode="enabled"
+| eval range="severe" | rename lasttime as last_time
+| fields env, label, connector, monitoring_state, grace_period, last_time, check_time, delta_seconds, maintenance_mode, state, range</query>
+                    <earliest>-15m</earliest>
+                    <latest>now</latest>
+                    <refresh>90s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="drilldown">row</option>
+                <drilldown>
+                    <link>/app/telegraf-kafka/telegraf-kafka-kafka-connect-source-task?form.env=$row.env$&amp;form.label=$row.label$&amp;form.connector=$row.connector$</link>
+                </drilldown>
+            </table>
+        </panel>
+    </row>
+
     <row depends="$load_kafka_connect$ $show_sink_tasks$">
         <panel>
             <input type="dropdown" token="env" searchWhenChanged="true">
@@ -1389,6 +1457,70 @@
             <title>Kafka Connect sink connector tasks status (click on the row to open entity view for that connector)</title>
                 <search depends="$show_sink_tasks$">
                     <query>| savedsearch "Kafka monitoring - tasks status report" | search $env$ $label$ | where role="kafka_sink_task" | fields - integer_status</query>
+                    <earliest>-15m</earliest>
+                    <latest>now</latest>
+                    <refresh>90s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="drilldown">row</option>
+                <drilldown>
+                    <link>/app/telegraf-kafka/telegraf-kafka-kafka-connect-sink-task?form.env=$row.env$&amp;form.label=$row.label$&amp;form.connector=$row.connector$</link>
+                </drilldown>
+            </table>
+        </panel>
+    </row>
+
+    <row depends="$load_kafka_connect$ $show_sink_tasks_alerts$">
+        <panel>
+            <input type="dropdown" token="env" searchWhenChanged="true">
+                <label>Env:</label>
+                <!-- Populating Data Model Search -->
+                <search base="main_populate">
+                    <query>dedup env | sort 0 env</query>
+                </search>
+                <prefix>env="</prefix>
+                <suffix>"</suffix>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>env</fieldForLabel>
+                <fieldForValue>env</fieldForValue>
+            </input>
+            <input type="dropdown" token="label" searchWhenChanged="true">
+                <label>Label:</label>
+                <!-- Populating Data Model Search -->
+                <search base="main_populate">
+                    <query>search $env$ | dedup label | sort 0 label</query>
+                </search>
+                <prefix>label="</prefix>
+                <suffix>"</suffix>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>label</fieldForLabel>
+                <fieldForValue>label</fieldForValue>
+            </input>
+            <table id="table_sink_tasks_alerts">
+            <title>Kafka Connect sink connectors in alert (click on the row to open entity view for that connector)</title>
+                <search depends="$show_sink_tasks_alerts$">
+                    <query>| mstats latest(_value) as task_state_id where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" connector=* by env, label, connector, jolokia_agent_url, task span=1s
+| stats max(_time) as lasttime, values(jolokia_agent_url) as jolokia_agent_url, min(task_state_id) as task_state_id, values(task) as task by env, label, connector
+| eval task_state=case(task_state_id=0, "paused", task_state_id=1, "running", task_state_id=2, "unassigned", task_state_id=3, "failed", task_state_id=4, "destroyed")
+| append [ | inputlookup kafka_connect_tasks_monitoring ]
+| stats first(task_state) as task_state, values(jolokia_agent_url) as jolokia_agent_url, values(task) as task, max(lasttime) as lasttime, first(_key) as _key, first(role) as role, first(grace_period) as grace_period, first(monitoring_state) as monitoring_state by env, label, connector
+| where role="kafka_sink_task"
+| appendpipe [ | stats dc(task) as number_tasks by env, label, connector ]
+| stats values(*) as "*" by env, label, connector
+| rename task as task_id | rex field=jolokia_agent_url "//(?&lt;connect_worker&gt;[^:]*)\:"
+| fields env, label, connector, connect_worker, monitoring_state, task_state, number_tasks, task_id, grace_period, lasttime
+| eval now=now(), delta_seconds=now-lasttime, now=strftime(now, "%d/%m/%Y %H:%M:%S"), lasttime=strftime(lasttime, "%d/%m/%Y %H:%M:%S")
+| eval state=case(number_tasks&lt;1 AND delta_seconds&gt;=grace_period AND task_state!="running", "severe",
+number_tasks&lt;1 AND isnull(delta_seconds) AND task_state!="running", "severe",
+number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "normal")
+| rename now as "check_time"
+| fillnull value="severe" state
+| appendcols [ | inputlookup kafka_alerting_maintenance ] | filldown maintenance_mode
+| where state="severe" AND monitoring_state="enabled" AND NOT maintenance_mode="enabled"
+| eval range="severe" | rename lasttime as last_time
+| fields env, label, connector, monitoring_state, grace_period, last_time, check_time, delta_seconds, maintenance_mode, state, range</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                     <refresh>90s</refresh>
@@ -1482,19 +1614,15 @@
     <row depends="$load_kafka_burrow$ $burrow_detected$">
         <panel>
             <html>
-                <div class="mainbutton_container_nomargin">
-                    <div class="mainbutton_highmargin">
-                        <a class="button2_lowpadding glow" href="telegraf-burrow?form.env=$form.env$&amp;form.label=$form.label$">  OPEN BURROW DASHBOARD VIEW  </a>
-                    </div>
+                <div style="text-align: center;">
+                    <a target="_blank" class="btn btn-primary" href="telegraf-burrow?form.env=$form.env$&amp;form.label=$form.label$" role="button"> OPEN BURROW DASHBOARD VIEW</a>
                 </div>
             </html>
         </panel>
         <panel>
             <html>
-                <div class="custom-sub-nav" style="text-align: center;">
-                    <div class="mainbutton_highmargin">
-                        <button class="button2_lowpadding glow" data-token-name="show_consumers_status" data-alt-label="HIDE CONSUMERS STATUS" data-token-value="fields *">SHOW CONSUMERS STATUS</button>
-                    </div>
+                <div style="text-align: center;" class="active-button">
+                    <button class="btn btn-default btn-primary" data-token-name="show_consumers_status" data-alt-label="HIDE CONSUMERS STATUS" data-token-value="fields *"><span class="glyphicon glyphicon-remove"></span> SHOW CONSUMERS STATUS</button>
                 </div>
             </html>
         </panel>
@@ -1638,10 +1766,8 @@
     <row depends="$load_confluent_schema_registry$ $schema_registry_detected$">
         <panel>
             <html>
-                <div class="mainbutton_container_nomargin">
-                    <div class="mainbutton_highmargin">
-                        <a class="button2_lowpadding glow" href="telegraf-kafka-confluent-shema-registry?form.env=$form.env$&amp;form.label=$form.label$">  OPEN ENTITY DASHBOARD VIEW  </a>
-                    </div>
+                <div style="text-align: center;">
+                    <a target="_blank" class="btn btn-primary" href="telegraf-kafka-confluent-shema-registry?form.env=$form.env$&amp;form.label=$form.label$" role="button"> OPEN ENTITY DASHBOARD VIEW</a>
                 </div>
             </html>
         </panel>
@@ -1760,10 +1886,8 @@
     <row depends="$load_confluent_ksql_server$ $ksql_server_detected$">
         <panel>
             <html>
-                <div class="mainbutton_container_nomargin">
-                    <div class="mainbutton_highmargin">
-                        <a class="button2_lowpadding glow" href="telegraf-kafka-confluent-ksql-server?form.env=$form.env$&amp;form.label=$form.label$">  OPEN ENTITY DASHBOARD VIEW  </a>
-                    </div>
+                <div style="text-align: center;">
+                    <a target="_blank" class="btn btn-primary" href="telegraf-kafka-confluent-ksql-server?form.env=$form.env$&amp;form.label=$form.label$" role="button"> OPEN ENTITY DASHBOARD VIEW</a>
                 </div>
             </html>
         </panel>
@@ -1881,10 +2005,8 @@
     <row depends="$load_confluent_kafka_rest$ $kafka_rest_detected$">
         <panel>
             <html>
-                <div class="mainbutton_container_nomargin">
-                    <div class="mainbutton_highmargin">
-                        <a class="button2_lowpadding glow" href="telegraf-kafka-confluent-kafka-rest?form.env=$form.env$&amp;form.label=$form.label$">  OPEN ENTITY DASHBOARD VIEW  </a>
-                    </div>
+                <div style="text-align: center;">
+                    <a target="_blank" class="btn btn-primary" href="telegraf-kafka-confluent-kafka-rest?form.env=$form.env$&amp;form.label=$form.label$" role="button"> OPEN ENTITY DASHBOARD VIEW</a>
                 </div>
             </html>
         </panel>

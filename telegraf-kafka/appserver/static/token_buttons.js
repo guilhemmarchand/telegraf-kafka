@@ -44,7 +44,7 @@ require(['splunkjs/mvc/simplexml/ready!'], function() {
         }
 
         // For each button with the class "custom-sub-nav"
-        $('.custom-sub-nav').each(function() {
+        $('.active-button').each(function() {
             var $btn_group = $(this);
 
             /* for each button in this nav:
