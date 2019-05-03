@@ -855,6 +855,33 @@ As a builtin configuration, the kafka-monitor implements a jolokia agent, so col
 
 * https://github.com/linkedin/kafka-monitor/tree/master/docker
 
+**In a nutshell, you would:**
+
+::
+
+    git clone https://github.com/linkedin/kafka-monitor.git
+    cd kafka-monitor
+    ./gradlew jar
+    cd docker
+
+*Edit the Makefile to match your needs*
+
+::
+
+    make container
+    make push
+
+**Then start your container, example with docker-compose:**
+
+::
+
+    kafka-monitor:
+    image: guilhemmarchand/kafka-monitor:2.0.3
+    hostname: kafka-monitor
+    volumes:
+      - ../kafka-monitor:/usr/local/share/kafka-monitor
+    command: "/opt/kafka-monitor/bin/kafka-monitor-start.sh /usr/local/share/kafka-monitor/kafka-monitor.properties"
+
 **Once your Kafka monitor is running, you need a Telegraf instance that will be collecting the JMX beans, example:**
 
 ::
