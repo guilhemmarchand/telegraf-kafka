@@ -1,0 +1,134 @@
+<form stylesheet="common.css" script="auditcheck.js">
+    <label>Audit - Daily indexing volume Kafka costs</label>
+    <search id="mainSearch">
+        <query>(index=_internal source=*license_usage.log* type=Usage [ | makeresults | return `telegraf_kafka_index` | rex field=search max_match=0 "index=\"\"\s(?P&lt;idx&gt;[^=]*)" | table idx | mvexpand idx ] )
+| where (b &gt; 0)
+| bucket _time span=1d
+| stats sum(b) AS b by _time,idx
+| eval GB=round((((b / 1024) / 1024) / 1024),2)
+| timechart span=1d sum(GB) AS GB</query>
+        <earliest>$time.earliest$</earliest>
+        <latest>$time.latest$</latest>
+        <sampleRatio>1</sampleRatio>
+    </search>
+    <fieldset submitButton="false">
+        <input type="time" token="time" searchWhenChanged="true">
+            <label>Time range:</label>
+            <default>
+                <earliest>-30d@d</earliest>
+                <latest>now</latest>
+            </default>
+        </input>
+    </fieldset>
+    <row>
+        <panel>
+            <html>
+                <tyle>
+
+                </tyle>
+                <!-- configCheck: nothing there -->
+                <div class="modal fade" id="modal_check_nodata" role="dialog">
+                    <div class="modal-dialog">
+
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&amp;times;</button>
+                                <h3 style="color: indianred; font-size: 20px;">
+                                    <span class="glyphicon glyphicon-lock"/>Oops!</h3>
+                            </div>
+                            <div class="modal-body">
+                                <b>Sorry but this audit dashboard requires access to Splunk internal indexes!</b>
+                                <br/>
+                                <br/>
+                                <div style="margin-left: 15px;">
+                                    <p>
+                                        <img style="float: left; margin: 0px 15px 15px 0px;" src="../../static/app/telegraf-kafka/icons/sorry_poney.png"/>
+                                        Review your permissions and request access to _internal index to be able to use this audit dashboard.<br/>
+                                        <br/>
+                                        Contact your Splunk administrator to request the permission to run searches against Splunk internal indexes.
+                                        <br style="clear: both;"/>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal">
+                                    <span class="glyphicon glyphicon-remove"/> Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </html>
+            <single>
+                <search base="mainSearch">
+                    <query>eval today=relative_time(now(), "@d"), time=_time | where time&lt;today | stats avg(GB)</query>
+                </search>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+                <option name="underLabel">AVERAGE DAILY VOLUME (TODAY VOLUME EXCLUDED)</option>
+                <option name="unit">GB</option>
+            </single>
+            <single>
+                <search base="mainSearch">
+                    <query>stats max(GB)</query>
+                </search>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+                <option name="underLabel">MAX DAILY VOLUME (TODAY VOLUME INCLUDED)</option>
+                <option name="unit">GB</option>
+            </single>
+            <single>
+                <search base="mainSearch">
+                    <query>eval today=relative_time(now(), "@d"), time=_time | where time&lt;today | stats min(GB)</query>
+                </search>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+                <option name="underLabel">MINIMAL DAILY VOLUME (TODAY VOLUME EXCLUDED)</option>
+                <option name="unit">GB</option>
+            </single>
+            <chart>
+                <title>Daily data volume indexed over time (GB)</title>
+                <search base="mainSearch">
+                    <query>sort 0 _time</query>
+                </search>
+                <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+                <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.axisTitleY2.visibility">visible</option>
+                <option name="charting.axisX.abbreviation">none</option>
+                <option name="charting.axisX.scale">linear</option>
+                <option name="charting.axisY.abbreviation">none</option>
+                <option name="charting.axisY.scale">linear</option>
+                <option name="charting.axisY2.abbreviation">none</option>
+                <option name="charting.axisY2.enabled">0</option>
+                <option name="charting.axisY2.scale">inherit</option>
+                <option name="charting.chart">column</option>
+                <option name="charting.chart.bubbleMaximumSize">50</option>
+                <option name="charting.chart.bubbleMinimumSize">10</option>
+                <option name="charting.chart.bubbleSizeBy">area</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+                <option name="charting.chart.stackMode">default</option>
+                <option name="charting.chart.style">shiny</option>
+                <option name="charting.drilldown">none</option>
+                <option name="charting.layout.splitSeries">0</option>
+                <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+                <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+                <option name="charting.legend.mode">standard</option>
+                <option name="charting.legend.placement">right</option>
+                <option name="charting.lineWidth">2</option>
+                <option name="height">450</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="trellis.enabled">0</option>
+                <option name="trellis.scales.shared">1</option>
+                <option name="trellis.size">medium</option>
+            </chart>
+        </panel>
+    </row>
+</form>

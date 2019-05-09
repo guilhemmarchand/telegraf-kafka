@@ -1,0 +1,3 @@
+ [[inputs.jolokia2_agent.metric]]
+   name         = "ksql-server"
+   mbean        = "io.confluent.ksql.metrics:type=*"
