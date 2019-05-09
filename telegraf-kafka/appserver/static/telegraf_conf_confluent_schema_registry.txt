@@ -1,0 +1,12 @@
+[[inputs.jolokia2_agent.metric]]
+  name         = "jetty-metrics"
+  mbean        = "kafka.schema.registry:type=jetty-metrics"
+  paths = ["connections-active", "connections-opened-rate", "connections-closed-rate"]
+
+[[inputs.jolokia2_agent.metric]]
+  name         = "master-slave-role"
+  mbean        = "kafka.schema.registry:type=master-slave-role"
+
+[[inputs.jolokia2_agent.metric]]
+  name         = "jersey-metrics"
+  mbean        = "kafka.schema.registry:type=jersey-metrics"

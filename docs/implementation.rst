@@ -113,6 +113,21 @@ The most scalalable and highly available design in term of where placing the Tel
 
 It is to possible to collect multiple instances of multiple components via a unique Telegraf instance, however there will be a limit where issues can start, and this design will not provide high availability as the failure of this instance will impact the whole metric collection.
 
+Telegraf configuration generator
+================================
+
+**The application provides a builtin user interface you can use to generate a telegraf.conf configuration file based on your parameters and for all the components to be monitored:**
+
+* Menu Settings / Telegraf Configuration Generator
+
+.. image:: img/config-generator1.png
+   :alt: config-generator1.png
+   :align: center
+
+.. image:: img/config-generator2.png
+   :alt: config-generator2.png
+   :align: center
+
 Telegraf output configuration
 =============================
 

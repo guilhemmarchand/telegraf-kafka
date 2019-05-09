@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Configuration helper - generate telegraf sample configuration</title>
+    <link rel="shortcut icon" href="/en-US/static/@0526E178FF9C8A8F60330BDB6138287129B2FB3B756AECD08677733984FE8C32.386/img/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="{{SPLUNKWEB_URL_PREFIX}}/static/build/css/bootstrap-enterprise.css" />
+    <link rel="stylesheet" type="text/css" href="{{SPLUNKWEB_URL_PREFIX}}/static/build/css/splunkjs-dashboard.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="{{SPLUNKWEB_URL_PREFIX}}/static/app/telegraf-kafka/common.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="{{SPLUNKWEB_URL_PREFIX}}/static/app/telegraf-kafka/boottsrap-btn.css" />
+
+
+    <meta name="referrer" content="never" />
+    <meta name="referrer" content="no-referrer" />
+
+    <script>
+                window._splunk_metrics_events = {
+                   push : function() {},
+                   active: false,
+                   }
+          </script>
+
+    <style>
+                 .large-input-text {
+                   min-width: 500px !important;
+                 }
+
+                .modal {
+                  display: none;
+                }
+
+                .modal-big {
+                  height: 600px;
+                  max-height: 400%;
+                  width: 60%;
+                  margin-left: -30%;
+                }
+
+                .modal-guts {
+
+                  /* other stuff we already covered */
+
+                  /* cover the modal */
+                  position: absolute;
+
+                  width: 75%;
+                  min-height: 400px;
+                  height: 100%;
+
+                  /* spacing as needed */
+                  padding: 20px 50px 20px 20px;
+
+                  /* let it scroll */
+                  overflow: auto;
+
+                }
+          </style>
+
+</head>
+<body class="simplexml preload locale-en" data-splunk-version="7.2.6" data-splunk-product="splunk">
+<!--
+BEGIN LAYOUT
+This section contains the layout for the dashboard. Splunk uses proprietary
+styles in <div> tags, similar to Bootstrap's grid system.
+-->
+<header>
+    <a aria-label="Screen reader users, click here to skip the navigation bar" class="navSkip" href="#navSkip" tabIndex="1">Skip Navigation &gt;</a>
+    <div class="header splunk-header">
+        <div id="placeholder-splunk-bar">
+            <a href="{{SPLUNKWEB_URL_PREFIX}}/app/launcher/home" class="brand" title="splunk &gt; listen to your data">splunk<strong>&gt;</strong></a>
+        </div>
+        <div id="placeholder-app-bar"></div>
+    </div>
+    <a id="navSkip"></a>
+</header>
+<div class="dashboard-body container-fluid main-section-body" data-role="main">
+    <div class="dashboard-header clearfix">
+        <h2>Configuration helper - generate telegraf sample configuration</h2>
+        <p class="description">Use this configuration helper to create your Telegraf configuration file</p>
+    </div>
+
+    <!-- Modal Windows -->
+
+    <!-- config helper -->
+    <div class="modal fade modal-big" id="modal_config_helper" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&amp;times;</button>
+                    <h3 style="color: #4682B4;"><span class="glyphicon glyphicon-lock"></span>Telegraf config helper</h3>
+                </div>
+                <div class="modal-body">
+                    <p><b>Generated telegraf.conf:</b><br />
+                        <i>Use the following content as the definition for your telegraf.conf to monitor and collect the metrics of the component.</i>
+                        <br />
+                    </p>
+
+                    <div class="modal-sent-payload">
+
+                      <pre class="modal-guts" style="margin: 10px 0; padding: 10px; border-radius: 3px 3px 3px 3px; color: #059; background-color: #BEF;">message config sample</pre>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <a id="btn_download_config" style="margin-right: 10px;" class="btn btn-primary" href="" download="telegraf.conf" role="button">Download configuration</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- env is undefined -->
+    <div class="modal fade" id="modal_env_undefined" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 style="color: indianred;"><span class="glyphicon glyphicon-lock"></span>Oops!</h3>
+                </div>
+                <div class="modal-body">
+                    <p><b>Sorry but you didn't set a value for the Telegraf env tag.</b>
+                        <br /><br />
+                        Use the form provided to paste the value of the env tag for Telegraf.<br /><br />
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- label is undefined -->
+    <div class="modal fade" id="modal_label_undefined" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 style="color: indianred;"><span class="glyphicon glyphicon-lock"></span>Oops!</h3>
+                </div>
+                <div class="modal-body">
+                    <p><b>Sorry but you didn't set a value for the Telegraf label tag.</b>
+                        <br /><br />
+                        Use the form provided to paste the value of the label tag for Telegraf.<br /><br />
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEC url is undefined -->
+    <div class="modal fade" id="modal_hec_url_undefined" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 style="color: indianred;"><span class="glyphicon glyphicon-lock"></span>Oops!</h3>
+                </div>
+                <div class="modal-body">
+                    <p><b>Sorry but you didn't set a value for the Splunk HEC URL.</b>
+                        <br /><br />
+                        Use the form provided to paste the value of your HTTP Event Collector endpoint URL (Fully Qualified Domain Name or IP address).<br /><br />
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEC token is undefined -->
+    <div class="modal fade" id="modal_hec_token_undefined" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 style="color: indianred;"><span class="glyphicon glyphicon-lock"></span>Oops!</h3>
+                </div>
+                <div class="modal-body">
+                    <p><b>Sorry but you didn't set a value for the Splunk HEC token.</b>
+                        <br /><br />
+                        Use the form provided to paste the value of your HTTP Event Collector token.<br /><br />
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Component is undefined -->
+    <div class="modal fade" id="modal_component_undefined" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 style="color: indianred;"><span class="glyphicon glyphicon-lock"></span>Oops!</h3>
+                </div>
+                <div class="modal-body">
+                    <p><b>Sorry but you didn't select a Kafka component as the target of the configuration generator.</b>
+                        <br /><br />
+                        Use the form provided to select which type of component you want to generate a configuration for.<br /><br />
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- remote host is undefined -->
+    <div class="modal fade" id="modal_remote_host_undefined" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 style="color: indianred;"><span class="glyphicon glyphicon-lock"></span>Oops!</h3>
+                </div>
+                <div class="modal-body">
+                    <p><b>Sorry but you have selected the target to be a remote host without entering a value for it.</b>
+                        <br /><br />
+                        Use the form provided to enter the value of the remote host, as an host name, FQDN or IP address.<br /><br />
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- port_number is undefined -->
+    <div class="modal fade" id="modal_port_number_undefined" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 style="color: indianred;"><span class="glyphicon glyphicon-lock"></span>Oops!</h3>
+                </div>
+                <div class="modal-body">
+                    <p><b>Sorry but the port number is invalid or empty.</b>
+                        <br /><br />
+                        Use the form provided to enter the value of the port number, the default port number is automatically defined when selecting a component.<br /><br />
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="row_logo" class="dashboard-row dashboard-logo" data-original-id="row_tags">
+        <div id="panel_logo" class="dashboard-cell" style="width: 50%;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title"></h2>
+                <div class="fieldset">
+                    <div style="text-align: center;">
+                        <img src="../../static/app/telegraf-kafka/pics/telegraf.png" alt="telegraf.png">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="row_tags" class="dashboard-row dashboard-row1" data-original-id="row_tags">
+        <div id="panel1" class="dashboard-cell" style="width: 50%;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Define the value of the env tag: (used as the main identifier for a given environment)</h2>
+                <div class="fieldset">
+                    <div class="input input-text" id="telegraf_env_tag_form">
+                        <label>&nbsp;</label>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div id="panel2" class="dashboard-cell" style="width: 50%;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Define the value of the label tag: (additional environment informational selector)</h2>
+                <div class="fieldset">
+                    <div class="input input-text" id="telegraf_label_tag_form">
+                        <label>&nbsp;</label>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div id="row_hec" class="dashboard-row dashboard-row2" data-original-id="row_hec">
+        <div id="panel3" class="dashboard-cell" style="width: 50%;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Enter the Splunk HEC URL in the form: https://&lt;address of your HEC endpoint&gt;:&lt;port&gt;/services/collector</h2>
+                <div class="fieldset">
+                    <div class="input input-text large-input-text" id="splunk_hec_url_form">
+                        <label>&nbsp;</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="panel4" class="dashboard-cell" style="width: 50%;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Enter the Splunk HEC token</h2>
+                <div class="fieldset">
+                    <div class="input input-text large-input-text" id="splunk_hec_token_form">
+                        <label>&nbsp;</label>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="row_remote_host" class="dashboard-row dashboard-row_remote_host" data-original-id="row_remote_host" data-depends="$host_is_remote$">
+        <div id="panel_remote_host" class="dashboard-cell" style="width: 50%;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Enter the value of the hostname:</h2>
+                <div class="fieldset">
+                    <div class="input input-text" id="remote_host_form">
+                        <label>Host:</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="row_component" class="dashboard-row dashboard-row3" data-original-id="row_component">
+        <div id="panel5" class="dashboard-cell" style="width: 50%;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Select the component you want the configuration for:</h2>
+                <div class="fieldset">
+                    <div class="input input-dropdown" id="component_form">
+                        <label>Component:</label>
+                    </div>
+                    <div class="input input-dropdown" id="host_location_form">
+                        <label>Running on:</label>
+                    </div>
+                    <div class="input input-text" id="port_number_form">
+                        <label>Port number:</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="panel6" class="dashboard-cell" style="width: 50%;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Main Telegraf options:</h2>
+                <div class="fieldset">
+                    <div class="input input-dropdown" id="telegraf_interval_form">
+                        <label>Interval:</label>
+                    </div>
+                    <div class="input input-dropdown" id="telegraf_os_metrics_form">
+                        <label>Linux OS metrics:</label>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div id="row1" class="dashboard-row dashboard-row4">
+        <div id="panel7" class="dashboard-cell" style="width: 100%;">
+            <div class="dashboard-panel clearfix">
+
+                <div class="panel-element-row">
+                    <div id="element2" class="dashboard-element html" style="width: 100%">
+                        <div class="panel-body html">
+                            <button id="btn_gen_config" class="btn btn-default btn-primary"><span class="glyphicon glyphicon-remove"/> Generate sample configuration</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--
+END LAYOUT
+-->
+
+<script src="{{SPLUNKWEB_URL_PREFIX}}/config?autoload=1" crossorigin="use-credentials"></script>
+<script src="{{SPLUNKWEB_URL_PREFIX}}/static/js/i18n.js"></script>
+<script src="{{SPLUNKWEB_URL_PREFIX}}/i18ncatalog?autoload=1"></script>
+<script src="{{SPLUNKWEB_URL_PREFIX}}/static/build/simplexml/index.js"></script>
+<script type="text/javascript">
+// <![CDATA[
+// <![CDATA[
+//
+// LIBRARY REQUIREMENTS
+//
+// In the require function, we include the necessary libraries and modules for
+// the HTML dashboard. Then, we pass variable names for these libraries and
+// modules as function parameters, in order.
+//
+// When you add libraries or modules, remember to retain this mapping order
+// between the library or module and its function parameter. You can do this by
+// adding to the end of these lists, as shown in the commented examples below.
+
+require([
+    "splunkjs/mvc",
+    "splunkjs/mvc/utils",
+    "splunkjs/mvc/tokenutils",
+    "underscore",
+    "jquery",
+    "splunkjs/mvc/simplexml",
+    "splunkjs/mvc/layoutview",
+    "splunkjs/mvc/simplexml/dashboardview",
+    "splunkjs/mvc/simplexml/dashboard/panelref",
+    "splunkjs/mvc/simplexml/element/chart",
+    "splunkjs/mvc/simplexml/element/event",
+    "splunkjs/mvc/simplexml/element/html",
+    "splunkjs/mvc/simplexml/element/list",
+    "splunkjs/mvc/simplexml/element/map",
+    "splunkjs/mvc/simplexml/element/single",
+    "splunkjs/mvc/simplexml/element/table",
+    "splunkjs/mvc/simplexml/element/visualization",
+    "splunkjs/mvc/simpleform/formutils",
+    "splunkjs/mvc/simplexml/eventhandler",
+    "splunkjs/mvc/simplexml/searcheventhandler",
+    "splunkjs/mvc/simpleform/input/dropdown",
+    "splunkjs/mvc/simpleform/input/radiogroup",
+    "splunkjs/mvc/simpleform/input/linklist",
+    "splunkjs/mvc/simpleform/input/multiselect",
+    "splunkjs/mvc/simpleform/input/checkboxgroup",
+    "splunkjs/mvc/simpleform/input/text",
+    "splunkjs/mvc/simpleform/input/timerange",
+    "splunkjs/mvc/simpleform/input/submit",
+    "splunkjs/mvc/searchmanager",
+    "splunkjs/mvc/savedsearchmanager",
+    "splunkjs/mvc/postprocessmanager",
+    "splunkjs/mvc/simplexml/urltokenmodel"
+    // Add comma-separated libraries and modules manually here, for example:
+    // ..."splunkjs/mvc/simplexml/urltokenmodel",
+    // "splunkjs/mvc/tokenforwarder"
+    ],
+    function(
+        mvc,
+        utils,
+        TokenUtils,
+        _,
+        $,
+        DashboardController,
+        LayoutView,
+        Dashboard,
+        PanelRef,
+        ChartElement,
+        EventElement,
+        HtmlElement,
+        ListElement,
+        MapElement,
+        SingleElement,
+        TableElement,
+        VisualizationElement,
+        FormUtils,
+        EventHandler,
+        SearchEventHandler,
+        DropdownInput,
+        RadioGroupInput,
+        LinkListInput,
+        MultiSelectInput,
+        CheckboxGroupInput,
+        TextInput,
+        TimeRangeInput,
+        SubmitButton,
+        SearchManager,
+        SavedSearchManager,
+        PostProcessManager,
+        UrlTokenModel
+
+        // Add comma-separated parameter names here, for example:
+        // ...UrlTokenModel,
+        // TokenForwarder
+        ) {
+
+        var pageLoading = true;
+
+        //
+        // FUNCTIONS
+        //
+
+        // Returns true if numeric
+        function isNumeric(n) {
+            return !isNaN(parseFloat(n)) && isFinite(n) && n > 0;
+        }
+
+        //
+        // TOKENS
+        //
+
+        // Create token namespaces
+        var urlTokenModel = new UrlTokenModel();
+        mvc.Components.registerInstance('url', urlTokenModel);
+        var defaultTokenModel = mvc.Components.getInstance('default', {create: true});
+        var submittedTokenModel = mvc.Components.getInstance('submitted', {create: true});
+
+        urlTokenModel.on('url:navigate', function() {
+            defaultTokenModel.set(urlTokenModel.toJSON());
+            if (!_.isEmpty(urlTokenModel.toJSON()) && !_.all(urlTokenModel.toJSON(), _.isUndefined)) {
+                submitTokens();
+            } else {
+                submittedTokenModel.clear();
+            }
+        });
+
+        // Initialize tokens
+        defaultTokenModel.set(urlTokenModel.toJSON());
+
+        function submitTokens() {
+            // Copy the contents of the defaultTokenModel to the submittedTokenModel and urlTokenModel
+            FormUtils.submitForm({ replaceState: pageLoading });
+        }
+
+        function setToken(name, value) {
+            defaultTokenModel.set(name, value);
+            submittedTokenModel.set(name, value);
+        }
+
+        function unsetToken(name) {
+            defaultTokenModel.unset(name);
+            submittedTokenModel.unset(name);
+        }
+
+
+
+        //
+        // SEARCH MANAGERS
+        //
+
+
+
+        //
+        // SPLUNK LAYOUT
+        //
+
+        $('header').remove();
+        new LayoutView({"hideAppBar": false, "hideChrome": false, "hideSplunkBar": false})
+            .render()
+            .getContainerElement()
+            .appendChild($('.dashboard-body')[0]);
+
+        //
+        // DASHBOARD EDITOR
+        //
+
+        new Dashboard({
+            id: 'dashboard',
+            el: $('.dashboard-body'),
+            showTitle: true,
+            editable: false
+        }, {tokens: true}).render();
+
+
+        //
+        // VIEWS: VISUALIZATION ELEMENTS
+        //
+
+        var element1 = new HtmlElement({
+            "id": "element1",
+            "useTokens": true,
+            "el": $('#element1')
+        }, {tokens: true, tokenNamespace: "submitted"}).render();
+
+        DashboardController.addReadyDep(element1.contentLoaded());
+
+        var element2 = new HtmlElement({
+            "id": "element2",
+            "useTokens": true,
+            "el": $('#element2')
+        }, {tokens: true, tokenNamespace: "submitted"}).render();
+
+        DashboardController.addReadyDep(element2.contentLoaded());
+
+
+        //
+        // VIEWS: FORM INPUTS
+        //
+
+        var telegraf_env_tag_form = new TextInput({
+            "id": "telegraf_env_tag_form",
+            "initialValue": "my_env",
+            "searchWhenChanged": true,
+            "value": "$telegraf_env$",
+            "el": $('#telegraf_env_tag_form')
+        }, {tokens: true}).render();
+
+        telegraf_env_tag_form.on("change", function(newValue) {
+            FormUtils.handleValueChange(telegraf_env_tag_form);
+        });
+
+        var telegraf_label_tag_form = new TextInput({
+            "id": "telegraf_label_tag_form",
+            "initialValue": "my_label",
+            "searchWhenChanged": true,
+            "value": "$telegraf_label$",
+            "el": $('#telegraf_label_tag_form')
+        }, {tokens: true}).render();
+
+        telegraf_label_tag_form.on("change", function(newValue) {
+            FormUtils.handleValueChange(telegraf_label_tag_form);
+        });
+
+        var splunk_hec_url_form = new TextInput({
+            "id": "splunk_hec_url_form",
+            "initialValue": "https://hec.mydomain.com:8088/services/collector",
+            "searchWhenChanged": true,
+            "value": "$splunk_hec_url_tk$",
+            "el": $('#splunk_hec_url_form')
+        }, {tokens: true}).render();
+
+        splunk_hec_url_form.on("change", function(newValue) {
+            FormUtils.handleValueChange(splunk_hec_url_form);
+        });
+
+        var splunk_hec_token_form = new TextInput({
+            "id": "splunk_hec_token_form",
+            "initialValue": "",
+            "searchWhenChanged": true,
+            "value": "$splunk_hec_token_tk$",
+            "el": $('#splunk_hec_token_form')
+        }, {tokens: true}).render();
+
+        splunk_hec_token_form.on("change", function(newValue) {
+            FormUtils.handleValueChange(splunk_hec_token_form);
+        });
+
+        var component_form = new DropdownInput({
+            "id": "component_form",
+            "choices": [
+                {"value": "zookeeper", "label": "Zookeeper node"},
+                {"value": "kafka_broker", "label": "Kafka Broker"},
+                {"value": "kafka_connect", "label": "Kafka Connect"},
+                {"value": "confluent_ksql", "label": "Confluent KSQL"},
+                {"value": "confluent_kafka_rest", "label": "Confluent Kafka REST"},
+                {"value": "confluent_schema_registry", "label": "Confluent Schema registry"},
+                {"value": "kafka_monitor", "label": "LinkedIn Kafka Monitor"},
+                {"value": "kafka_burrow", "label": "LinkedIn Kafka Burrow"}
+            ],
+            "selectFirstChoice": false,
+            "searchWhenChanged": true,
+            "showClearButton": true,
+            "value": "$component_tk$",
+            "el": $('#component_form')
+        }, {tokens: true}).render();
+
+        component_form.on("change", function(newValue) {
+            FormUtils.handleValueChange(component_form);
+        });
+
+        component_form.on("valueChange", function(e) {
+            if (e.value === "zookeeper") {
+                EventHandler.setToken("port_number", "2181", {}, e.data);
+            } else if (e.value === "kafka_broker") {
+                EventHandler.setToken("port_number", "8778", {}, e.data);
+            } else if (e.value === "kafka_connect") {
+                EventHandler.setToken("port_number", "8778", {}, e.data);
+            } else if (e.value === "confluent_ksql") {
+                EventHandler.setToken("port_number", "8778", {}, e.data);
+            } else if (e.value === "confluent_kafka_rest") {
+                EventHandler.setToken("port_number", "8778", {}, e.data);
+            } else if (e.value === "confluent_schema_registry") {
+                EventHandler.setToken("port_number", "8778", {}, e.data);
+            } else if (e.value === "kafka_monitor") {
+                EventHandler.setToken("port_number", "8778", {}, e.data);
+            } else if (e.value === "kafka_burrow") {
+                EventHandler.setToken("port_number", "8000", {}, e.data);
+            } else {
+                EventHandler.unsetToken("port_number");
+            }
+        });
+
+        var host_location_form = new DropdownInput({
+            "id": "host_location_form",
+            "choices": [
+                {"value": "localhost", "label": "localhost"},
+                {"value": "remotehost", "label": "remote host"}
+            ],
+            "selectFirstChoice": false,
+            "initialValue": "localhost",
+            "default": "localhost",
+            "searchWhenChanged": true,
+            "showClearButton": true,
+            "value": "$hostname$",
+            "el": $('#host_location_form')
+        }, {tokens: true}).render();
+
+        host_location_form.on("change", function(newValue) {
+            FormUtils.handleValueChange(host_location_form);
+        });
+
+        host_location_form.on("valueChange", function(e) {
+            if (e.value === "remotehost") {
+                EventHandler.setToken("host_is_remote", "true", {}, e.data);
+                console.log("Host is remote");
+            } else if (e.value === "localhost") {
+                EventHandler.unsetToken("host_is_remote");
+                console.log("Host is not remote");
+            }
+        });
+
+        var remote_host_form = new TextInput({
+            "id": "remote_host_form",
+            "tokenDependencies": {"depends": "$host_is_remote$"},
+            "searchWhenChanged": true,
+            "value": "$remote_host$",
+            "el": $('#remote_host_form')
+        }, {tokens: true}).render();
+
+        remote_host_form.on("change", function(newValue) {
+            FormUtils.handleValueChange(remote_host_form);
+        });
+
+        var port_number_form = new TextInput({
+            "id": "port_number_form",
+            "searchWhenChanged": true,
+            "value": "$port_number$",
+            "el": $('#port_number_form')
+        }, {tokens: true}).render();
+
+        port_number_form.on("change", function(newValue) {
+            FormUtils.handleValueChange(port_number_form);
+        });
+
+        var telegraf_interval_form = new DropdownInput({
+            "id": "telegraf_interval_form",
+            "choices": [
+                {"value": "10s", "label": "10s"},
+                {"value": "30s", "label": "30s"},
+                {"value": "60s", "label": "60s"}
+            ],
+            "selectFirstChoice": false,
+            "initialValue": "10s",
+            "default": "10s",
+            "searchWhenChanged": true,
+            "showClearButton": true,
+            "value": "$interval_tk$",
+            "el": $('#telegraf_interval_form')
+        }, {tokens: true}).render();
+
+        telegraf_interval_form.on("change", function(newValue) {
+            FormUtils.handleValueChange(telegraf_interval_form);
+        });
+
+        var telegraf_os_metrics_form = new DropdownInput({
+            "id": "telegraf_os_metrics_form",
+            "choices": [
+                {"value": "yes", "label": "Yes"},
+                {"value": "No", "label": "No"}
+            ],
+            "selectFirstChoice": false,
+            "initialValue": "yes",
+            "default": "yes",
+            "searchWhenChanged": true,
+            "showClearButton": true,
+            "value": "$telegraf_os_metrics_tk$",
+            "el": $('#telegraf_os_metrics_form')
+        }, {tokens: true}).render();
+
+        telegraf_os_metrics_form.on("change", function(newValue) {
+            FormUtils.handleValueChange(telegraf_os_metrics_form);
+        });
+
+        DashboardController.onReady(function() {
+            if (!submittedTokenModel.has('earliest') && !submittedTokenModel.has('latest')) {
+                submittedTokenModel.set({ earliest: '0', latest: '' });
+            }
+        });
+
+        // Initialize time tokens to default
+        if (!defaultTokenModel.has('earliest') && !defaultTokenModel.has('latest')) {
+            defaultTokenModel.set({ earliest: '0', latest: '' });
+        }
+
+        submitTokens();
+
+
+        //
+        // DASHBOARD READY
+        //
+
+        DashboardController.ready();
+        pageLoading = false;
+
+        //
+        // CONFIG HELPER
+        //
+
+        $("#btn_gen_config").click(function(mode) {
+
+            submitTokens();
+
+            // When the Submit button is clicked, get all the form fields by accessing token values
+            var tokens = mvc.Components.get("default");
+
+            // telegraf configuration var
+            telegraf_config = undefined;
+            delete(telegraf_config);
+            var telegraf_config;
+
+            // data and url
+            download_data = undefined;
+            delete(download_data);
+            download_url = undefined;
+            delete(download_url);
+            var download_data;
+            var download_url;
+
+            // data
+            data = undefined;
+            delete(data);
+            var data;
+
+            // Retrieve tokens
+            var telegraf_env = tokens.get("telegraf_env");
+            var telegraf_label = tokens.get("telegraf_label");
+            var splunk_hec_url_tk = tokens.get("splunk_hec_url_tk");
+            var splunk_hec_token_tk = tokens.get("splunk_hec_token_tk");
+            var component_tk = tokens.get("component_tk");
+            var interval_tk = tokens.get("interval_tk");
+            var telegraf_os_metrics_tk = tokens.get("telegraf_os_metrics_tk");
+
+            var host_target_tk;
+            var host_tk =  tokens.get("hostname");
+            var host_remote_tk = tokens.get("remote_host");
+
+            // Start by checking the component selection
+            if (!component_tk) {
+                $("#modal_component_undefined").modal()
+                return;
+            }
+
+            // If host is a remote host
+            if (host_tk == "remotehost") {
+                host_target_tk = host_remote_tk;
+            }
+            else {
+                host_target_tk = "$HOSTNAME";
+            }
+
+            // Port number if mandatory
+            var port_number = tokens.get("port_number");
+            if (!port_number || !isNumeric(port_number)) {
+                $("#modal_port_number_undefined").modal()
+                return;
+            }
+
+            // If remote host, a value is mandatory
+            if (host_tk == "remotehost" && !host_remote_tk) {
+                $("#modal_remote_host_undefined").modal()
+                return;
+            }
+
+            if (!telegraf_env) {
+                $("#modal_env_undefined").modal()
+            }
+
+            else if (!telegraf_label) {
+                $("#modal_label_undefined").modal()
+            }
+
+            else if (!splunk_hec_url_tk) {
+                $("#modal_hec_url_undefined").modal()
+            }
+
+            else if (!splunk_hec_token_tk) {
+                $("#modal_hec_token_undefined").modal()
+            }
+
+            else if (!component_tk) {
+                $("#modal_component_undefined").modal()
+            }
+
+            else {
+
+                // Build and generate the telegraf.conf configuration file based on the user entries
+                var telegraf_config = "[global_tags]";
+
+                // Add the env tag
+                telegraf_config = telegraf_config + "\n" + "  # the env tag is used by the application for multi-environments management" + "\n" + "  env = \"" + telegraf_env + "\"";
+
+                // Add the label tag
+                telegraf_config = telegraf_config + "\n" + "  # the label tag is an additional tag used by the application to identify an environment" + "\n" + "  label = \"" + telegraf_label + "\"";
+
+                // Add the agent section
+                telegraf_config = telegraf_config + "\n\n" + "[agent]" + "\n  interval = \"" + interval_tk + "\"" + "\n  flush_interval = \"" + interval_tk + "\n  hostname = \"$HOSTNAME\"";
+
+                // Add the Splunk HEC output section
+                telegraf_config = telegraf_config + "\n\n" + "# outputs" + "\n" + "[[outputs.http]]" + "\n" + "  url = \"" + splunk_hec_url_tk + "\"";
+
+                // Add the Splunk HEC middle section
+                telegraf_config = telegraf_config + "\n" + "  insecure_skip_verify = true" + "\n" + "  data_format = \"splunkmetric\"" + "\n" + "  ## Provides time, index, source overrides for the HEC" + "\n" + "  splunkmetric_hec_routing = true";
+
+                // Add the Splunk HEC header section
+                telegraf_config = telegraf_config + "\n" + "  ## Additional HTTP headers" + "\n" + "    [outputs.http.headers]" + "\n" + "    # Should be set manually to \"application/json\" for json data_format" + "\n" + "    Content-Type = \"application/json\""
+
+                // Add the Splunk HEC token section
+                telegraf_config = telegraf_config + "\n" + "    Authorization = \"Splunk " + splunk_hec_token_tk + "\""
+                telegraf_config = telegraf_config + "\n" + "    X-Splunk-Request-Channel = \"" + splunk_hec_token_tk + "\"" + "\n\n"
+
+                // telegraf_config is ready for component addition
+
+                if (component_tk == "zookeeper") {
+                    telegraf_config = telegraf_config + "# zookeeper metrics" + "\n" + "[[inputs.zookeeper]]" + "\n" + "  servers = [\"" + host_target_tk + ":" + port_number + "\"]" + "\n";
+
+                    if (telegraf_os_metrics_tk == "yes") {
+                        jQuery.get('../../static/app/telegraf-kafka/telegraf_conf_linux.txt', function(data) {
+                            telegraf_config = telegraf_config + "\n" + data
+                            $("#modal_config_helper").find('.modal-sent-payload pre').text(telegraf_config);
+
+                            var download_data = new Blob([telegraf_config], {type: 'application/octet-stream'});
+                            var download_url = window.URL.createObjectURL(download_data);
+                            document.getElementById('btn_download_config').href = download_url;
+
+                        });
+                    }
+
+                    else {
+                            var download_data = new Blob([telegraf_config], {type: 'application/octet-stream'});
+                            var download_url = window.URL.createObjectURL(download_data);
+                            document.getElementById('btn_download_config').href = download_url;
+                    }
+
+                    $("#modal_config_helper").find('.modal-sent-payload pre').text(telegraf_config);
+                }
+
+                else if (component_tk == "kafka_broker") {
+                    telegraf_config = telegraf_config + "# Kafka brokers monitoring" + "\n" + "[[inputs.jolokia2_agent]]" + "\n" + "  name_prefix = \"kafka_\""  + "\n" + "  urls = [\"http://" + host_target_tk + ":" + port_number + "/jolokia\"]" + "\n\n";
+                    jQuery.get('../../static/app/telegraf-kafka/telegraf_conf_kafka_broker.txt', function(data) {
+                        telegraf_config = telegraf_config + data
+
+                        if (telegraf_os_metrics_tk == "yes") {
+                            jQuery.get('../../static/app/telegraf-kafka/telegraf_conf_linux.txt', function(data) {
+                                telegraf_config = telegraf_config + "\n" + data
+                                $("#modal_config_helper").find('.modal-sent-payload pre').text(telegraf_config);
+
+                                var download_data = new Blob([telegraf_config], {type: 'application/octet-stream'});
+                                var download_url = window.URL.createObjectURL(download_data);
+                                document.getElementById('btn_download_config').href = download_url;
+
+                            });
+                        }
+
+                        else {
+                                var download_data = new Blob([telegraf_config], {type: 'application/octet-stream'});
+                                var download_url = window.URL.createObjectURL(download_data);
+                                document.getElementById('btn_download_config').href = download_url;
+                        }
+
+                        $("#modal_config_helper").find('.modal-sent-payload pre').text(telegraf_config);
+
+                    });
+                }
+
+                else if (component_tk == "kafka_connect") {
+                    telegraf_config = telegraf_config + "# Kafka Connect" + "\n" + "[[inputs.jolokia2_agent]]" + "\n" + "  name_prefix = \"kafka_connect\""  + "\n" + "  urls = [\"http://" + host_target_tk + ":" + port_number + "/jolokia\"]" + "\n\n";
+                    jQuery.get('../../static/app/telegraf-kafka/telegraf_conf_kafka_connect.txt', function(data) {
+                        telegraf_config = telegraf_config + data
+
+                        if (telegraf_os_metrics_tk == "yes") {
+                            jQuery.get('../../static/app/telegraf-kafka/telegraf_conf_linux.txt', function(data) {
+                                telegraf_config = telegraf_config + "\n" + data
+                                $("#modal_config_helper").find('.modal-sent-payload pre').text(telegraf_config);
+
+                                var download_data = new Blob([telegraf_config], {type: 'application/octet-stream'});
+                                var download_url = window.URL.createObjectURL(download_data);
+                                document.getElementById('btn_download_config').href = download_url;
+
+                            });
+                        }
+
+                        else {
+                                var download_data = new Blob([telegraf_config], {type: 'application/octet-stream'});
+                                var download_url = window.URL.createObjectURL(download_data);
+                                document.getElementById('btn_download_config').href = download_url;
+                        }
+
+                        $("#modal_config_helper").find('.modal-sent-payload pre').text(telegraf_config);
+                    });
+                }
+
+                else if (component_tk == "confluent_kafka_rest") {
+                    telegraf_config = telegraf_config + "# Confluent kafka-rest" + "\n" + "[[inputs.jolokia2_agent]]" + "\n" + "  name_prefix = \"kafka_kafka-rest.\""  + "\n" + "  urls = [\"http://" + host_target_tk + ":" + port_number + "/jolokia\"]" + "\n\n";
+                    jQuery.get('../../static/app/telegraf-kafka/telegraf_conf_confluent_kafka_rest.txt', function(data) {
+                        telegraf_config = telegraf_config + data
+
+                        if (telegraf_os_metrics_tk == "yes") {
+                            jQuery.get('../../static/app/telegraf-kafka/telegraf_conf_linux.txt', function(data) {
+                                telegraf_config = telegraf_config + "\n" + data
+                                $("#modal_config_helper").find('.modal-sent-payload pre').text(telegraf_config);
+
+                                var download_data = new Blob([telegraf_config], {type: 'application/octet-stream'});
+                                var download_url = window.URL.createObjectURL(download_data);
+                                document.getElementById('btn_download_config').href = download_url;
+
+                            });
+                        }
+
+                        else {
+                                var download_data = new Blob([telegraf_config], {type: 'application/octet-stream'});
+                                var download_url = window.URL.createObjectURL(download_data);
+                                document.getElementById('btn_download_config').href = download_url;
+                        }
+
+                        $("#modal_config_helper").find('.modal-sent-payload pre').text(telegraf_config);
+                    });
+                }
+
+                else if (component_tk == "confluent_ksql") {
+                    telegraf_config = telegraf_config + "# Confluent ksql-server" + "\n" + "[[inputs.jolokia2_agent]]" + "\n" + "  name_prefix = \"kafka_\""  + "\n" + "  urls = [\"http://" + host_target_tk + ":" + port_number + "/jolokia\"]" + "\n\n";
+                    jQuery.get('../../static/app/telegraf-kafka/telegraf_conf_confluent_ksql.txt', function(data) {
+                        telegraf_config = telegraf_config + data
+
+                        if (telegraf_os_metrics_tk == "yes") {
+                            jQuery.get('../../static/app/telegraf-kafka/telegraf_conf_linux.txt', function(data) {
+                                telegraf_config = telegraf_config + "\n" + data
+                                $("#modal_config_helper").find('.modal-sent-payload pre').text(telegraf_config);
+
+                                var download_data = new Blob([telegraf_config], {type: 'application/octet-stream'});
+                                var download_url = window.URL.createObjectURL(download_data);
+                                document.getElementById('btn_download_config').href = download_url;
+
+                            });
+                        }
+
+                        else {
+                                var download_data = new Blob([telegraf_config], {type: 'application/octet-stream'});
+                                var download_url = window.URL.createObjectURL(download_data);
+                                document.getElementById('btn_download_config').href = download_url;
+                        }
+
+                        $("#modal_config_helper").find('.modal-sent-payload pre').text(telegraf_config);
+                    });
+                }
+
+                else if (component_tk == "confluent_schema_registry") {
+                    telegraf_config = telegraf_config + "# Confluent schema-registry" + "\n" + "[[inputs.jolokia2_agent]]" + "\n" + "  name_prefix = \"kafka_schema-registry.\""  + "\n" + "  urls = [\"http://" + host_target_tk + ":" + port_number + "/jolokia\"]" + "\n\n";
+                    jQuery.get('../../static/app/telegraf-kafka/telegraf_conf_confluent_schema_registry.txt', function(data) {
+                        telegraf_config = telegraf_config + data
+
+                        if (telegraf_os_metrics_tk == "yes") {
+                            jQuery.get('../../static/app/telegraf-kafka/telegraf_conf_linux.txt', function(data) {
+                                telegraf_config = telegraf_config + "\n" + data
+                                $("#modal_config_helper").find('.modal-sent-payload pre').text(telegraf_config);
+
+                                var download_data = new Blob([telegraf_config], {type: 'application/octet-stream'});
+                                var download_url = window.URL.createObjectURL(download_data);
+                                document.getElementById('btn_download_config').href = download_url;
+
+                            });
+                        }
+
+                        else {
+                                var download_data = new Blob([telegraf_config], {type: 'application/octet-stream'});
+                                var download_url = window.URL.createObjectURL(download_data);
+                                document.getElementById('btn_download_config').href = download_url;
+                        }
+
+                        $("#modal_config_helper").find('.modal-sent-payload pre').text(telegraf_config);
+                    });
+                }
+
+                else if (component_tk == "kafka_monitor") {
+                    telegraf_config = telegraf_config + "# LinkedIn kafka-monitor" + "\n" + "[[inputs.jolokia2_agent]]" + "\n" + "  name_prefix = \"kafka_\""  + "\n" + "  urls = [\"http://" + host_target_tk + ":" + port_number + "/jolokia\"]" + "\n\n";
+                    jQuery.get('../../static/app/telegraf-kafka/telegraf_conf_kafka_monitor.txt', function(data) {
+                        telegraf_config = telegraf_config + data
+
+                        if (telegraf_os_metrics_tk == "yes") {
+                            jQuery.get('../../static/app/telegraf-kafka/telegraf_conf_linux.txt', function(data) {
+                                telegraf_config = telegraf_config + "\n" + data
+                                $("#modal_config_helper").find('.modal-sent-payload pre').text(telegraf_config);
+
+                                var download_data = new Blob([telegraf_config], {type: 'application/octet-stream'});
+                                var download_url = window.URL.createObjectURL(download_data);
+                                document.getElementById('btn_download_config').href = download_url;
+
+                            });
+                        }
+
+                        else {
+                                var download_data = new Blob([telegraf_config], {type: 'application/octet-stream'});
+                                var download_url = window.URL.createObjectURL(download_data);
+                                document.getElementById('btn_download_config').href = download_url;
+                        }
+
+                        $("#modal_config_helper").find('.modal-sent-payload pre').text(telegraf_config);
+                    });
+                }
+
+                else if (component_tk == "kafka_burrow") {
+                    telegraf_config = telegraf_config + "# Burrow" + "\n" + "[[inputs.burrow]]" + "\n" + "  ## Burrow API endpoints in format \"schema://host:port\"." + "\n" + "  ## Default is \"http://localhost:8000\"." + "\n" + "  servers = [\"http://" + host_target_tk + ":" + port_number + "\"]" + "\n\n";
+                    jQuery.get('../../static/app/telegraf-kafka/telegraf_conf_kafka_burrow.txt', function(data) {
+                        telegraf_config = telegraf_config + data
+
+                        if (telegraf_os_metrics_tk == "yes") {
+                            jQuery.get('../../static/app/telegraf-kafka/telegraf_conf_linux.txt', function(data) {
+                                telegraf_config = telegraf_config + "\n" + data
+                                $("#modal_config_helper").find('.modal-sent-payload pre').text(telegraf_config);
+
+                                var download_data = new Blob([telegraf_config], {type: 'application/octet-stream'});
+                                var download_url = window.URL.createObjectURL(download_data);
+                                document.getElementById('btn_download_config').href = download_url;
+
+                            });
+                        }
+
+                        else {
+                                var download_data = new Blob([telegraf_config], {type: 'application/octet-stream'});
+                                var download_url = window.URL.createObjectURL(download_data);
+                                document.getElementById('btn_download_config').href = download_url;
+                        }
+
+                        $("#modal_config_helper").find('.modal-sent-payload pre').text(telegraf_config);
+                    });
+                }
+
+                // Show main modal
+                $("#modal_config_helper").modal()
+
+            }
+
+        });
+
+
+
+    }
+);
+// ]]>
+</script>
+</body>
+</html>

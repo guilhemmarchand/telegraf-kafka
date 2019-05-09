@@ -118,9 +118,6 @@
         <a href="telegraf-kafka-alerting">Management of Kafka alerting</a>
         <a href="../../alerts/telegraf-kafka">Triggered alerts for Kafka</a>
         <a href="alerts">Alerts configuration</a>
-        <a href="search?q=%7C%20inputlookup%20kafka_infra_inventory%20%7C%20fields%20name%2C%20role%2C%20monitoring_state%2C%20grace_period">Collection kafka_infra_inventory</a>
-        <a href="search?q=%7C%20inputlookup%20kafka_topics_monitoring%20%7C%20fields%20topic%2C%20monitoring_state">Collection kafka_topics_monitoring</a>
-        <a href="search?q=%7C%20inputlookup%20kafka_connect_tasks_monitoring%20%7C%20fields%20connector%2C%20role%2C%20grace_period%2C%20monitoring_state">Collection kafka_connect_tasks_monitoring</a>
     </collection>
 
     <!--
@@ -139,6 +136,17 @@
 
     <!--
     ####################################################################################################################
+    Audit
+    ####################################################################################################################
+    -->
+
+    <collection label="Audit">
+        <a href="audit_scheduling">Audit - Scheduling performance overview</a>
+        <a href="audit_volume">Audit - Volume indexing overview</a>
+    </collection>
+
+    <!--
+    ####################################################################################################################
     Configuration
     ####################################################################################################################
     -->
@@ -146,6 +154,7 @@
     <collection label="Settings">
         <a href="telegraf-kafka-configuration">Management of enabled components</a>
         <a href="telegraf-kafka-alerting">Management of Kafka alerting</a>
+        <a href="telegraf-config-helper">Telegraf Configuration Generator</a>
     </collection>
 
     <!--

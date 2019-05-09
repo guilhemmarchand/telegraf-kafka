@@ -2,6 +2,18 @@ Release notes
 #############
 
 ==============
+Version 1.1.21
+==============
+
+- feature: Introduction of the Telegraf configuration generator, a guided user interface that generates the telegraf.conf configuration files depending on your requirements
+- feature: Adding new Audit menu with builtin Audit dashboard for scheduled performance and daily volume indexing analysis
+- feature: Use bootstrap buttons in Overview rather than custom buttons design
+- feature: Adding active button in Overview to show Kafka Connect tasks in alert (tasks not reporting)
+- feature: Adding drilldown from single in Overview / Kafka Connect health views for failed connectors / failed tasks
+- feature: Store the last operational time of Kafka Connect connectors in the KVstore, update at inventory / alert run time, return when an alert triggers
+- fix: Lag field missing in table from Splunk Connected experience Burrow dashboard due to typo
+
+==============
 Version 1.1.20
 ==============
 

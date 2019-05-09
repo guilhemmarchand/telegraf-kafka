@@ -1,0 +1,27 @@
+  ## Override Burrow API prefix.
+  ## Useful when Burrow is behind reverse-proxy.
+  # api_prefix = "/v3/kafka"
+
+  ## Maximum time to receive response.
+  # response_timeout = "5s"
+
+  ## Limit per-server concurrent connections.
+  ## Useful in case of large number of topics or consumer groups.
+  # concurrent_connections = 20
+
+  ## Filter clusters, default is no filtering.
+  ## Values can be specified as glob patterns.
+  # clusters_include = []
+  # clusters_exclude = []
+
+  ## Filter consumer groups, default is no filtering.
+  ## Values can be specified as glob patterns.
+  # groups_include = []
+  # groups_exclude = []
+
+  ## Filter topics, default is no filtering.
+  ## Values can be specified as glob patterns.
+  # topics_include = []
+  # topics_exclude = []
+
+  # More options see: https://github.com/influxdata/telegraf/tree/master/plugins/inputs/burrow
