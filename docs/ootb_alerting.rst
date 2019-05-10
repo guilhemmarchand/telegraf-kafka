@@ -23,21 +23,21 @@ KVstore collections and lookup definitions
 
 The alerting framework relies on several KVstore collections and associated lookup definitions:
 
-+----------------------------------+--------------------------------------+-----------------------------------+
-| Purpose                          | KVstore collection                   | Lookup definition                 |
-+==================================+======================================+===================================+
-| Monitoring per component entity  | kv_telegraf_kafka_inventory          | kafka_infra_inventory             |
-+----------------------------------+--------------------------------------+-----------------------------------+
-| Monitoring per nodes number      | kv_kafka_infra_nodes_inventory       | kafka_infra_nodes_inventory       |
-+----------------------------------+--------------------------------------+-----------------------------------+
-| Monitoring of Kafka topics       | kv_telegraf_kafka_topics_monitoring  | kafka_topics_monitoring           |
-+----------------------------------+--------------------------------------+-----------------------------------+
-| Monitoring per component entity  | kv_kafka_connect_tasks_monitoring    | kafka_connect_tasks_monitoring    |
-+----------------------------------+--------------------------------------+-----------------------------------+
-| Monitoring per Burrow consumers  | kv_kafka_burrow_consumers_monitoring | kafka_burrow_consumers_monitoring |
-+----------------------------------+--------------------------------------+-----------------------------------+
-| Maintenance mode management      | kv_kafka_alerting_maintenance        | kafka_alerting_maintenance        |
-+----------------------------------+--------------------------------------+-----------------------------------+
++----------------------------------+-----------------------------------------------+-----------------------------------+
+| Purpose                          | KVstore collection                            | Lookup definition                 |
++==================================+===============================================+===================================+
+| Monitoring per component entity  | kv_telegraf_kafka_inventory                   | kafka_infra_inventory             |
++----------------------------------+-----------------------------------------------+-----------------------------------+
+| Monitoring per nodes number      | kv_kafka_infra_nodes_inventory                | kafka_infra_nodes_inventory       |
++----------------------------------+-----------------------------------------------+-----------------------------------+
+| Monitoring of Kafka topics       | kv_telegraf_kafka_topics_monitoring           | kafka_topics_monitoring           |
++----------------------------------+-----------------------------------------------+-----------------------------------+
+| Monitoring per component entity  | kv_telegraf_kafka_connect_tasks_monitoring    | kafka_connect_tasks_monitoring    |
++----------------------------------+-----------------------------------------------+-----------------------------------+
+| Monitoring per Burrow consumers  | kv_kafka_burrow_consumers_monitoring          | kafka_burrow_consumers_monitoring |
++----------------------------------+-----------------------------------------------+-----------------------------------+
+| Maintenance mode management      | kv_telegraf_kafka_alerting_maintenance        | kafka_alerting_maintenance        |
++----------------------------------+-----------------------------------------------+-----------------------------------+
 
 Permissions and authorizations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -442,3 +442,213 @@ Kafka Consumers monitoring with Burrow
 * monitoring_state: A value of "enabled" activates verification, any other value disables it
 
 Notes: Kafka Connect source and sink connectors depending on their type are as well consumers, Burrow will monitor the way the connectors behave by analysing their lagging metrics and type of activity, this is a different, complimentary and advanced type of monitoring than analysing the state of the tasks.
+
+Programmatic access and interactions with external systems
+##########################################################
+
+Requirements and recommendations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Create a Splunk service account user that is member of the builtin **kafka_admin** role
+
+- The builtin **kafka_admin** role provides read and write permission to the different KVstore collections
+
+- Make sure splunkd REST API is reachable from your external tool
+
+References
+^^^^^^^^^^
+
+- http://dev.splunk.com/view/webframework-developapps/SP-CAAAEZG
+
+- https://docs.splunk.com/Documentation/Splunk/latest/RESTREF/RESTprolog
+
+- https://docs.splunk.com/Documentation/Splunk/latest/RESTTUT/RESTandCloud
+
+- https://www.urlencoder.org/ (example online tool to URIencode / decode)
+
+For convenience of the documentation bellow
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+    export username="svc_kafka"
+    export password="my_password"
+    export splunk_url="https://localhost:8089"
+
+Maintenance mode management
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Enabling the maintenance mode
+-----------------------------
+
+Enabling the maintenance mode requires:
+
+- a first operation that flushed any record of the KVstore collection
+- a value for the end of the maintenance period in epochtime (field maintenance_mode_end)
+- the current time in epochtime (field time_updated)
+
+*Example: Enable the maintenance mode till the 11 of May 2019 at 9.pm*
+
+::
+
+    curl -k -u $username:$password -X DELETE \
+        https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_alerting_maintenance
+
+    curl -k -u $username:$password \
+        https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_alerting_maintenance \
+        -H 'Content-Type: application/json' \
+        -d '{"maintenance_mode": "enabled", "maintenance_mode_end": "1557565200", "time_updated": "1557509578"}'
+
+Disabling the maintenance mode
+------------------------------
+
+Disabling the maintenance mode requires:
+
+- a first operation that flushed any record of the KVstore collection
+- the current time in epochtime (field time_updated)
+
+::
+
+    curl -k -u $username:$password -X DELETE \
+        https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_alerting_maintenance
+
+    curl -k -u $username:$password \
+        https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_alerting_maintenance \
+        -H 'Content-Type: application/json' \
+        -d '{"maintenance_mode": "disabled", "maintenance_mode_end": "", "time_updated": "1557509578"}'
+
+
+Kafka Connect task monitoring management
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Request tasks inventory update: automatically Add any new task to the collection
+--------------------------------------------------------------------------------
+
+::
+
+    curl -u $username:$password -k https://$splunk_url/servicesNS/$username/telegraf-kafka/search/jobs -d search="| savedsearch \"Update Kafka Connect tasks inventory\""
+
+Create a new connector to be monitored
+--------------------------------------
+
+**Create a new connector entry which enables monitoring for the connector, with recommended fields (env, label, connector, role):**
+
+*Example:*
+
+::
+
+    {"env": "docker_env", "label": "testing", "connector": "kafka-connect-my-connector", "role": "kafka_sink_task", "monitoring_state": "enabled", "grace_period": "300"}
+
+::
+
+    curl -k -u $username:$password \
+        https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring \
+        -H 'Content-Type: application/json' \
+        -d '{"env": "docker_env", "label": "testing", "connector": "kafka-connect-my-connector", "role": "kafka_sink_task", "monitoring_state": "enabled", "grace_period": "300"}'
+
+Retrieve all the records from the KVstore
+-----------------------------------------
+
+::
+
+    curl -k -u $username:$password \
+        https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring
+
+Get the entries for a specific connector
+----------------------------------------
+
+*example:*
+
+::
+
+    query={"env": "docker_env", "label": "testing", "connector": "kafka-connect-my-connector"}
+
+
+**Encode the URL and use a query:**
+
+*Notes: URI encode everything after the "query="*
+
+::
+
+    curl -k -u $username:$password \
+        https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring?query=%7B%22connector%22%3A%20%22kafka-connect-my-connector%22%7D
+
+Delete a Kafka connector
+------------------------
+
+**Delete the record with the key ID " 5410be5441ba15298e4624d1":**
+
+::
+
+    curl -k -u $username:$password -X DELETE \
+        https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring/5410be5441ba15298e4624d1
+
+Deactivating the monitoring state of a connector
+------------------------------------------------
+
+**Using a search triggered via rest call: (a different method is possible by altering the record, see after)**
+
+- modify <$username> to match the username of the service account used to connect to
+
+::
+
+    curl -u $username:$password -k https://$splunk_url/servicesNS/$username/telegraf-kafka/search/jobs -d search="| inputlookup kafka_connect_tasks_monitoring | search env=\"docker_env\" label=\"testing\" connector=\"kafka-connect-syslog\" | eval monitoring_state=\"disabled\" | outputlookup kafka_connect_tasks_monitoring append=t key_field=_key"
+
+**Or using a rest call (all wanted fields have to be mentioned):**
+
+- get the key ID, and if required get the current value of every field to be preserved
+
+::
+
+    curl -k -u $username:$password \
+        https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring/5cd5a890e3b965791163eb71 \
+        -H 'Content-Type: application/json' \
+        -d '{"env": "docker_env", "label": "testing", "connector": "kafka-connect-my-connector", "role": "kafka_sink_task", "monitoring_state": "disabled", "grace_period": "300"}'
+
+Activating the monitoring state of a connector
+----------------------------------------------
+
+**Using a search triggered via rest call: (a different method is possible by altering the record, see after)**
+
+- modify <$username> to match the username of the service account used to connect to
+
+::
+
+    curl -u $username:$password -k https://$splunk_url/servicesNS/$username/telegraf-kafka/search/jobs -d search="| inputlookup kafka_connect_tasks_monitoring | search env=\"docker_env\" label=\"testing\" connector=\"kafka-connect-syslog\" | eval monitoring_state=\"enabled\" | outputlookup kafka_connect_tasks_monitoring append=t key_field=_key"
+
+**Or using a rest call (all wanted fields have to be mentioned):**
+
+- get the key ID, and if required get the current value of every field to be preserved
+
+::
+
+    curl -k -u $username:$password \
+        https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring/5cd5a890e3b965791163eb71 \
+        -H 'Content-Type: application/json' \
+        -d '{"env": "docker_env", "label": "testing", "connector": "kafka-connect-my-connector", "role": "kafka_sink_task", "monitoring_state": "enabled", "grace_period": "300"}'
+
+Delete a connector
+------------------
+
+*example:*
+
+::
+
+    query={"env": "docker_env", "label": "testing", "connector": "kafka-connect-my-connector"}
+
+
+**Encode the URL and use a query:**
+
+*Notes: URI encode everything after the "query="*
+
+::
+
+    curl -k -u $username:$password \
+        https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring?query=%7B%22connector%22%3A%20%22kafka-connect-my-connector%22%7D
+
+**Delete the record using the key ID:**
+
+::
+
+    curl -k -u $username:$password -X DELETE \
+        https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring/5410be5441ba15298e4624d1
