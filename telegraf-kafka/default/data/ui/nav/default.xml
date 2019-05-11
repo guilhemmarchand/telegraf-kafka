@@ -132,6 +132,7 @@
         <a href="mobile_kafka_topics">Kafka Topics Health</a>
         <a href="mobile_kafka_connect">Kafka Connect Health</a>
         <a href="mobile_kafka_burrow">Kafka Burrow Health</a>
+        <view source="all" match="CloudGW" />
     </collection>
 
     <!--

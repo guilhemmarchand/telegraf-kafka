@@ -2,6 +2,14 @@ Release notes
 #############
 
 ==============
+Version 1.1.22
+==============
+
+- fix: Improves searches for Connected experience dashboard for Kafka Connect (listing connectors in alert)
+- fix: Improves Telegraf configuration generator modal window rendering and adds link button to documentation
+- feature: Add dynamic view inclusion in menu for Connected Experience custom dashboards
+
+==============
 Version 1.1.21
 ==============
 
