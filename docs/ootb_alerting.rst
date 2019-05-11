@@ -473,10 +473,18 @@ For convenience of the documentation bellow
 
     export username="svc_kafka"
     export password="my_password"
-    export splunk_url="https://localhost:8089"
+    export splunk_url="localhost:8089"
 
 Maintenance mode management
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Get the current maintenance mode status
+---------------------------------------
+
+::
+
+    curl -k -u $username:$password \
+        https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_alerting_maintenance
 
 Enabling the maintenance mode
 -----------------------------
@@ -521,6 +529,14 @@ Disabling the maintenance mode requires:
 Kafka Connect task monitoring management
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Retrieve all the records from the KVstore
+-----------------------------------------
+
+::
+
+    curl -k -u $username:$password \
+        https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring
+
 Request tasks inventory update: automatically Add any new task to the collection
 --------------------------------------------------------------------------------
 
@@ -545,14 +561,6 @@ Create a new connector to be monitored
         https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring \
         -H 'Content-Type: application/json' \
         -d '{"env": "docker_env", "label": "testing", "connector": "kafka-connect-my-connector", "role": "kafka_sink_task", "monitoring_state": "enabled", "grace_period": "300"}'
-
-Retrieve all the records from the KVstore
------------------------------------------
-
-::
-
-    curl -k -u $username:$password \
-        https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring
 
 Get the entries for a specific connector
 ----------------------------------------
