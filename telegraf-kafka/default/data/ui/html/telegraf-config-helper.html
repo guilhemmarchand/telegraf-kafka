@@ -44,7 +44,7 @@
                   /* cover the modal */
                   position: absolute;
 
-                  width: 75%;
+                  width: 90%;
                   min-height: 400px;
                   height: 100%;
 
@@ -90,7 +90,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&amp;times;</button>
-                    <h3 style="color: #4682B4;"><span class="glyphicon glyphicon-lock"></span>Telegraf config helper</h3>
+                    <h3 style="color: #4682B4;"><span class="glyphicon glyphicon-lock"></span>Telegraf configuration helper</h3>
                 </div>
                 <div class="modal-body">
                     <p><b>Generated telegraf.conf:</b><br />
@@ -98,17 +98,17 @@ styles in <div> tags, similar to Bootstrap's grid system.
                         <br />
                     </p>
 
+                    <div>
+                        <a id="btn_download_config" style="margin-right: 10px;" class="btn btn-primary" href="" download="telegraf.conf" role="button">Download configuration</a>
+                        <a style="margin-right: 10px;" class="btn btn-primary" target="_blank" href="https://telegraf-kafka.readthedocs.io/en/latest/implementation.html#telegraf-installation-and-configuration" role="button">Consult documentation</a>
+                    </div>
+
                     <div class="modal-sent-payload">
-
                       <pre class="modal-guts" style="margin: 10px 0; padding: 10px; border-radius: 3px 3px 3px 3px; color: #059; background-color: #BEF;">message config sample</pre>
-
                     </div>
 
                 </div>
 
-                <div class="modal-footer">
-                    <a id="btn_download_config" style="margin-right: 10px;" class="btn btn-primary" href="" download="telegraf.conf" role="button">Download configuration</a>
-                </div>
             </div>
         </div>
     </div>

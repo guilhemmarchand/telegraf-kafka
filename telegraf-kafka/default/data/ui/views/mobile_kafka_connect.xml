@@ -122,7 +122,7 @@
             </single>
         </panel>
         <panel>
-            <title>Number of monitored souce connectors not running</title>
+            <title>Number of monitored source connectors not running</title>
             <single>
                 <search>
                     <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" env="*" label="*" by metric_name, task, connector| eval {metric_name}=value| stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*" by connector| eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2) | fields connector connector-task.status | rename connector-task.status as integer_status| eval status=case(integer_status=0, "paused", integer_status=1, "running", integer_status=2, "unassigned", integer_status=3, "failed", integer_status=4, "destroyed")| join connector [ | inputlookup kafka_connect_tasks_monitoring ] | where monitoring_state="enabled" | where role="kafka_source_task" | fillnull value="severe" status
@@ -227,8 +227,26 @@
             <title>Source connectors monitored in alert</title>
             <table>
                 <search>
-                    <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" env="*" label="*" by metric_name, task, connector| eval {metric_name}=value| stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*" by connector| eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2) | fields connector connector-task.status | rename connector-task.status as integer_status| eval status=case(integer_status=0, "paused", integer_status=1, "running", integer_status=2, "unassigned", integer_status=3, "failed", integer_status=4, "destroyed")| join connector [ | inputlookup kafka_connect_tasks_monitoring ] | where monitoring_state="enabled" | where role="kafka_source_task" | fillnull value="severe" status
-| where status!="running" | fields connector, status | fields - _time, _timediff</query>
+                    <query>| mstats latest(_value) as task_state_id where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" connector=* by env, label, connector, jolokia_agent_url, task span=1s
+| stats max(_time) as lasttime, values(jolokia_agent_url) as jolokia_agent_url, min(task_state_id) as task_state_id, values(task) as task by env, label, connector
+| eval task_state=case(task_state_id=0, "paused", task_state_id=1, "running", task_state_id=2, "unassigned", task_state_id=3, "failed", task_state_id=4, "destroyed")
+| append [ | inputlookup kafka_connect_tasks_monitoring ]
+| stats first(task_state) as task_state, values(jolokia_agent_url) as jolokia_agent_url, values(task) as task, max(lasttime) as lasttime, first(_key) as _key, first(role) as role, first(grace_period) as grace_period, first(monitoring_state) as monitoring_state by env, label, connector
+| where role="kafka_source_task"
+| appendpipe [ | stats dc(task) as number_tasks by env, label, connector ]
+| stats values(*) as "*" by env, label, connector
+| rename task as task_id | rex field=jolokia_agent_url "//(?&lt;connect_worker&gt;[^:]*)\:"
+| fields env, label, connector, connect_worker, monitoring_state, task_state, number_tasks, task_id, grace_period, lasttime
+| eval now=now(), delta_seconds=now-lasttime, now=strftime(now, "%d/%m/%Y %H:%M:%S"), lasttime=strftime(lasttime, "%d/%m/%Y %H:%M:%S")
+| eval state=case(number_tasks&lt;1 AND delta_seconds&gt;=grace_period AND task_state!="running", "severe",
+number_tasks&lt;1 AND isnull(delta_seconds) AND task_state!="running", "severe",
+number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "normal")
+| rename now as "check_time"
+| fillnull value="severe" state
+| appendcols [ | inputlookup kafka_alerting_maintenance ] | filldown maintenance_mode
+| where state="severe" AND monitoring_state="enabled" AND NOT maintenance_mode="enabled"
+| eval range="severe" | rename lasttime as last_time
+| fields env, connector</query>
                     <earliest>-5m</earliest>
                     <latest>now</latest>
                     <refresh>30s</refresh>
@@ -241,8 +259,26 @@
             <title>Sink connectors monitored in alert</title>
             <table>
                 <search>
-                    <query>| mstats latest(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" OR metric_name="kafka_connect.connector-task.running-ratio" OR metric_name="kafka_connect.error-task.total-errors-logged" OR metric_name="kafka_connect.error-task.total-retries" connector="*" env="*" label="*" by metric_name, task, connector| eval {metric_name}=value| stats min(kafka_connect.connector-task.status) as connector-task.status, first(kafka_connect.*) as "*" by connector| eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2) | fields connector connector-task.status | rename connector-task.status as integer_status| eval status=case(integer_status=0, "paused", integer_status=1, "running", integer_status=2, "unassigned", integer_status=3, "failed", integer_status=4, "destroyed")| join connector [ | inputlookup kafka_connect_tasks_monitoring ] | where monitoring_state="enabled" | where role="kafka_sink_task" | fillnull value="severe" status
-| where status!="running" | fields connector, status | fields - _time, _timediff</query>
+                    <query>| mstats latest(_value) as task_state_id where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" connector=* by env, label, connector, jolokia_agent_url, task span=1s
+| stats max(_time) as lasttime, values(jolokia_agent_url) as jolokia_agent_url, min(task_state_id) as task_state_id, values(task) as task by env, label, connector
+| eval task_state=case(task_state_id=0, "paused", task_state_id=1, "running", task_state_id=2, "unassigned", task_state_id=3, "failed", task_state_id=4, "destroyed")
+| append [ | inputlookup kafka_connect_tasks_monitoring ]
+| stats first(task_state) as task_state, values(jolokia_agent_url) as jolokia_agent_url, values(task) as task, max(lasttime) as lasttime, first(_key) as _key, first(role) as role, first(grace_period) as grace_period, first(monitoring_state) as monitoring_state by env, label, connector
+| where role="kafka_sink_task"
+| appendpipe [ | stats dc(task) as number_tasks by env, label, connector ]
+| stats values(*) as "*" by env, label, connector
+| rename task as task_id | rex field=jolokia_agent_url "//(?&lt;connect_worker&gt;[^:]*)\:"
+| fields env, label, connector, connect_worker, monitoring_state, task_state, number_tasks, task_id, grace_period, lasttime
+| eval now=now(), delta_seconds=now-lasttime, now=strftime(now, "%d/%m/%Y %H:%M:%S"), lasttime=strftime(lasttime, "%d/%m/%Y %H:%M:%S")
+| eval state=case(number_tasks&lt;1 AND delta_seconds&gt;=grace_period AND task_state!="running", "severe",
+number_tasks&lt;1 AND isnull(delta_seconds) AND task_state!="running", "severe",
+number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "normal")
+| rename now as "check_time"
+| fillnull value="severe" state
+| appendcols [ | inputlookup kafka_alerting_maintenance ] | filldown maintenance_mode
+| where state="severe" AND monitoring_state="enabled" AND NOT maintenance_mode="enabled"
+| eval range="severe" | rename lasttime as last_time
+| fields env, connector</query>
                     <earliest>-5m</earliest>
                     <latest>now</latest>
                     <refresh>30s</refresh>
