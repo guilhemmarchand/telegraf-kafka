@@ -71,3 +71,15 @@ Shall an alert trigger, a notification will be sent to the members of the **kafk
 .. image:: img/splunk_mobile_alert_example.png
    :alt: splunk_mobile_alert_example.png
    :align: center
+
+Create custom dashboards included in the menu
+=============================================
+
+Because there are limitations in Connected Experience dashboards, you might need to create your own versions if for example you have to manage multiple environments.
+
+**If you need to create custom versions, achieve the following:**
+
+- Clone the dashboard you want to customize and make sure the id of the dashboard starts by "``cloudgw_``"
+- Any dashboard starting by "``cloudgw_``" will automatically be included within the Connected Experience menu
+- Modify the dashboard based on your requirements, to focus on a given environment replace any occurrence of ``env=* label=*`` according to the target
+- Make sure to clone the existing permissions of the dashboard, or share the dashboard to all apps to allow it to be visible from the mobile app

@@ -1411,6 +1411,7 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
 | appendcols [ | inputlookup kafka_alerting_maintenance ] | filldown maintenance_mode
 | where state="severe" AND monitoring_state="enabled" AND NOT maintenance_mode="enabled"
 | eval range="severe" | rename lasttime as last_time
+| search $env$ $label$
 | fields env, label, connector, monitoring_state, grace_period, last_time, check_time, delta_seconds, maintenance_mode, state, range</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
@@ -1520,6 +1521,7 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
 | appendcols [ | inputlookup kafka_alerting_maintenance ] | filldown maintenance_mode
 | where state="severe" AND monitoring_state="enabled" AND NOT maintenance_mode="enabled"
 | eval range="severe" | rename lasttime as last_time
+| search $env$ $label$
 | fields env, label, connector, monitoring_state, grace_period, last_time, check_time, delta_seconds, maintenance_mode, state, range</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
