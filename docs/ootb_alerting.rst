@@ -471,9 +471,31 @@ For convenience of the documentation bellow
 
 ::
 
-    export username="svc_kafka"
-    export password="my_password"
     export splunk_url="localhost:8089"
+
+Authentication
+^^^^^^^^^^^^^^
+
+The recommended approach is authentication to Splunk API via a token, see:
+
+https://docs.splunk.com/Documentation/Splunk/latest/RESTUM/RESTusing#Authentication_and_authorization
+
+*Example authenticating with a user called svc_kafka that is member of the kafka_admin role:*
+
+::
+
+    curl -k https://$splunk_url/services/auth/login --data-urlencode username=svc_kafka --data-urlencode password=pass
+
+    <response>
+      <sessionKey>DWGNbGpJgSj30w0GxTAxMj8t0dZKjvjxLYaP^yphdluFN_FGz4gz^NhcgPCLDkjWH3BUQa1Vewt8FTF8KXyyfI09HqjOicIthMuBIB70dVJA8Jg</sessionKey>
+      <messages>
+        <msg code=""></msg>
+      </messages>
+    </response>
+
+    export token="DWGNbGpJgSj30w0GxTAxMj8t0dZKjvjxLYaP^yphdluFN_FGz4gz^NhcgPCLDkjWH3BUQa1Vewt8FTF8KXyyfI09HqjOicIthMuBIB70dVJA8Jg"
+
+A token remains valid for the time of a session, which is by default valid for 1 hour.
 
 Maintenance mode management
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -483,7 +505,7 @@ Get the current maintenance mode status
 
 ::
 
-    curl -k -u $username:$password \
+    curl -k -H "Authorization: Splunk $token" \
         https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_alerting_maintenance
 
 Enabling the maintenance mode
@@ -499,10 +521,10 @@ Enabling the maintenance mode requires:
 
 ::
 
-    curl -k -u $username:$password -X DELETE \
+    curl -k -H "Authorization: Splunk $token" -X DELETE \
         https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_alerting_maintenance
 
-    curl -k -u $username:$password \
+    curl -k -H "Authorization: Splunk $token" \
         https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_alerting_maintenance \
         -H 'Content-Type: application/json' \
         -d '{"maintenance_mode": "enabled", "maintenance_mode_end": "1557565200", "time_updated": "1557509578"}'
@@ -517,10 +539,10 @@ Disabling the maintenance mode requires:
 
 ::
 
-    curl -k -u $username:$password -X DELETE \
+    curl -k -H "Authorization: Splunk $token" -X DELETE \
         https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_alerting_maintenance
 
-    curl -k -u $username:$password \
+    curl -k -H "Authorization: Splunk $token" \
         https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_alerting_maintenance \
         -H 'Content-Type: application/json' \
         -d '{"maintenance_mode": "disabled", "maintenance_mode_end": "", "time_updated": "1557509578"}'
@@ -534,7 +556,7 @@ Retrieve all the records from the KVstore
 
 ::
 
-    curl -k -u $username:$password \
+    curl -k -H "Authorization: Splunk $token" \
         https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring
 
 Request tasks inventory update: automatically Add any new task to the collection
@@ -542,7 +564,7 @@ Request tasks inventory update: automatically Add any new task to the collection
 
 ::
 
-    curl -u $username:$password -k https://$splunk_url/servicesNS/$username/telegraf-kafka/search/jobs -d search="| savedsearch \"Update Kafka Connect tasks inventory\""
+    curl -k -H "Authorization: Splunk $token" https://$splunk_url/servicesNS/nobody/telegraf-kafka/search/jobs -d search="| savedsearch \"Update Kafka Connect tasks inventory\""
 
 Create a new connector to be monitored
 --------------------------------------
@@ -557,7 +579,7 @@ Create a new connector to be monitored
 
 ::
 
-    curl -k -u $username:$password \
+    curl -k -H "Authorization: Splunk $token" \
         https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring \
         -H 'Content-Type: application/json' \
         -d '{"env": "docker_env", "label": "testing", "connector": "kafka-connect-my-connector", "role": "kafka_sink_task", "monitoring_state": "enabled", "grace_period": "300"}'
@@ -578,7 +600,7 @@ Get the entries for a specific connector
 
 ::
 
-    curl -k -u $username:$password \
+    curl -k -H "Authorization: Splunk $token" \
         https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring?query=%7B%22connector%22%3A%20%22kafka-connect-my-connector%22%7D
 
 Delete a Kafka connector
@@ -588,7 +610,7 @@ Delete a Kafka connector
 
 ::
 
-    curl -k -u $username:$password -X DELETE \
+    curl -k -H "Authorization: Splunk $token" -X DELETE \
         https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring/5410be5441ba15298e4624d1
 
 Deactivating the monitoring state of a connector
@@ -596,11 +618,9 @@ Deactivating the monitoring state of a connector
 
 **Using a search triggered via rest call: (a different method is possible by altering the record, see after)**
 
-- modify <$username> to match the username of the service account used to connect to
-
 ::
 
-    curl -u $username:$password -k https://$splunk_url/servicesNS/$username/telegraf-kafka/search/jobs -d search="| inputlookup kafka_connect_tasks_monitoring | search env=\"docker_env\" label=\"testing\" connector=\"kafka-connect-syslog\" | eval monitoring_state=\"disabled\" | outputlookup kafka_connect_tasks_monitoring append=t key_field=_key"
+    curl -k -H "Authorization: Splunk $token" https://$splunk_url/servicesNS/nobody/telegraf-kafka/search/jobs -d search="| inputlookup kafka_connect_tasks_monitoring | search env=\"docker_env\" label=\"testing\" connector=\"kafka-connect-syslog\" | eval monitoring_state=\"disabled\" | outputlookup kafka_connect_tasks_monitoring append=t key_field=_key"
 
 **Or using a rest call (all wanted fields have to be mentioned):**
 
@@ -608,7 +628,7 @@ Deactivating the monitoring state of a connector
 
 ::
 
-    curl -k -u $username:$password \
+    curl -k -H "Authorization: Splunk $token" \
         https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring/5cd5a890e3b965791163eb71 \
         -H 'Content-Type: application/json' \
         -d '{"env": "docker_env", "label": "testing", "connector": "kafka-connect-my-connector", "role": "kafka_sink_task", "monitoring_state": "disabled", "grace_period": "300"}'
@@ -618,11 +638,9 @@ Activating the monitoring state of a connector
 
 **Using a search triggered via rest call: (a different method is possible by altering the record, see after)**
 
-- modify <$username> to match the username of the service account used to connect to
-
 ::
 
-    curl -u $username:$password -k https://$splunk_url/servicesNS/$username/telegraf-kafka/search/jobs -d search="| inputlookup kafka_connect_tasks_monitoring | search env=\"docker_env\" label=\"testing\" connector=\"kafka-connect-syslog\" | eval monitoring_state=\"enabled\" | outputlookup kafka_connect_tasks_monitoring append=t key_field=_key"
+    curl -k -H "Authorization: Splunk $token" https://$splunk_url/servicesNS/nobody/telegraf-kafka/search/jobs -d search="| inputlookup kafka_connect_tasks_monitoring | search env=\"docker_env\" label=\"testing\" connector=\"kafka-connect-syslog\" | eval monitoring_state=\"enabled\" | outputlookup kafka_connect_tasks_monitoring append=t key_field=_key"
 
 **Or using a rest call (all wanted fields have to be mentioned):**
 
@@ -630,7 +648,7 @@ Activating the monitoring state of a connector
 
 ::
 
-    curl -k -u $username:$password \
+    curl -k -H "Authorization: Splunk $token" \
         https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring/5cd5a890e3b965791163eb71 \
         -H 'Content-Type: application/json' \
         -d '{"env": "docker_env", "label": "testing", "connector": "kafka-connect-my-connector", "role": "kafka_sink_task", "monitoring_state": "enabled", "grace_period": "300"}'
@@ -651,12 +669,12 @@ Delete a connector
 
 ::
 
-    curl -k -u $username:$password \
+    curl -k -H "Authorization: Splunk $token" \
         https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring?query=%7B%22connector%22%3A%20%22kafka-connect-my-connector%22%7D
 
 **Delete the record using the key ID:**
 
 ::
 
-    curl -k -u $username:$password -X DELETE \
+    curl -k -H "Authorization: Splunk $token" -X DELETE \
         https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring/5410be5441ba15298e4624d1
