@@ -2,7 +2,7 @@
     <label>Zookeeper - Entity health view</label>
 
     <search id="server_activity_summary">
-        <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.avg_latency" OR metric_name="zookeeper.outstanding_requests" OR metric_name="zookeeper.pending_syncs" $server$ by metric_name span=1s
+        <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.avg_latency" OR metric_name="zookeeper.outstanding_requests" OR metric_name="zookeeper.pending_syncs" $env$ $label$ $server$ by metric_name span=1s
 | eval {metric_name}=value
 | stats first(zookeeper.*) as "*" by _time
 | stats avg(*) as "*"
@@ -123,7 +123,7 @@
         <panel>
             <single>
                 <search>
-                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.max_file_descriptor_count" OR metric_name="zookeeper.open_file_descriptor_count" $server$ by metric_name, server
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.max_file_descriptor_count" OR metric_name="zookeeper.open_file_descriptor_count" $env$ $label$ $server$ by metric_name, server
 | eval {metric_name}=value
 | stats first(zookeeper.*) as "*" by server
 | eval percent_file_descriptor_used=round((open_file_descriptor_count/max_file_descriptor_count)*100, 3)
@@ -173,7 +173,7 @@
             <chart>
                 <title>Average latency (millisecond)</title>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="zookeeper.avg_latency" $server$ by server span=1s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="zookeeper.avg_latency" $env$ $label$ $server$ by server span=1s
 | timechart `telegraf_kafka_span` avg(_value) as "Avg" by server</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -191,7 +191,7 @@
             <chart>
                 <title>Outstanding requests</title>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="zookeeper.outstanding_requests" $server$ by server span=1s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="zookeeper.outstanding_requests" $env$ $label$ $server$ by server span=1s
 | timechart `telegraf_kafka_span` avg(_value) as "Avg" by server</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -209,7 +209,7 @@
             <chart rejects="$show_null_pendingsync$">
                 <title>Pending Sync</title>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="zookeeper.pending_syncs" $server$ by server span=1s
+                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="zookeeper.pending_syncs" $env$ $label$ $server$ by server span=1s
 | timechart `telegraf_kafka_span` avg(_value) as "Avg" by server</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -244,7 +244,7 @@
             <chart>
                 <title>File descriptor percentage used</title>
                 <search depends="$chart1$">
-                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.max_file_descriptor_count" OR metric_name="zookeeper.open_file_descriptor_count" $server$ by metric_name, server span=1s
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.max_file_descriptor_count" OR metric_name="zookeeper.open_file_descriptor_count" $env$ $label$ $server$ by metric_name, server span=1s
 | eval {metric_name}=value
 | stats first(zookeeper.*) as "*" by _time, server
 | eval percent_file_descriptor_used=round((open_file_descriptor_count/max_file_descriptor_count)*100, 3)
@@ -265,7 +265,7 @@
             <chart>
                 <title>Packets received</title>
                 <search depends="$chart1$">
-                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.packets_received" $server$ by metric_name, server span=1s
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.packets_received" $env$ $label$ $server$ by metric_name, server span=1s
 | eval {metric_name}=value
 | stats first(zookeeper.*) as "*_counter" by _time, server
 | streamstats current=f last(*_counter) as "*_prev" by server
@@ -289,7 +289,7 @@
             <chart>
                 <title>Packets sent</title>
                 <search depends="$chart1$">
-                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.packets_sent" $server$ by metric_name, server span=1s
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.packets_sent" $env$ $label$ $server$ by metric_name, server span=1s
 | eval {metric_name}=value
 | stats first(zookeeper.*) as "*_counter" by _time, server
 | streamstats current=f last(*_counter) as "*_prev" by server
@@ -316,7 +316,7 @@
             <title>Zookeeper log events by log_level</title>
             <chart>
                 <search depends="$chart2$">
-                    <query>eventtype="zookeeper" log_level=* [ | savedsearch telegraf-kafka-zookeeper-servers | search $server$ | table server | rename server as host ]
+                    <query>eventtype="zookeeper" log_level=* [ | savedsearch telegraf-kafka-zookeeper-servers | search $env$ $label$ $server$ | table server | rename server as host ]
 | timechart useother=f limit=0 minspan=1m count by log_level</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -355,7 +355,7 @@
             </input>
             <event>
                 <search depends="$chart2$">
-                    <query>eventtype="zookeeper" $log_search_tk$ $log_sourcetype_tk$ [ | savedsearch telegraf-kafka-zookeeper-servers | search $server$ | table server | rename server as host ]</query>
+                    <query>eventtype="zookeeper" $log_search_tk$ $log_sourcetype_tk$ [ | savedsearch telegraf-kafka-zookeeper-servers | search $env$ $label$ $server$ | table server | rename server as host ]</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
