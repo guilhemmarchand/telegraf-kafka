@@ -601,7 +601,7 @@
             <title>Kafka Connect log events by log_level</title>
             <chart>
                 <search id="timechart_loglevel" depends="$chart4$">
-                    <query>eventtype="kafka_connect_sink" log_level=* [ | savedsearch telegraf-kafka-kafka-connect-tasks | rename kafka_task as connector | search role="kafka_sink_task" $connector$ | table connector | rename connector as connector_sink]
+                    <query>eventtype="kafka_connect_sink" log_level=* [ | savedsearch telegraf-kafka-kafka-connect-tasks | rename kafka_task as connector | search role="kafka_sink_task" $env$ $label$ $connector$ | table connector | rename connector as connector_sink]
 | timechart useother=f limit=0 minspan=1m count by log_level</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -627,7 +627,7 @@
             </input>
             <event>
                 <search depends="$chart4$">
-                    <query>eventtype="kafka_connect_sink" $log_search_tk$ [ | savedsearch telegraf-kafka-kafka-connect-tasks | rename kafka_task as connector | search role="kafka_sink_task" $connector$ | table connector | rename connector as connector_sink ]</query>
+                    <query>eventtype="kafka_connect_sink" $log_search_tk$ [ | savedsearch telegraf-kafka-kafka-connect-tasks | rename kafka_task as connector | search role="kafka_sink_task" $env$ $label$ $connector$ | table connector | rename connector as connector_sink ]</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>

@@ -2,7 +2,7 @@
     <label>Kafka LinkedIn monitor - End to End monitoring with kafka-monitor</label>
 
     <search id="Global">
-        <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.produce-availability-avg" OR metric_name="kafka_kafka-monitor.consume-availability-avg" $jolokia_agent_url$ by metric_name, jolokia_agent_url
+        <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.produce-availability-avg" OR metric_name="kafka_kafka-monitor.consume-availability-avg" $env$ $label$ $jolokia_agent_url$ by metric_name, jolokia_agent_url
 | eval value=round(value*100, 2)
 | eval {metric_name}=value
 | stats first(kafka_kafka-monitor.*-avg) as "*" by jolokia_agent_url
@@ -242,7 +242,7 @@
             <chart>
                 <title>produce-availability-rate</title>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.produce-availability-avg" $jolokia_agent_url$ by jolokia_agent_url span=1s
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.produce-availability-avg" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=1s
 | eval produce-availability-avg=round('value'*100, 2)
 | timechart `telegraf_kafka_span` avg(produce-availability-avg) as produce-availability-avg by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
@@ -263,7 +263,7 @@
             <chart>
                 <title>consume-availability-rate</title>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.consume-availability-avg" $jolokia_agent_url$ by jolokia_agent_url span=1s
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.consume-availability-avg" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=1s
 | eval consume-availability-avg=round('value'*100, 2)
 | timechart `telegraf_kafka_span` avg(consume-availability-avg) as consume-availability-avg by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
@@ -284,7 +284,7 @@
             <chart>
                 <title>records-lost-rate</title>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.records-lost-rate" $jolokia_agent_url$ by jolokia_agent_url span=1s
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.records-lost-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=1s
 | timechart `telegraf_kafka_span` avg(value) as records-lost-rate by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -304,7 +304,7 @@
             <chart>
                 <title>produce-error-rate</title>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.produce-error-rate" $jolokia_agent_url$ by jolokia_agent_url span=1s
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.produce-error-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=1s
 | timechart `telegraf_kafka_span` avg(value) as produce-error-rate by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -322,7 +322,7 @@
             <chart>
                 <title>consume-error-rate</title>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.consume-error-rate" $jolokia_agent_url$ by jolokia_agent_url span=1s
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.consume-error-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=1s
 | timechart `telegraf_kafka_span` avg(value) as consume-error-rate by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -340,7 +340,7 @@
             <chart>
                 <title>records-duplicated-rate</title>
                 <search depends="$chart1$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.records-duplicated-rate" $jolokia_agent_url$ by jolokia_agent_url span=1s
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.records-duplicated-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=1s
 | timechart `telegraf_kafka_span` avg(value) as records-duplicated-rate by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -361,7 +361,7 @@
             <chart>
                 <title>produce-delay-ms-avg</title>
                 <search depends="$chart2$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.produce-delay-ms-avg" $jolokia_agent_url$ by jolokia_agent_url span=1s
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.produce-delay-ms-avg" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=1s
 | timechart `telegraf_kafka_span` avg(value) as produce-delay-ms-avg by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -379,7 +379,7 @@
             <chart>
                 <title>produce-delay-ms-99th</title>
                 <search depends="$chart2$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.produce-delay-ms-99th" $jolokia_agent_url$ by jolokia_agent_url span=1s
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.produce-delay-ms-99th" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=1s
 | timechart `telegraf_kafka_span` avg(value) as produce-delay-ms-99th by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -400,7 +400,7 @@
             <chart>
                 <title>produce-delay-ms-max</title>
                 <search depends="$chart2$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.produce-delay-ms-max" $jolokia_agent_url$ by jolokia_agent_url span=1s
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.produce-delay-ms-max" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=1s
 | timechart `telegraf_kafka_span` avg(value) as produce-delay-ms-max by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -423,7 +423,7 @@
             <chart>
                 <title>records-delay-ms-avg</title>
                 <search depends="$chart3$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.records-delay-ms-avg" $jolokia_agent_url$ by jolokia_agent_url span=1s
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.records-delay-ms-avg" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=1s
 | timechart `telegraf_kafka_span` avg(value) as records-delay-ms-avg by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -441,7 +441,7 @@
             <chart>
                 <title>records-delay-ms-99th</title>
                 <search depends="$chart3$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.records-delay-ms-99th" $jolokia_agent_url$ by jolokia_agent_url span=1s
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.records-delay-ms-99th" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=1s
 | timechart `telegraf_kafka_span` avg(value) as records-delay-ms-99th by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -462,7 +462,7 @@
             <chart>
                 <title>records-delay-ms-max</title>
                 <search depends="$chart3$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.records-delay-ms-max" $jolokia_agent_url$ by jolokia_agent_url span=1s
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.records-delay-ms-max" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=1s
 | timechart `telegraf_kafka_span` avg(value) as records-delay-ms-max by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -480,7 +480,7 @@
             <chart>
                 <title>records-consumed-rate</title>
                 <search depends="$chart3$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.records-consumed-rate" $jolokia_agent_url$ by jolokia_agent_url span=1s
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.records-consumed-rate" $env$ $label$ $jolokia_agent_url$ by jolokia_agent_url span=1s
 | timechart `telegraf_kafka_span` avg(value) as records-consumed-rate by jolokia_agent_url</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>

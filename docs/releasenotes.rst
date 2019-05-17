@@ -2,6 +2,12 @@ Release notes
 #############
 
 ==============
+Version 1.1.23
+==============
+
+- fix: Missing env/label filters in entity views impact results if multiple env/label and ANY selected
+
+==============
 Version 1.1.22
 ==============
 
