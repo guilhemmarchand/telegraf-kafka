@@ -2,6 +2,12 @@ Release notes
 #############
 
 ==============
+Version 1.1.24
+==============
+
+- feature: Introducing logs mapping macros used in entity views to provide customization capabilities for logs integration
+
+==============
 Version 1.1.23
 ==============
 
