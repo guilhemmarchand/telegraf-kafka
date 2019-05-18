@@ -316,7 +316,7 @@
             <title>Zookeeper log events by log_level</title>
             <chart>
                 <search depends="$chart2$">
-                    <query>eventtype="zookeeper" log_level=* [ | savedsearch telegraf-kafka-zookeeper-servers | search $env$ $label$ $server$ | table server | rename server as host ]
+                    <query>eventtype="zookeeper" log_level=* [ | `zookeeper_logs_mapping($env$, $label$, $server$)` ]
 | timechart useother=f limit=0 minspan=1m count by log_level</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -355,7 +355,7 @@
             </input>
             <event>
                 <search depends="$chart2$">
-                    <query>eventtype="zookeeper" $log_search_tk$ $log_sourcetype_tk$ [ | savedsearch telegraf-kafka-zookeeper-servers | search $env$ $label$ $server$ | table server | rename server as host ]</query>
+                    <query>eventtype="zookeeper" $log_search_tk$ $log_sourcetype_tk$ [ | `zookeeper_logs_mapping($env$, $label$, $server$)` ]</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
