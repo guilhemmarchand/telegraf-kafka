@@ -2,6 +2,13 @@ Release notes
 #############
 
 ==============
+Version 1.1.25
+==============
+
+- fix: Regression introduced in version 1.1.21 impacts the Kafka Connect tasks inventory if a task is inactive or removed for a long period
+- fix: Incorrect number of connectors reported in Alerting managing interface if connectors have the same names across environments
+
+==============
 Version 1.1.24
 ==============
 
