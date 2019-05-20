@@ -2171,7 +2171,7 @@ require([
         var search_connect_no_connectors_enabled = new PostProcessManager({
             "managerid": "search_connect_no_connectors_mainsearch",
             "id": "search_connect_no_connectors_enabled",
-            "search": "where monitoring_state=\"enabled\" | stats dc(connector) as count",
+            "search": "where monitoring_state=\"enabled\" | dedup env, label, connector | stats count",
             "tokenDependencies": {},
             "runWhenTimeIsUndefined": false
         }, {
@@ -2182,7 +2182,7 @@ require([
         var search_connect_no_connectors_disabled = new PostProcessManager({
             "managerid": "search_connect_no_connectors_mainsearch",
             "id": "search_connect_no_connectors_disabled",
-            "search": "where monitoring_state!=\"enabled\" | stats dc(connector) as count",
+            "search": "where monitoring_state!=\"enabled\" | dedup env, label, connector | stats count",
             "tokenDependencies": {},
             "runWhenTimeIsUndefined": false
         }, {
