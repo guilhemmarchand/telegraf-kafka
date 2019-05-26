@@ -2,6 +2,12 @@ Release notes
 #############
 
 ==============
+Version 1.1.26
+==============
+
+- fix: The total number of Kafka Connect connectors reported in Alerting management UI is incorrect if connectors have the same ID across multiple tenants
+
+==============
 Version 1.1.25
 ==============
 
