@@ -1,4 +1,4 @@
-<form stylesheet="telegraf-kafka:common.css,telegraf-kafka:table_icon.css" script="telegraf-kafka:kafka-connect.js" hideEdit="True" isVisible="True">
+<form stylesheet="telegraf-kafka:common.css,telegraf-kafka:table_icon.css" script="telegraf-kafka:table_icon.js" hideEdit="True" isVisible="True">
     <label>Kafka Connect - Entity health view</label>
 
     <search id="connect_state_summary">
@@ -30,7 +30,7 @@
 | eval lastTime=strftime(lastTime,"%d/%m/%Y %H:%M:%S")
 | eval integer_status=if(status="time range out of scope, state undetermined", 5, integer_status)
 | streamstats min(integer_status) as range by env, label, connector
-| rangemap field=range elevated=0-0 low=1-1 default=severe</query>
+| eval icon = "icon|" + case(range=="1","ico_good ico_small|icon-check|Up", range!="1" OR isnull(range), "ico_error ico_small|icon-close|Down") | rename icon as " " | fields - range</query>
         <earliest>-90s</earliest>
         <latest>now</latest>
         <refresh>30s</refresh>
@@ -848,7 +848,7 @@
     <row depends="$chart6$">
         <panel>
             <title>Connectors and tasks (realtime)</title>
-            <table id="table_tasks">
+            <table>
                 <search base="connect_task_summary" depends="$chart6">
                     <query>sort 0 env, label, connector</query>
                 </search>

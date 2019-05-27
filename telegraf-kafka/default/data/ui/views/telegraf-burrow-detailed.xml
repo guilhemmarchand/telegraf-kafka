@@ -1,4 +1,4 @@
-<form script="telegraf-kafka:burrow.js" stylesheet="telegraf-kafka:common.css,telegraf-kafka:burrow.css">
+<form script="telegraf-kafka:table_icon.js" stylesheet="telegraf-kafka:common.css,telegraf-kafka:table_icon.css">
     <label>Burrow</label>
     <search id="main_populate">
         <query>| savedsearch telegraf-kafka-burrow-partition | search (group="$group$") </query>
@@ -32,18 +32,18 @@
     </row>
     <row>
         <panel>
-            <table id="table1">
+            <table>
                 <search>
                     <query>| mstats latest(_value) as value where metric_name="burrow_group.lag" OR metric_name="burrow_group.status_code" `telegraf_kafka_index` env=$env$ label=$label$ group="$group$" by group, metric_name span=10s
 | eval {metric_name}=value
 | stats first(burrow_group.*) as "*" by _time, group
 | stats max(_time) as lastTime, avg(lag) as avg_lag, max(lag) as max_lag, latest(lag) as current, sparkline(avg(lag),) As sparkline, latest(status_code) as status_code by group
 | lookup burrow_status status_code OUTPUT status, description
-| rangemap field=status_code low=1-1 elevated=2-2 default=severe
+| eval icon = "icon|" + case(status_code=="1","ico_good ico_small|icon-check|Up", status_code=="3", "ico_warn ico_small|icon-close|Down", status_code=="2" OR status_code=="4" OR status_code=="5" OR status_code=="6" OR isnull(status_code), "ico_error ico_small|icon-close|Down")
 | eval avg_lag=round(avg_lag, 3), delta_lastTime=now()-lastTime, lastTime=strftime(lastTime, "%H:%M:%S")
 | eval status=if(delta_lastTime>120, "UNKNOWN", status), description=if(delta_lastTime>120, "The delta in seconds between the last state received and now has exceeded 120 seconds", description), range=if(delta_lastTime>120, "severe", range)
 | appendcols [ | mcatalog values(topic) as topics where metric_name="burrow_partition.lag" `telegraf_kafka_index` group="$group$" by group ]
-| fields group, topics, avg_lag, max_lag, current, sparkline, status, range, lastTime, description | rename description as "status description", topics as "consuming from topics"</query>
+| fields group, topics, avg_lag, max_lag, current, sparkline, status, " ", lastTime, description | rename description as "status description", topics as "consuming from topics", icon as " "</query>
                     <earliest>$time.earliest$</earliest>
                     <latest>$time.latest$</latest>
                     <sampleRatio>1</sampleRatio>
@@ -209,19 +209,19 @@
     <row>
         <panel>
             <title>Topics / Partitions</title>
-            <table id="table2">
+            <table>
                 <search>
                     <query>| mstats latest(_value) as value where metric_name="burrow_partition.lag" OR metric_name="burrow_partition.status_code" OR metric_name="burrow_partition.offset" `telegraf_kafka_index` env=$env$ label=$label$ group="$group$" ($topic$) by topic, partition, metric_name span=10s
 | eval {metric_name}=value
 | stats first(burrow_partition.*) as "*" by _time, topic, partition
 | stats max(_time) as lastTime, latest(offset) as current_offset, avg(lag) as avg_lag, max(lag) as max_lag, latest(lag) as current, sparkline(avg(lag),) As sparkline, latest(status_code) as status_code by topic, partition
 | lookup burrow_status status_code OUTPUT status, description
-| rangemap field=status_code low=1-1 elevated=2-2 default=severe
+| eval icon = "icon|" + case(status_code=="1","ico_good ico_small|icon-check|Up", status_code=="3", "ico_warn ico_small|icon-close|Down", status_code=="2" OR status_code=="4" OR status_code=="5" OR status_code=="6" OR isnull(status_code), "ico_error ico_small|icon-close|Down")
 | eval avg_lag=round(avg_lag, 3), delta_lastTime=now()-lastTime, lastTime=strftime(lastTime, "%H:%M:%S")
 | eval status=if(delta_lastTime>120, "UNKNOWN", status), description=if(delta_lastTime>120, "The delta in seconds between the last state received and now has exceeded 120 seconds", description), range=if(delta_lastTime>120, "severe", range)
 | join topic, partition [ | mstats latest(_value) prestats=t where metric_name="burrow_topic.offset" `telegraf_kafka_index` env=$env$ label=$label$ $topic$ by topic, partition
 | stats latest(_value) as topic_offset by topic, partition ]
-| fields topic, partition, topic_offset, current_offset, avg_lag, max_lag, current, sparkline, status, range, lastTime, description | rename description as "status description"</query>
+| fields topic, partition, topic_offset, current_offset, avg_lag, max_lag, current, sparkline, status, icon, lastTime, description | rename description as "status description", icon as " "</query>
                     <earliest>$time.earliest$</earliest>
                     <latest>$time.latest$</latest>
                     <sampleRatio>1</sampleRatio>

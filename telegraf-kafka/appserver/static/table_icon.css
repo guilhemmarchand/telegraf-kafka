@@ -1,64 +1,68 @@
-/* Custom Icons */
-td.icon {
+/* Table icons */
+
+.ico_good,
+.ico_warn,
+.ico_error,
+.ico_unknown {
+    display:inline-block;
     text-align: center;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    position:relative;
 }
-td.icon i {
+
+.ico_good {
+    color: white;
+    background-color: #39ba23;
+    border-radius: 50%;
+    font-size: 24px;
+}
+.ico_good .icon-check {
+    color: inherit;
+}
+.ico_warn {
+    color: #ffa500;
+    font-size: 39px;
+}
+.ico_error {
+    color: white;
+    background-color: #d54642;
+    border-radius: 10%;
     font-size: 25px;
-    text-shadow: 1px 1px #aaa;
 }
-td.icon .severe {
-    color: red;
+.ico_unknown  {
+    color: white;
+    background-color: rgb(26, 150, 240);
+    border-radius: 50%;
+    font-size: 24px;
 }
-td.icon .elevated {
-    color: orangered;
+
+
+.ico_small.ico_good,
+.ico_small.ico_warn,
+.ico_small.ico_error,
+.ico_small.ico_unknown {
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
 }
-td.icon .low {
-    color: #006400;
+.ico_small.ico_good {
+    font-size: 15px;
 }
-/* Row Coloring */
-#highlight tr td {
-    background-color: #c1ffc3 !important;
+.ico_small.ico_warn {
+    font-size: 26px;
+    width: 20px;
 }
-#highlight tr.range-elevated td {
-    background-color: #ffc57a !important;
+.ico_small.ico_error {
+    font-size: 15px;
 }
-#highlight tr.range-severe td {
-    background-color: #d59392 !important;
+.ico_small.ico_unknown  {
+    font-size: 15px;
 }
-#highlight .table td {
-    border-top: 1px solid #fff;
-}
-#highlight td.range-severe, td.range-elevated {
-    font-weight: bold;
-}
-.icon-inline i {
-    font-size: 18px;
-    margin-left: 5px;
-}
-.icon-inline i.icon-alert-circle {
-    color: #ef392c;
-}
-.icon-inline i.icon-alert {
-    color: #ff9c1a;
-}
-.icon-inline i.icon-check {
-    color: #5fff5e;
-}
-/* Dark Theme */
-td.icon i.dark {
-    text-shadow: none;
-}
-/* Row Coloring */
-#highlight tr.dark td {
-    background-color: #5BA383 !important;
-}
-#highlight tr.range-elevated.dark td {
-    background-color: #EC9960 !important;
-}
-#highlight tr.range-severe.dark td {
-    background-color: #AF575A !important;
-}
-#highlight .table .dark td {
-    border-top: 1px solid #000000;
-    color: #F2F4F5;
+
+/* required for HTML views */
+
+.icon-check {
+    color: #ffffff !important;
 }

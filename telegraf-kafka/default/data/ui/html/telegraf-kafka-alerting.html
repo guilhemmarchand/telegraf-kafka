@@ -11,7 +11,6 @@
     <link rel="stylesheet" type="text/css" media="all" href="{{SPLUNKWEB_URL_PREFIX}}/static/app/telegraf-kafka/common.css" />
     <link rel="stylesheet" type="text/css" media="all" href="{{SPLUNKWEB_URL_PREFIX}}/static/app/telegraf-kafka/table_icon.css" />
     <link rel="stylesheet" type="text/css" media="all" href="{{SPLUNKWEB_URL_PREFIX}}/static/app/telegraf-kafka/hide_footer.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="{{SPLUNKWEB_URL_PREFIX}}/static/app/telegraf-kafka/telegraf-kafka-alerting.css" />
     <meta name="referrer" content="never" />
     <meta name="referrer" content="no-referrer" />
     <script>
@@ -21,9 +20,15 @@
                    }
     </script>
     <style>
-        .modal {
-            display: none;
-        }
+                /* Prevents green disabled button */
+                .btn-primary[disabled] {
+                    background-color: #337ab7;
+                    opacity: .40;
+                }
+                /* Manage modal hidden properly */
+                .modal {
+                    display: none;
+                }
     </style>
 </head>
 <body class="simplexml preload locale-en" data-splunk-version="7.2.1" data-splunk-product="splunk">
@@ -1544,7 +1549,7 @@ require([
             "sample_ratio": 1,
             "earliest_time": "-15m",
             "cancelOnUnload": true,
-            "search": "| rest splunk_server=local /servicesNS/-/telegraf-kafka/saved/searches | search eai:acl.app=\"telegraf-kafka\" alert.track=1 | fields title, cron_schedule, schedule_window, alert.suppress.fields, alert.suppress.period, disabled, next_scheduled_time, id | rex field=id \"saved/searches/(?<id>.*)\" | sort limit=0 title | rangemap field=disabled low=0-0 severe=1-1",
+            "search": "| rest splunk_server=local /servicesNS/-/telegraf-kafka/saved/searches | search eai:acl.app=\"telegraf-kafka\" alert.track=1 | fields title, cron_schedule, schedule_window, alert.suppress.fields, alert.suppress.period, disabled, next_scheduled_time, id | rex field=id \"saved/searches/(?<id>.*)\" | sort limit=0 title | eval \" \" = \"icon|\" + if(disabled==\"0\",\"ico_good ico_small|icon-check|Up\", \"ico_error ico_small|icon-close|Down\")",
             "latest_time": "now",
             "status_buckets": 0,
             "app": utils.getCurrentApp(),
@@ -1881,7 +1886,7 @@ require([
         var search_kafka_infra_main_table = new PostProcessManager({
             "managerid": "search_kafka_infra_mainsearch",
             "id": "search_kafka_infra_main_table",
-            "search": "eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_kafka_infra_name$ $search_tk_kafka_infra_env$ $search_tk_kafka_infra_label$ $search_tk_kafka_infra_role$ $search_tk_kafka_infra_monitoring_state$ | fields keyid, env, label, name, role, monitoring_state, grace_period, lasttime | eval lasttime_epoch=lasttime, lasttime=strftime(lasttime_epoch, \"%d/%m/%Y %H:%M:%S\") | sort 0 role, env, label, name | eval range=if(monitoring_state=\"enabled\", \"low\", \"severe\")",
+            "search": "eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_kafka_infra_name$ $search_tk_kafka_infra_env$ $search_tk_kafka_infra_label$ $search_tk_kafka_infra_role$ $search_tk_kafka_infra_monitoring_state$ | fields keyid, env, label, name, role, monitoring_state, grace_period, lasttime | eval lasttime_epoch=lasttime, lasttime=strftime(lasttime_epoch, \"%d/%m/%Y %H:%M:%S\") | sort 0 role, env, label, name | eval \" \" = \"icon|\" + if(monitoring_state==\"enabled\",\"ico_good ico_small|icon-check|Up\", \"ico_error ico_small|icon-close|Down\")",
             "tokenDependencies": {},
             "runWhenTimeIsUndefined": false
         }, {
@@ -2006,7 +2011,7 @@ require([
         var search_kafka_infra_nodes_main_table = new PostProcessManager({
             "managerid": "search_kafka_infra_nodes_mainsearch",
             "id": "search_kafka_infra_nodes_main_table",
-            "search": "eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_kafka_infra_nodes_env$ $search_tk_kafka_infra_nodes_label$ $search_tk_kafka_infra_nodes_role$ $search_tk_kafka_infra_nodes_monitoring_state$ | fields keyid, env, label, role, current_nodes_number, minimal_nodes_number, monitoring_state | sort 0 role, env, label, role | eval range=if(monitoring_state=\"enabled\", \"low\", \"severe\")",
+            "search": "eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_kafka_infra_nodes_env$ $search_tk_kafka_infra_nodes_label$ $search_tk_kafka_infra_nodes_role$ $search_tk_kafka_infra_nodes_monitoring_state$ | fields keyid, env, label, role, current_nodes_number, minimal_nodes_number, monitoring_state | sort 0 role, env, label, role | eval \" \" = \"icon|\" + if(monitoring_state==\"enabled\",\"ico_good ico_small|icon-check|Up\", \"ico_error ico_small|icon-close|Down\")",
             "tokenDependencies": {},
             "runWhenTimeIsUndefined": false
         }, {
@@ -2094,7 +2099,7 @@ require([
         var search_kafka_topics_main_table = new PostProcessManager({
             "managerid": "search_kafka_topics_mainsearch",
             "id": "search_kafka_topics_main_table",
-            "search": "eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_kafka_topics_env$ $search_tk_kafka_topics_label$ $search_tk_kafka_topics_name$ $search_tk_kafka_topics_monitoring_state$ | fields keyid, env, label, topic, monitoring_state | sort 0 env, label, name | eval range=if(monitoring_state=\"enabled\", \"low\", \"severe\")",
+            "search": "eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_kafka_topics_env$ $search_tk_kafka_topics_label$ $search_tk_kafka_topics_name$ $search_tk_kafka_topics_monitoring_state$ | fields keyid, env, label, topic, monitoring_state | sort 0 env, label, name | eval \" \" = \"icon|\" + if(monitoring_state==\"enabled\",\"ico_good ico_small|icon-check|Up\", \"ico_error ico_small|icon-close|Down\")",
             "tokenDependencies": {},
             "runWhenTimeIsUndefined": false
         }, {
@@ -2218,7 +2223,7 @@ require([
             "sample_ratio": 1,
             "earliest_time": "-15m",
             "cancelOnUnload": true,
-            "search": "| inputlookup kafka_connect_tasks_monitoring | eval keyid = _key | fillnull value=\"unknown\" env, label | append [ | mstats latest(_value) as task_state_id where `telegraf_kafka_index` metric_name=\"kafka_connect.connector-task.status\" connector=* by connector, env, label, jolokia_agent_url, task span=1s | stats min(task_state_id) as task_state_id by env, label, connector | eval task_state=case(task_state_id=0, \"paused\", task_state_id=1, \"running\", task_state_id=2, \"unassigned\", task_state_id=3, \"failed\", task_state_id=4, \"destroyed\") ] | stats values(*) as \"*\" by env, label, connector  | search $search_tk_connect_env$ $search_tk_connect_label$ $search_tk_connect_connector$ $search_tk_connect_role$ $search_tk_connect_monitoring_state$ | fields keyid, env, label, connector, role, grace_period, task_state, monitoring_state, lasttime | eval lasttime=strftime(lasttime, \"%d/%m/%Y %H:%M:%S\") | sort 0 env, label, connector | eval range=if(monitoring_state=\"enabled\", \"low\", \"severe\")",
+            "search": "| inputlookup kafka_connect_tasks_monitoring | eval keyid = _key | fillnull value=\"unknown\" env, label | append [ | mstats latest(_value) as task_state_id where `telegraf_kafka_index` metric_name=\"kafka_connect.connector-task.status\" connector=* by connector, env, label, jolokia_agent_url, task span=1s | stats min(task_state_id) as task_state_id by env, label, connector | eval task_state=case(task_state_id=0, \"paused\", task_state_id=1, \"running\", task_state_id=2, \"unassigned\", task_state_id=3, \"failed\", task_state_id=4, \"destroyed\") ] | stats values(*) as \"*\" by env, label, connector  | search $search_tk_connect_env$ $search_tk_connect_label$ $search_tk_connect_connector$ $search_tk_connect_role$ $search_tk_connect_monitoring_state$ | fields keyid, env, label, connector, role, grace_period, task_state, monitoring_state, lasttime | eval lasttime=strftime(lasttime, \"%d/%m/%Y %H:%M:%S\") | sort 0 env, label, connector | eval \" \" = \"icon|\" + if(monitoring_state==\"enabled\",\"ico_good ico_small|icon-check|Up\", \"ico_error ico_small|icon-close|Down\")",
             "latest_time": "now",
             "status_buckets": 0,
             "app": utils.getCurrentApp(),
@@ -2359,7 +2364,7 @@ require([
         var search_burrow_main_table = new PostProcessManager({
             "managerid": "search_burrow_mainsearch",
             "id": "search_burrow_main_table",
-            "search": "eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_burrow_env$ $search_tk_burrow_label$ $search_tk_burrow_cluster$ $search_tk_burrow_monitoring_state$ $search_tk_burrow_name$ | fields keyid, env, label, cluster, group, monitoring_state | sort 0 env, label, cluster, group | eval range=if(monitoring_state=\"enabled\", \"low\", \"severe\")",
+            "search": "eval keyid = _key | fillnull value=\"unknown\" env, label | search $search_tk_burrow_env$ $search_tk_burrow_label$ $search_tk_burrow_cluster$ $search_tk_burrow_monitoring_state$ $search_tk_burrow_name$ | fields keyid, env, label, cluster, group, monitoring_state | sort 0 env, label, cluster, group | eval \" \" = \"icon|\" + if(monitoring_state==\"enabled\",\"ico_good ico_small|icon-check|Up\", \"ico_error ico_small|icon-close|Down\")",
             "tokenDependencies": {},
             "runWhenTimeIsUndefined": false
         }, {
@@ -2408,7 +2413,7 @@ require([
             "count": 100,
             "dataOverlayMode": "none",
             "drilldown": "row",
-            "fields": "title, cron_schedule, schedule_window, alert.suppress.fields, alert.suppress.period, disabled, next_scheduled_time,range",
+            "fields": "title, cron_schedule, schedule_window, alert.suppress.fields, alert.suppress.period, disabled, next_scheduled_time, \" \"",
             "percentagesRow": "false",
             "rowNumbers": "false",
             "totalsRow": "false",
@@ -2568,7 +2573,7 @@ require([
             "count": 100,
             "dataOverlayMode": "none",
             "drilldown": "row",
-            "fields": "keyid, env, label, name, role, monitoring_state, range, grace_period, lasttime",
+            "fields": "keyid, env, label, name, role, monitoring_state, \" \", grace_period, lasttime",
             "percentagesRow": "false",
             "rowNumbers": "false",
             "totalsRow": "false",
@@ -7048,6 +7053,6 @@ require([
 );
 // ]]>
 </script>
-<script src="{{SPLUNKWEB_URL_PREFIX}}/static/app/telegraf-kafka/alerting-management.js" type="text/javascript"></script>
+<script src="{{SPLUNKWEB_URL_PREFIX}}/static/app/telegraf-kafka/table_icon.js" type="text/javascript"></script>
 </body>
 </html>

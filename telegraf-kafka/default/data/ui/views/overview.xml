@@ -1,4 +1,4 @@
-<dashboard stylesheet="common.css,overview.css,boottsrap-btn.css" script="load_spinner.js,load_components.js,configcheck.js,token_buttons.js,overview.js," hideEdit="True" isVisible="True">
+<dashboard stylesheet="common.css,boottsrap-btn.css,table_icon.css" script="load_spinner.js,load_components.js,configcheck.js,token_buttons.js,table_icon.js" hideEdit="True" isVisible="True">
     <label>Overview</label>
 
     <search id="main_populate">
@@ -1344,10 +1344,10 @@
                 <fieldForLabel>label</fieldForLabel>
                 <fieldForValue>label</fieldForValue>
             </input>
-            <table id="table_source_tasks">
+            <table>
             <title>Kafka Connect source connector tasks status (click on the row to open entity view for that connector)</title>
                 <search depends="$show_source_tasks$">
-                    <query>| savedsearch "Kafka monitoring - tasks status report" | search $env$ $label$ | where role="kafka_source_task" | fields - integer_status</query>
+                    <query>| savedsearch "Kafka monitoring - tasks status report" | search $env$ $label$ | where role="kafka_source_task" | fields - integer_status | eval icon = "icon|" + case(range=="low","ico_good ico_small|icon-check|Up", range=="elevated" OR isnull(range), "ico_error ico_small|icon-close|Down") | rename icon as " " | fields - range</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                     <refresh>90s</refresh>
@@ -1389,7 +1389,7 @@
                 <fieldForLabel>label</fieldForLabel>
                 <fieldForValue>label</fieldForValue>
             </input>
-            <table id="table_source_tasks_alerts">
+            <table>
             <title>Kafka Connect source connector in alert (click on the row to open entity view for that connector)</title>
                 <search depends="$show_source_tasks_alerts$">
                     <query>| mstats latest(_value) as task_state_id where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" connector=* by env, label, connector, jolokia_agent_url, task span=1s
@@ -1410,9 +1410,9 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
 | fillnull value="severe" state
 | appendcols [ | inputlookup kafka_alerting_maintenance ] | filldown maintenance_mode
 | where state="severe" AND monitoring_state="enabled" AND NOT maintenance_mode="enabled"
-| eval range="severe" | rename lasttime as last_time
+| eval icon = "icon|" + "ico_error ico_small|icon-close|Down" | rename lasttime as last_time
 | search $env$ $label$
-| fields env, label, connector, monitoring_state, grace_period, last_time, check_time, delta_seconds, maintenance_mode, state, range</query>
+| fields env, label, connector, monitoring_state, grace_period, last_time, check_time, delta_seconds, maintenance_mode, state, icon | rename icon as " "</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                     <refresh>90s</refresh>
@@ -1454,10 +1454,10 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
                 <fieldForLabel>label</fieldForLabel>
                 <fieldForValue>label</fieldForValue>
             </input>
-            <table id="table_sink_tasks">
+            <table>
             <title>Kafka Connect sink connector tasks status (click on the row to open entity view for that connector)</title>
                 <search depends="$show_sink_tasks$">
-                    <query>| savedsearch "Kafka monitoring - tasks status report" | search $env$ $label$ | where role="kafka_sink_task" | fields - integer_status</query>
+                    <query>| savedsearch "Kafka monitoring - tasks status report" | search $env$ $label$ | where role="kafka_sink_task" | fields - integer_status | eval icon = "icon|" + case(range=="low","ico_good ico_small|icon-check|Up", range=="elevated" OR isnull(range), "ico_error ico_small|icon-close|Down") | rename icon as " " | fields - range</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                     <refresh>90s</refresh>
@@ -1499,7 +1499,7 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
                 <fieldForLabel>label</fieldForLabel>
                 <fieldForValue>label</fieldForValue>
             </input>
-            <table id="table_sink_tasks_alerts">
+            <table>
             <title>Kafka Connect sink connectors in alert (click on the row to open entity view for that connector)</title>
                 <search depends="$show_sink_tasks_alerts$">
                     <query>| mstats latest(_value) as task_state_id where `telegraf_kafka_index` metric_name="kafka_connect.connector-task.status" connector=* by env, label, connector, jolokia_agent_url, task span=1s
@@ -1520,9 +1520,9 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
 | fillnull value="severe" state
 | appendcols [ | inputlookup kafka_alerting_maintenance ] | filldown maintenance_mode
 | where state="severe" AND monitoring_state="enabled" AND NOT maintenance_mode="enabled"
-| eval range="severe" | rename lasttime as last_time
+| eval icon = "icon|" + "ico_error ico_small|icon-close|Down" | rename lasttime as last_time
 | search $env$ $label$
-| fields env, label, connector, monitoring_state, grace_period, last_time, check_time, delta_seconds, maintenance_mode, state, range</query>
+| fields env, label, connector, monitoring_state, grace_period, last_time, check_time, delta_seconds, maintenance_mode, state, icon | rename icon as " "</query>
                     <earliest>-15m</earliest>
                     <latest>now</latest>
                     <refresh>90s</refresh>
@@ -1632,7 +1632,7 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
 
     <row depends="$load_kafka_burrow$ $show_consumers_status$">
         <panel>
-            <table id="table_consumers">
+            <table>
             <title>Kafka Consumers Lag Burrow Monitoring</title>
                 <search depends="$show_consumers_status$">
                     <query>| mstats latest(_value) as value where metric_name="burrow_group.lag" OR metric_name="burrow_group.status_code" `telegraf_kafka_index` group!="" $env$ $label$ by env, label, cluster, group, metric_name span=10s
@@ -1640,10 +1640,10 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
 | stats first(burrow_group.*) as "*" by _time, env, label, cluster, group
 | stats max(_time) as lastTime, avg(lag) as avg_lag, max(lag) as max_lag, latest(lag) as current, sparkline(avg(lag),) As sparkline, latest(status_code) as status_code by env, label, cluster, group
 | lookup burrow_status status_code OUTPUT status, description
-| rangemap field=status_code low=1-1 elevated=2-2 default=severe
+| eval icon = "icon|" + case(status_code=="1","ico_good ico_small|icon-check|Up", status_code=="3", "ico_warn ico_small|icon-close|Down", status_code=="2" OR status_code=="4" OR status_code=="5" OR status_code=="6" OR isnull(status_code), "ico_error ico_small|icon-close|Down")
 | eval avg_lag=round(avg_lag, 3), delta_lastTime=now()-lastTime, lastTime=strftime(lastTime, "%H:%M:%S")
 | eval status=if(delta_lastTime>120, "UNKNOWN", status), description=if(delta_lastTime>120, "The delta in seconds between the last state received and now has exceeded 120 seconds", description)
-| fields env, label, cluster, group, avg_lag, max_lag, current, sparkline, status, range, lastTime, description | rename description as "status description"
+| fields env, label, cluster, group, avg_lag, max_lag, current, sparkline, status, icon, lastTime, description | rename description as "status description", icon as " "
 | lookup kafka_burrow_consumers_monitoring env, label, cluster, group OUTPUT monitoring_state</query>
                     <earliest>-60m</earliest>
                     <latest>now</latest>
