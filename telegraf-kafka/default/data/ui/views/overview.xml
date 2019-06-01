@@ -1,4 +1,4 @@
-<dashboard stylesheet="common.css,boottsrap-btn.css,table_icon.css" script="load_spinner.js,load_components.js,configcheck.js,token_buttons.js,table_icon.js" hideEdit="True" isVisible="True">
+<dashboard stylesheet="common.css,boottsrap-btn.css,table.css" script="load_spinner.js,load_components.js,configcheck.js,token_buttons.js,table.js" hideEdit="True" isVisible="True">
     <label>Overview</label>
 
     <search id="main_populate">
@@ -823,6 +823,122 @@
     </row>
 
     <row depends="$load_kafka_broker$ $show_brokers_overview$">
+        <panel depends="$alwaysHideCSS$">
+            <html>
+                <style>
+                    #brokers{
+                    width:65% !important;
+                    }
+                    #metrics{
+                    width:35% !important;
+                    }
+                </style>
+            </html>
+        </panel>
+        <panel id="brokers">
+            <title>Brokers (click on the row to open broker detailed view for the selected broker)</title>
+            <table>
+                <search depends="$load_kafka_broker$ $show_brokers_overview$">
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index`metric_name="kafka_topics.BytesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesOutPerSec.OneMinuteRate" $env$ $label$ $brokers_jolokia_agent_url$ by env, label, metric_name, jolokia_agent_url span=10s
+| eval {metric_name}=value
+| stats first(kafka_topics.*.OneMinuteRate) as "*" by _time, env, label, jolokia_agent_url
+| eval KBytesInPerSec=round(BytesInPerSec/1024, 2), KBytesOutPerSec=round(BytesOutPerSec/1024, 2)
+| rex field=jolokia_agent_url "//(?&lt;kafka_broker&gt;[^:]*)\:"
+| fields env, label, _time, kafka_broker, jolokia_agent_url, KBytesInPerSec, KBytesOutPerSec
+| stats latest(KBytesInPerSec) as "KBytes in", sparkline(avg(KBytesInPerSec),) As sparkline_in, latest(KBytesOutPerSec) as "KBytes out", sparkline(avg(KBytesOutPerSec),) As sparkline_out by env, label, kafka_broker, jolokia_agent_url
+| join type=outer env, label, kafka_broker [ | mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_controller.OfflinePartitionsCount.Value" OR metric_name="kafka_replica_manager.UnderReplicatedPartitions.Value" $env$ $label$ $brokers_jolokia_agent_url$ earliest=-2m latest=now by env, label, jolokia_agent_url, metric_name
+| eval {metric_name}=value
+| stats first(kafka_controller.OfflinePartitionsCount.Value) as offline, first(kafka_replica_manager.UnderReplicatedPartitions.Value) as under-replicated by env, label, jolokia_agent_url | rex field=jolokia_agent_url "//(?&lt;kafka_broker&gt;[^:]*)\:"
+| eval icon = "icon|" + if(offline=="0" AND 'under-replicated'=="0", "ico_good ico_small|icon-check|Up", "ico_error ico_small|icon-close|Down") ]
+| fields env, label, kafka_broker, "KBytes in", "sparkline_in", "KBytes out", "sparkline_out", offline, "under-replicated", icon
+| eval icon=if(isnull(icon), "icon|" + "ico_error ico_small|icon-close|Down", icon) | rename icon as " "
+| fillnull value="ERROR" offline, "under-replicated"</query>
+                    <earliest>$brokers_time.earliest$</earliest>
+                    <latest>$brokers_time.latest$</latest>
+                    <sampleRatio>1</sampleRatio>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="count">100</option>
+                <option name="dataOverlayMode">none</option>
+                <option name="drilldown">row</option>
+                <option name="percentagesRow">false</option>
+                <option name="refresh.display">none</option>
+                <option name="rowNumbers">false</option>
+                <option name="totalsRow">false</option>
+                <option name="wrap">true</option>
+                <format field="sparkline_in" type="sparkline">
+                    <option name="lineColor">#5379af</option>
+                    <option name="fillColor">#CCDDFF</option>
+                    <option name="lineWidth">1</option>
+                    <option name="height">25</option>
+                </format>
+                <format field="sparkline_out" type="sparkline">
+                    <option name="lineColor">#5379af</option>
+                    <option name="fillColor">#CCDDFF</option>
+                    <option name="lineWidth">1</option>
+                    <option name="height">25</option>
+                </format>
+                <format type="color" field="KBytes in">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="KBytes out">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <drilldown>
+                    <link>/app/telegraf-kafka/overview_broker_details?env=$row.env$&amp;label=$row.label$&amp;kafka_broker=$row.kafka_broker$&amp;jolokia_agent_url=$row.jolokia_agent_url$</link>
+                </drilldown>
+            </table>
+        </panel>
+        <panel id="metrics">
+            <title>Combined Metrics</title>
+            <table>
+                <search depends="$load_kafka_broker$ $show_brokers_overview$">
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index`
+metric_name="kafka_topics.MessagesInPerSec.MeanRate" OR metric_name="kafka_topics.MessagesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.MessagesInPerSec.FiveMinuteRate" OR metric_name="kafka_topics.MessagesInPerSec.FifteenMinuteRate"
+OR metric_name="kafka_topics.BytesInPerSec.MeanRate" OR metric_name="kafka_topics.BytesInPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesInPerSec.FiveMinuteRate" OR metric_name="kafka_topics.BytesInPerSec.FifteenMinuteRate"
+OR metric_name="kafka_topics.BytesOutPerSec.MeanRate" OR metric_name="kafka_topics.BytesOutPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesOutPerSec.FiveMinuteRate" OR metric_name="kafka_topics.BytesOutPerSec.FifteenMinuteRate"
+OR metric_name="kafka_topics.BytesRejectedPerSec.MeanRate" OR metric_name="kafka_topics.BytesRejectedPerSec.OneMinuteRate" OR metric_name="kafka_topics.BytesRejectedPerSec.FiveMinuteRate" OR metric_name="kafka_topics.BytesRejectedPerSec.FifteenMinuteRate"
+OR metric_name="kafka_topics.FailedFetchRequestsPerSec.MeanRate" OR metric_name="kafka_topics.FailedFetchRequestsPerSec.OneMinuteRate" OR metric_name="kafka_topics.FailedFetchRequestsPerSec.FiveMinuteRate" OR metric_name="kafka_topics.FailedFetchRequestsPerSec.FifteenMinuteRate"
+OR metric_name="kafka_topics.FailedProduceRequestsPerSec.MeanRate" OR metric_name="kafka_topics.FailedProduceRequestsPerSec.OneMinuteRate" OR metric_name="kafka_topics.FailedProduceRequestsPerSec.FiveMinuteRate" OR metric_name="kafka_topics.FailedProduceRequestsPerSec.FifteenMinuteRate" $env$ $label$ $brokers_jolokia_agent_url$ by metric_name, jolokia_agent_url
+| rex field=metric_name "[^\.]*\.(?&lt;rate&gt;[^\.]*)\."
+| eval {metric_name}=value
+| stats first(kafka_topics.*) as "*" by rate, jolokia_agent_url
+| eval Mean=case(isnotnull('FailedProduceRequestsPerSec.MeanRate'), 'FailedProduceRequestsPerSec.MeanRate', isnotnull('FailedFetchRequestsPerSec.MeanRate'), 'FailedFetchRequestsPerSec.MeanRate', isnotnull('BytesRejectedPerSec.MeanRate'), 'BytesRejectedPerSec.MeanRate', isnotnull('BytesInPerSec.MeanRate'), 'BytesInPerSec.MeanRate', isnotnull('BytesOutPerSec.MeanRate'), 'BytesOutPerSec.MeanRate', isnotnull('MessagesInPerSec.MeanRate'), 'MessagesInPerSec.MeanRate')
+| eval 1min=case(isnotnull('FailedProduceRequestsPerSec.OneMinuteRate'), 'FailedProduceRequestsPerSec.OneMinuteRate', isnotnull('FailedFetchRequestsPerSec.OneMinuteRate'), 'FailedFetchRequestsPerSec.OneMinuteRate', isnotnull('BytesRejectedPerSec.OneMinuteRate'), 'BytesRejectedPerSec.OneMinuteRate', isnotnull('BytesInPerSec.OneMinuteRate'), 'BytesInPerSec.OneMinuteRate', isnotnull('BytesOutPerSec.OneMinuteRate'), 'BytesOutPerSec.OneMinuteRate', isnotnull('MessagesInPerSec.OneMinuteRate'), 'MessagesInPerSec.OneMinuteRate')
+| eval 5min=case(isnotnull('FailedProduceRequestsPerSec.FiveMinuteRate'), 'FailedProduceRequestsPerSec.FiveMinuteRate', isnotnull('FailedFetchRequestsPerSec.FiveMinuteRate'), 'FailedFetchRequestsPerSec.FiveMinuteRate', isnotnull('BytesRejectedPerSec.FiveMinuteRate'), 'BytesRejectedPerSec.FiveMinuteRate', isnotnull('BytesInPerSec.FiveMinuteRate'), 'BytesInPerSec.FiveMinuteRate', isnotnull('BytesOutPerSec.FiveMinuteRate'), 'BytesOutPerSec.FiveMinuteRate', isnotnull('MessagesInPerSec.FiveMinuteRate'), 'MessagesInPerSec.FiveMinuteRate')
+| eval 15min=case(isnotnull('FailedProduceRequestsPerSec.FifteenMinuteRate'), 'FailedProduceRequestsPerSec.FifteenMinuteRate', isnotnull('FailedFetchRequestsPerSec.FifteenMinuteRate'), 'FailedFetchRequestsPerSec.FifteenMinuteRate', isnotnull('BytesRejectedPerSec.FifteenMinuteRate'), 'BytesRejectedPerSec.FifteenMinuteRate', isnotnull('BytesInPerSec.FifteenMinuteRate'), 'BytesInPerSec.FifteenMinuteRate', isnotnull('BytesOutPerSec.FifteenMinuteRate'), 'BytesOutPerSec.FifteenMinuteRate', isnotnull('MessagesInPerSec.FifteenMinuteRate'), 'MessagesInPerSec.FifteenMinuteRate')
+| fields rate, jolokia_agent_url, Mean, 1min, 5min, 15min
+| stats avg(*) as "*" by rate
+| fields rate, Mean, 1min, 5min, 15min
+| foreach Mean, 1min, 5min, 15min [ eval "&lt;&lt;FIELD&gt;&gt;" = if(rate="BytesInPerSec" OR rate="BytesOutPerSec", round('&lt;&lt;FIELD&gt;&gt;'/1024, 2), '&lt;&lt;FIELD&gt;&gt;') ]
+| rex field=rate mode=sed "s/BytesInPerSec/KBytesInPerSec/g"
+| rex field=rate mode=sed "s/BytesOutPerSec/KBytesOutPerSec/g"
+| eval order=case(rate="MessagesInPerSec", 0, rate="KBytesInPerSec", 1, rate="KBytesOutPerSec", 2, rate="BytesRejectedPerSec", 3, rate="FailedFetchRequestsPerSec", 4, rate="FailedProduceRequestsPerSec", 5)
+| sort order | fields - order
+| foreach Mean, 1min, 5min, 15min [ eval "&lt;&lt;FIELD&gt;&gt;" = round('&lt;&lt;FIELD&gt;&gt;', 2) ]
+| rename 1min as "1 min", 5min as "5 min", 15min as "15 min"
+| rex field=rate mode=sed "s/MessagesInPerSec/Messages in \/sec/g"
+| rex field=rate mode=sed "s/KBytesInPerSec/KBytes in \/sec/g"
+| rex field=rate mode=sed "s/KBytesOutPerSec/KBytes out \/sec/g"
+| rex field=rate mode=sed "s/BytesRejectedPerSec/Bytes rejected \/sec/g"
+| rex field=rate mode=sed "s/FailedFetchRequestsPerSec/Failed fetch request \/sec/g"
+| rex field=rate mode=sed "s/FailedProduceRequestsPerSec/Failed produce request \/sec/g"
+| rename rate as Rate</query>
+                    <earliest>$brokers_time.earliest$</earliest>
+                    <latest>$brokers_time.latest$</latest>
+                    <refresh>30s</refresh>
+                    <refreshType>delay</refreshType>
+                </search>
+                <option name="drilldown">none</option>
+                <option name="refresh.display">none</option>
+            </table>
+        </panel>
+    </row>
+
+    <row depends="$load_kafka_broker$ $show_brokers_overview$">
         <panel>
             <title>All topics messages per sec</title>
             <chart>
@@ -1643,6 +1759,7 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
 | eval icon = "icon|" + case(status_code=="1","ico_good ico_small|icon-check|Up", status_code=="3", "ico_warn ico_small|icon-close|Down", status_code=="2" OR status_code=="4" OR status_code=="5" OR status_code=="6" OR isnull(status_code), "ico_error ico_small|icon-close|Down")
 | eval avg_lag=round(avg_lag, 3), delta_lastTime=now()-lastTime, lastTime=strftime(lastTime, "%H:%M:%S")
 | eval status=if(delta_lastTime>120, "UNKNOWN", status), description=if(delta_lastTime>120, "The delta in seconds between the last state received and now has exceeded 120 seconds", description)
+| eval icon=if(delta_lastTime>120, "icon|" + "ico_error ico_small|icon-close|Down", icon)
 | fields env, label, cluster, group, avg_lag, max_lag, current, sparkline, status, icon, lastTime, description | rename description as "status description", icon as " "
 | lookup kafka_burrow_consumers_monitoring env, label, cluster, group OUTPUT monitoring_state</query>
                     <earliest>-60m</earliest>

@@ -1,4 +1,4 @@
-<form script="telegraf-kafka:table_icon.js" stylesheet="telegraf-kafka:common.css,telegraf-kafka:table_icon.css">
+<form script="telegraf-kafka:table.js" stylesheet="telegraf-kafka:common.css,telegraf-kafka:table.css">
     <label>Burrow</label>
     <search id="main_populate">
         <query>| savedsearch telegraf-kafka-burrow-partition | search (group="$group$") </query>
@@ -42,8 +42,9 @@
 | eval icon = "icon|" + case(status_code=="1","ico_good ico_small|icon-check|Up", status_code=="3", "ico_warn ico_small|icon-close|Down", status_code=="2" OR status_code=="4" OR status_code=="5" OR status_code=="6" OR isnull(status_code), "ico_error ico_small|icon-close|Down")
 | eval avg_lag=round(avg_lag, 3), delta_lastTime=now()-lastTime, lastTime=strftime(lastTime, "%H:%M:%S")
 | eval status=if(delta_lastTime>120, "UNKNOWN", status), description=if(delta_lastTime>120, "The delta in seconds between the last state received and now has exceeded 120 seconds", description), range=if(delta_lastTime>120, "severe", range)
+| eval icon=if(delta_lastTime>120, "icon|" + "ico_error ico_small|icon-close|Down", icon)
 | appendcols [ | mcatalog values(topic) as topics where metric_name="burrow_partition.lag" `telegraf_kafka_index` group="$group$" by group ]
-| fields group, topics, avg_lag, max_lag, current, sparkline, status, " ", lastTime, description | rename description as "status description", topics as "consuming from topics", icon as " "</query>
+| fields group, topics, avg_lag, max_lag, current, sparkline, status, icon, lastTime, description | rename description as "status description", topics as "consuming from topics", icon as " "</query>
                     <earliest>$time.earliest$</earliest>
                     <latest>$time.latest$</latest>
                     <sampleRatio>1</sampleRatio>
@@ -219,6 +220,7 @@
 | eval icon = "icon|" + case(status_code=="1","ico_good ico_small|icon-check|Up", status_code=="3", "ico_warn ico_small|icon-close|Down", status_code=="2" OR status_code=="4" OR status_code=="5" OR status_code=="6" OR isnull(status_code), "ico_error ico_small|icon-close|Down")
 | eval avg_lag=round(avg_lag, 3), delta_lastTime=now()-lastTime, lastTime=strftime(lastTime, "%H:%M:%S")
 | eval status=if(delta_lastTime>120, "UNKNOWN", status), description=if(delta_lastTime>120, "The delta in seconds between the last state received and now has exceeded 120 seconds", description), range=if(delta_lastTime>120, "severe", range)
+| eval icon=if(delta_lastTime>120, "icon|" + "ico_error ico_small|icon-close|Down", icon)
 | join topic, partition [ | mstats latest(_value) prestats=t where metric_name="burrow_topic.offset" `telegraf_kafka_index` env=$env$ label=$label$ $topic$ by topic, partition
 | stats latest(_value) as topic_offset by topic, partition ]
 | fields topic, partition, topic_offset, current_offset, avg_lag, max_lag, current, sparkline, status, icon, lastTime, description | rename description as "status description", icon as " "</query>
