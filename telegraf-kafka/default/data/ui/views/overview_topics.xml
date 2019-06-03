@@ -1,4 +1,4 @@
-<dashboard stylesheet="telegraf-kafka:common.css" hideEdit="True" isVisible="True">
+<dashboard stylesheet="telegraf-kafka:common.css,telegraf-kafka:table.css" script="telegraf-kafka:table.js" hideEdit="True" isVisible="True">
     <label>Topics</label>
     <search id="main_populate">
         <query>| savedsearch telegraf-kafka-kafka-topics</query>
@@ -75,7 +75,8 @@
 | eval "Brokers spread %" = round('# Brokers' / no_brokers * 100, 2) | fields - no_brokers
 | append [ mstats avg(_value) as msg_sec where `telegraf_kafka_index` metric_name="kafka_topic.MessagesInPerSec.OneMinuteRate" $env$ $label$ $kafka_topic$ by env, label, topic | eval msg_sec = round(msg_sec, 2) ]
 | stats first(*) as "*" by env, label, topic | rename msg_sec as "Producer Message/sec"
-| fields env, label, topic, "# Partitions", "# Brokers", "# Replicas", "Brokers spread %", "# UnderReplicatedPartitions", "Size MB", "Producer Message/sec"</query>
+| eval icon = "icon|" + if('# UnderReplicatedPartitions'=="0", "ico_good ico_small|icon-check|Up", "ico_error ico_small|icon-close|Down")
+| fields env, label, topic, "# Partitions", "# Brokers", "# Replicas", "Brokers spread %", "# UnderReplicatedPartitions", icon, "Size MB", "Producer Message/sec" | rename icon as " "</query>
                     <earliest>-1h</earliest>
                     <latest>now</latest>
                     <sampleRatio>1</sampleRatio>

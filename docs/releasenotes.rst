@@ -2,6 +2,15 @@ Release notes
 #############
 
 ==============
+Version 1.1.26
+==============
+
+- fix: The total number of Kafka Connect connectors reported in Alerting management UI is incorrect if connectors have the same ID across multiple tenants
+- fix: Cleaning / deletion of unused css and js objects
+- feature: Improved table icons rendering with courtesy of Chrys Younger
+- feature: Improved Broker overview panels in Overview and Brokers views
+
+==============
 Version 1.1.25
 ==============
 
