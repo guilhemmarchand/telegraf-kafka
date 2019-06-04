@@ -850,7 +850,7 @@
 | eval {metric_name}=value
 | stats first(kafka_controller.OfflinePartitionsCount.Value) as offline, first(kafka_replica_manager.UnderReplicatedPartitions.Value) as under-replicated by env, label, jolokia_agent_url | rex field=jolokia_agent_url "//(?&lt;kafka_broker&gt;[^:]*)\:"
 | eval icon = "icon|" + if(offline=="0" AND 'under-replicated'=="0", "ico_good ico_small|icon-check|Up", "ico_error ico_small|icon-close|Down") ]
-| fields env, label, kafka_broker, "KBytes in", "sparkline_in", "KBytes out", "sparkline_out", offline, "under-replicated", icon
+| fields env, label, kafka_broker, "KBytes in", "sparkline_in", "KBytes out", "sparkline_out", offline, "under-replicated", icon, jolokia_agent_url
 | eval icon=if(isnull(icon), "icon|" + "ico_error ico_small|icon-close|Down", icon) | rename icon as " "
 | fillnull value="ERROR" offline, "under-replicated"</query>
                     <earliest>$brokers_time.earliest$</earliest>
@@ -867,6 +867,7 @@
                 <option name="rowNumbers">false</option>
                 <option name="totalsRow">false</option>
                 <option name="wrap">true</option>
+                <option name="fields">env, label, kafka_broker, "KBytes in", "sparkline_in", "KBytes out", "sparkline_out", offline, "under-replicated", " "</option>
                 <format field="sparkline_in" type="sparkline">
                     <option name="lineColor">#5379af</option>
                     <option name="fillColor">#CCDDFF</option>
