@@ -2,6 +2,12 @@ Release notes
 #############
 
 ==============
+Version 1.1.27
+==============
+
+- fix: Drilldown link broken for Kafka Broker view from dynamic Brokers overview in main Overview dashboards, or Kafka Brokers dashboard (change introduced in 1.1.26)
+
+==============
 Version 1.1.26
 ==============
 
