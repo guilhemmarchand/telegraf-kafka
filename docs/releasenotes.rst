@@ -2,6 +2,12 @@ Release notes
 #############
 
 ==============
+Version 1.1.28
+==============
+
+- feature: Improvement of the maintenance mode with start date time selection capability and automatic scheduling
+
+==============
 Version 1.1.27
 ==============
 

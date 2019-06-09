@@ -71,7 +71,17 @@ styles in <div> tags, similar to Bootstrap's grid system.
                 </div>
                 <div class="modal-body">
 
-                    <p><b>Select the end of the maintenance mode:</b></p>
+                    <p><b>Enable maintenance mode to avoid alerts triggering during your maintenance time window:</b></p>
+
+                    <div class="dateInput">
+                        <div style="margin-bottom: 6px">Maintenance modes starts on:</div>
+                        <input id="inputStartMaintenance" type="date">
+                    </div>
+                    <div class="input input-dropdown" id="inputStartMaintenanceTime">
+                        <label>At:</label>
+                    </div>
+
+                    <br />
 
                     <div class="dateInput">
                         <div style="margin-bottom: 6px">Maintenance modes ends on:</div>
@@ -80,6 +90,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
                     <div class="input input-dropdown" id="inputEndMaintenanceTime">
                         <label>At:</label>
                     </div>
+
                 </div>
 
                 <div class="modal-footer">
@@ -167,18 +178,18 @@ styles in <div> tags, similar to Bootstrap's grid system.
         </div>
     </div>
 
-    <!-- Maintenance mode end of date is in the past -->
-    <div class="modal fade" id="maintenance_mode_data_is_past" role="dialog">
+    <!-- Maintenance mode selection is invalid -->
+    <div class="modal fade" id="maintenance_mode_date_is_invalid" role="dialog">
         <div class="modal-dialog">
 
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h3 style="color: indianred;"><span class="glyphicon glyphicon-lock"></span>Maintenance mode</h3>
+                    <h3 style="color: indianred;"><span class="glyphicon glyphicon-lock"></span>Oops!</h3>
                 </div>
                 <div class="modal-body">
-                    <p><b>Invalid entry:</b> the selected date time is in the past, please select a valid end date for the maintenance mode.
+                    <p><b>Invalid entry:</b> the selected date time is in the past or your start / end time selection is invalid, please correct your selection.
                     </p>
                 </div>
 
@@ -277,6 +288,77 @@ styles in <div> tags, similar to Bootstrap's grid system.
 
                 <div class="modal-footer">
                     <button type="submit" id="btn_modal_reload" class="btn btn-default btn-primary pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close & refresh</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- maintenance mode disabled -->
+    <div class="modal fade" id="modal_maintenance_mode_disabled" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 style="color: steelblue;"><span class="glyphicon glyphicon-lock"></span>Maintenance mode has been disabled</h3>
+                </div>
+                <div class="modal-body">
+                    <p><b>The maintenance mode has been successfully disabled.</b><br /><br />
+                        Returning to normal operation mode, all of the activated Kafka alerting will be able to trigger starting now. <br />
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- maintenance mode final message-->
+    <div class="modal fade" id="modal_maintenance_mode_confirmed" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 style="color: indianred;"><span class="glyphicon glyphicon-lock"></span>Maintenance mode has been enabled</h3>
+                </div>
+                <div class="modal-body">
+                    <p><b>The maintenance mode has been successfully enabled.</b><br /><br />
+                        None of the Kafka alerting will be able to trigger during the maintenance time window. <br /><br />
+                        The maintenance mode will be automatically deactivated when the end date time configured will be reached.
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- maintenance mode final message-->
+    <div class="modal fade" id="modal_maintenance_mode_scheduled" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 style="color: indianred;"><span class="glyphicon glyphicon-lock"></span>Maintenance mode scheduled</h3>
+                </div>
+                <div class="modal-body">
+                    <p><b>The maintenance mode has been successfully scheduled.</b><br /><br />
+                        The scheduled report will automatically enable the maintenance mode according to your request. <br /><br />
+                        During the maintenance time window, none of the Kafka alerting wll be able to trigger.
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default btn-default pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
                 </div>
             </div>
         </div>
@@ -741,6 +823,19 @@ styles in <div> tags, similar to Bootstrap's grid system.
 
                 <div class="panel-element-row">
                     <div id="element_maintenance_state_reactivation" class="dashboard-element single" style="width: 100%">
+                        <div class="panel-body"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="row_maintenance_state_scheduled" class="dashboard-row dashboard-row_maintenance_state_scheduled" data-depends="$maintenance_scheduled$">
+        <div id="panel_maintenance_state_scheduled" class="dashboard-cell" style="width: 100%;">
+            <div class="dashboard-panel clearfix">
+
+                <div class="panel-element-row">
+                    <div id="element_maintenance_state_scheduled" class="dashboard-element single" style="width: 100%">
                         <div class="panel-body"></div>
                     </div>
                 </div>
@@ -1569,7 +1664,7 @@ require([
         var search_maintenance_mode_mainsearch = new SearchManager({
             "id": "search_maintenance_mode_mainsearch",
             "sample_ratio": 1,
-            "search": "| inputlookup kafka_alerting_maintenance",
+            "search": "| inputlookup kafka_alerting_maintenance | eval maintenance_mode=if(now()<maintenance_mode_start AND maintenance_mode_end>now(), \"scheduled\", maintenance_mode)",
             "status_buckets": 0,
             "earliest_time": "-24h@h",
             "cancelOnUnload": true,
@@ -1594,12 +1689,33 @@ require([
                         "type": "set",
                         "token": "maintenance_enabled",
                         "value": "true"
+                    },
+                    {
+                        "type": "unset",
+                        "token": "maintenance_scheduled"
+                    }]
+                },
+                {
+                    attr: "match",
+                    value: "'result.maintenance_mode'==\"scheduled\"",
+                    actions: [{
+                        "type": "set",
+                        "token": "maintenance_scheduled",
+                        "value": "true"
+                    },
+                    {
+                        "type": "unset",
+                        "token": "maintenance_enabled"
                     }]
                 },
                 {
                     attr: "match",
                     value: "'result.maintenance_mode'==\"disabled\"",
                     actions: [{
+                        "type": "unset",
+                        "token": "maintenance_scheduled"
+                    },
+                    {
                         "type": "unset",
                         "token": "maintenance_enabled"
                     }]
@@ -1610,7 +1726,7 @@ require([
         var search_maintenance_state = new PostProcessManager({
             "managerid": "search_maintenance_mode_mainsearch",
             "id": "search_maintenance_state",
-            "search": "fields maintenance_mode | eval maintenance=if(match(maintenance_mode, \"enabled\"), 1, 0), maintenance_mode=upper(maintenance_mode) | rangemap field=maintenance low=0-0 severe=1-1 default=severe",
+            "search": "fields maintenance_mode | eval maintenance=case(match(maintenance_mode, \"enabled\"), 1, match(maintenance_mode, \"disabled\"), 0, match(maintenance_mode, \"scheduled\"), 2), maintenance_mode=upper(maintenance_mode) | rangemap field=maintenance low=0-0 severe=1-1 high=2-2 default=severe",
             "tokenDependencies": {},
             "runWhenTimeIsUndefined": false
         }, {
@@ -1621,12 +1737,237 @@ require([
         var search_maintenance_state_reactivation = new PostProcessManager({
             "managerid": "search_maintenance_mode_mainsearch",
             "id": "search_maintenance_state_reactivation",
-            "search": "eval maintenance_mode_end=strftime(maintenance_mode_end, \"%d %b %H:%M\") | fields maintenance_mode_end",
+            "search": "eval maintenance_mode_end=strftime(maintenance_mode_end, \"%d %b %H:%M\") | eval maintenance = \"Ends on: \" . maintenance_mode_end | fields maintenance",
             "tokenDependencies": {},
             "runWhenTimeIsUndefined": false
         }, {
             tokens: true,
             tokenNamespace: "submitted"
+        });
+
+        var search_maintenance_state_scheduled = new PostProcessManager({
+            "managerid": "search_maintenance_mode_mainsearch",
+            "id": "search_maintenance_state_scheduled",
+            "search": "eval maintenance_mode_start=strftime(maintenance_mode_start, \"%d %b %H:%M\"), maintenance_mode_end=strftime(maintenance_mode_end, \"%d %b %H:%M\") | eval maintenance = \"Starts on: \" . maintenance_mode_start . \" / \" . \"Ends on: \" . maintenance_mode_end | fields maintenance",
+            "tokenDependencies": {},
+            "runWhenTimeIsUndefined": false
+        }, {
+            tokens: true,
+            tokenNamespace: "submitted"
+        });
+
+        // start time maintenance mode
+        var inputStartMaintenanceTime = new DropdownInput({
+            "id": "inputStartMaintenanceTime",
+            "choices": [{
+                    "value": "now",
+                    "label": "now"
+                },
+                {
+                    "value": "00:00",
+                    "label": "12:00am"
+                },
+                {
+                    "value": "00:30",
+                    "label": "12:30am"
+                },
+                {
+                    "value": "01:00",
+                    "label": "01:00am"
+                },
+                {
+                    "value": "01:30",
+                    "label": "01:30am"
+                },
+                {
+                    "value": "02:00",
+                    "label": "02:00am"
+                },
+                {
+                    "value": "02:30",
+                    "label": "02:30am"
+                },
+                {
+                    "value": "03:00",
+                    "label": "03:00am"
+                },
+                {
+                    "value": "03:30",
+                    "label": "03:30am"
+                },
+                {
+                    "value": "04:00",
+                    "label": "04:00am"
+                },
+                {
+                    "value": "04:30",
+                    "label": "04:30am"
+                },
+                {
+                    "value": "05:00",
+                    "label": "05:00am"
+                },
+                {
+                    "value": "05:30",
+                    "label": "05:30am"
+                },
+                {
+                    "value": "06:00",
+                    "label": "06:00am"
+                },
+                {
+                    "value": "06:30",
+                    "label": "06:30am"
+                },
+                {
+                    "value": "07:00",
+                    "label": "07:00am"
+                },
+                {
+                    "value": "07:30",
+                    "label": "07:30am"
+                },
+                {
+                    "value": "08:00",
+                    "label": "08:00am"
+                },
+                {
+                    "value": "08:30",
+                    "label": "08:30am"
+                },
+                {
+                    "value": "09:00",
+                    "label": "09:00am"
+                },
+                {
+                    "value": "09:30",
+                    "label": "09:30am"
+                },
+                {
+                    "value": "10:00",
+                    "label": "10:00am"
+                },
+                {
+                    "value": "10:30",
+                    "label": "10:30am"
+                },
+                {
+                    "value": "11:00",
+                    "label": "11:00am"
+                },
+                {
+                    "value": "11:30",
+                    "label": "11:30am"
+                },
+                {
+                    "value": "12:00",
+                    "label": "12:00pm"
+                },
+                {
+                    "value": "12:30",
+                    "label": "12:30pm"
+                },
+                {
+                    "value": "13:00",
+                    "label": "01:00pm"
+                },
+                {
+                    "value": "13:30",
+                    "label": "01:30pm"
+                },
+                {
+                    "value": "14:00",
+                    "label": "02:00pm"
+                },
+                {
+                    "value": "14:30",
+                    "label": "02:30pm"
+                },
+                {
+                    "value": "15:00",
+                    "label": "03:00pm"
+                },
+                {
+                    "value": "15:30",
+                    "label": "03:30pm"
+                },
+                {
+                    "value": "16:00",
+                    "label": "04:00pm"
+                },
+                {
+                    "value": "16:30",
+                    "label": "04:30pm"
+                },
+                {
+                    "value": "17:00",
+                    "label": "05:00pm"
+                },
+                {
+                    "value": "17:30",
+                    "label": "05:30pm"
+                },
+                {
+                    "value": "18:00",
+                    "label": "06:00pm"
+                },
+                {
+                    "value": "18:30",
+                    "label": "06:30pm"
+                },
+                {
+                    "value": "19:00",
+                    "label": "07:00pm"
+                },
+                {
+                    "value": "19:30",
+                    "label": "07:30pm"
+                },
+                {
+                    "value": "20:00",
+                    "label": "08:00pm"
+                },
+                {
+                    "value": "20:30",
+                    "label": "08:30pm"
+                },
+                {
+                    "value": "21:00",
+                    "label": "09:00pm"
+                },
+                {
+                    "value": "21:30",
+                    "label": "09:30pm"
+                },
+                {
+                    "value": "22:00",
+                    "label": "10:00pm"
+                },
+                {
+                    "value": "22:30",
+                    "label": "10:30pm"
+                },
+                {
+                    "value": "23:00",
+                    "label": "11:00pm"
+                },
+                {
+                    "value": "23:30",
+                    "label": "11:30pm"
+                }
+            ],
+            "searchWhenChanged": true,
+            "selectFirstChoice": false,
+            "initialValue": "now",
+            "showClearButton": true,
+            "value": "$form.time_start_maintenance$",
+            "el": $('#inputStartMaintenanceTime')
+        }, {
+            tokens: true
+        }).render();
+
+        inputStartMaintenanceTime.on("change", function(newValue) {
+            FormUtils.handleValueChange(inputStartMaintenanceTime);
         });
 
         // end time maintenance mode
@@ -2509,6 +2850,23 @@ require([
             "height": "60",
             "managerid": "search_maintenance_state_reactivation",
             "el": $('#element_maintenance_state_reactivation')
+        }, {
+            tokens: true,
+            tokenNamespace: "submitted"
+        }).render();
+
+        var element_maintenance_state_scheduled = new SingleElement({
+            "id": "element_maintenance_state_scheduled",
+            "drilldown": "none",
+            "colorMode": "block",
+            "link.visible": "false",
+            "numberPrecision": "0",
+            "useColors": "0",
+            "underLabel": "MAINTENANCE MODE HAS BEEN SCHEDULED",
+            "colorBy": "value",
+            "height": "60",
+            "managerid": "search_maintenance_state_scheduled",
+            "el": $('#element_maintenance_state_scheduled')
         }, {
             tokens: true,
             tokenNamespace: "submitted"
@@ -4048,7 +4406,7 @@ require([
         //
 
         // Define the query
-        var searchQuery = "| inputlookup kafka_alerting_maintenance";
+        var searchQuery = "| savedsearch \"Verify Kafka alerting maintenance status\" | eval maintenance_mode=if(now()<maintenance_mode_start AND maintenance_mode_end>now(), \"scheduled\", maintenance_mode)";
 
         // Set the search parameters--specify a time range
         var searchParams = {
@@ -4082,7 +4440,7 @@ require([
                             current_time_updated = values[j];
                         }
 
-                        //console.log("current_maintenance_mode: " + current_maintenance_mode + " ,current_time_updated: " + current_time_updated);
+                        // console.log("current_maintenance_mode: " + current_maintenance_mode + " ,current_time_updated: " + current_time_updated);
                     }
                 }
 
@@ -4098,7 +4456,12 @@ require([
                     //console.log("maintenance_mode is disabled");
                     document.getElementById('btn_press_disable_maintenance').disabled = true;
                     document.getElementById('btn_press_enable_maintenance').disabled = false;
-                } else {
+                }
+                else if (current_maintenance_mode == "scheduled") {
+                    document.getElementById('btn_press_disable_maintenance').disabled = false;
+                    document.getElementById('btn_press_enable_maintenance').disabled = true;
+                }
+                else {
                     //console.log("maintenance_mode is enabled");
                     document.getElementById('btn_press_disable_maintenance').disabled = false;
                     document.getElementById('btn_press_enable_maintenance').disabled = true;
@@ -4131,10 +4494,22 @@ require([
                     day = '0' + day.toString();
 
                 var maxDate = year + '-' + month + '-' + day;
+
+                // preset today's date
+                document.getElementById('inputStartMaintenance').valueAsDate = new Date();
+
+                // define minimal date that can be selected
                 $('#inputEndMaintenance').attr('min', maxDate);
+
             });
 
             $("#btn_enable_maintenance_endtime").click(function() {
+
+                // Retrieve start date
+                var inputStartMaintenance = document.getElementById("inputStartMaintenance").value;
+
+                // Retrieve start time
+                var inputStartMaintenanceTime = tokens.get("time_start_maintenance");
 
                 // Retrieve end date
                 var inputEndMaintenance = document.getElementById("inputEndMaintenance").value;
@@ -4142,24 +4517,22 @@ require([
                 // Retrieve end time
                 var inputEndMaintenanceTime = tokens.get("time_end_maintenance");
 
-                //console.log("inputEndMaintenance is " + inputEndMaintenance + " at: " + inputEndMaintenanceTime);
-
                 // Validation submitted with no date entry
-                if (!inputEndMaintenance || inputEndMaintenance == "YYYY-MM-DD" || !inputEndMaintenanceTime) {
+                if (!inputStartMaintenance || inputStartMaintenance == "YYYY-MM-DD" || !inputStartMaintenanceTime || !inputEndMaintenance || inputEndMaintenance == "YYYY-MM-DD" || !inputEndMaintenanceTime) {
                     $("#maintenance_mode_data_is_invalid").modal()
                     return;
                 }
 
-                //console.log("inputEndMaintenance is: " + inputEndMaintenance);
-
-                if (inputEndMaintenance) {
+                if (inputStartMaintenance && inputEndMaintenance) {
 
                     //
-                    // Verify that the selection is not in the past time
+                    // Verify that the end date selection is not in the past time
                     //
 
                     // Define the query
-                    var searchQuery = "| makeresults | eval end_date=\"" + inputEndMaintenance + "\", end_time=\"" + inputEndMaintenanceTime + "\" | eval maintenance_mode_end=end_date . \" \" . end_time | eval maintenance_mode_end=round(strptime(maintenance_mode_end, \"%Y-%m-%d %H:%M\"), 0), now=now() | eval is_in_the_past=if(now>=maintenance_mode_end, \"true\", \"false\") | fields - _time | fields is_in_the_past";
+                    var searchQuery = "| makeresults | eval start_date=\"" + inputStartMaintenance + "\", start_time=\"" + inputStartMaintenanceTime + "\", end_date=\"" + inputEndMaintenance + "\", end_time=\"" + inputEndMaintenanceTime + "\" | eval maintenance_mode_start=start_date . \" \" . start_time, maintenance_mode_end=end_date . \" \" . end_time | eval maintenance_mode_start=round(strptime(maintenance_mode_start, \"%Y-%m-%d %H:%M\"), 0), maintenance_mode_end=round(strptime(maintenance_mode_end, \"%Y-%m-%d %H:%M\"), 0), now=now() | eval is_invalid=case(now>=maintenance_mode_end, \"true\", maintenance_mode_start>maintenance_mode_end, \"true\", maintenance_mode_end>now, \"false\") | fields - _time | fields is_invalid";
+
+                    console.log("searchQuery is : " + searchQuery);
 
                     // Set the search parameters--specify a time range
                     var searchParams = {
@@ -4185,23 +4558,28 @@ require([
                                 for (var j = 0; j < values.length; j++) {
                                     var field = fields[j];
 
-                                    if (fields[j] == "is_in_the_past") {
-                                        is_in_the_past = values[j];
+                                    if (fields[j] == "is_invalid") {
+                                        is_invalid = values[j];
                                     }
 
                                     //console.log("is_in_the_past is: " + is_in_the_past);
                                 }
                             }
 
-                            if (is_in_the_past === "true") {
-                                $("#maintenance_mode_data_is_past").modal()
+                            if (is_invalid === "true") {
+                                $("#maintenance_mode_date_is_invalid").modal()
                                 return;
                             } else {
 
-                                //console.log("date is not in the past, enable now.");
+                                if (inputStartMaintenanceTime == "now") {
+                                    //console.log("Enabling maintenance mode now");
+                                    var searchQuery = "| makeresults | eval maintenance_mode=\"enabled\", time_updated=now(), end_date=\"" + inputEndMaintenance + "\", end_time=\"" + inputEndMaintenanceTime + "\" | eval maintenance_mode_end=end_date . \" \" . end_time | eval maintenance_mode_end=round(strptime(maintenance_mode_end, \"%Y-%m-%d %H:%M\"), 0) | fields - _time | fields maintenance_mode, time_updated, maintenance_mode_end | outputlookup kafka_alerting_maintenance";
+                                }
 
-                                //console.log("Enable maintenance mode now");
-                                var searchQuery = "| makeresults | eval maintenance_mode=\"enabled\", time_updated=now(), end_date=\"" + inputEndMaintenance + "\", end_time=\"" + inputEndMaintenanceTime + "\" | eval maintenance_mode_end=end_date . \" \" . end_time | eval maintenance_mode_end=round(strptime(maintenance_mode_end, \"%Y-%m-%d %H:%M\"), 0) | fields - _time | fields maintenance_mode, time_updated, maintenance_mode_end | outputlookup kafka_alerting_maintenance";
+                                else {
+                                    //console.log("Enabling maintenance mode as scheduled");
+                                    var searchQuery = "| makeresults | eval maintenance_mode=\"disabled\", time_updated=now(), start_date=\"" + inputStartMaintenance  + "\", start_time=\"" + inputStartMaintenanceTime + "\", end_date=\"" + inputEndMaintenance + "\", end_time=\"" + inputEndMaintenanceTime + "\" | eval maintenance_mode_start=start_date . \" \" . start_time, maintenance_mode_end=end_date . \" \" . end_time | eval maintenance_mode_start=round(strptime(maintenance_mode_start, \"%Y-%m-%d %H:%M\"), 0), maintenance_mode_end=round(strptime(maintenance_mode_end, \"%Y-%m-%d %H:%M\"), 0) | fields - _time | fields maintenance_mode, time_updated, maintenance_mode_start, maintenance_mode_end | eval maintenance_mode=if(now()>=maintenance_mode_start AND maintenance_mode_end>now(), \"enabled\", maintenance_mode) | outputlookup kafka_alerting_maintenance";
+                                }
 
                                 //console.log("searchQuery is " + searchQuery);
 
@@ -4227,9 +4605,75 @@ require([
                                                 // Update single
                                                 search_maintenance_mode_mainsearch.startSearch();
                                                 search_maintenance_state.startSearch();
-                                                // buttons states
-                                                document.getElementById('btn_press_disable_maintenance').disabled = false;
-                                                document.getElementById('btn_press_enable_maintenance').disabled = true;
+
+                                                //
+                                                // Verify the current status and update buttons state
+                                                //
+
+                                                // Define the query
+                                                var searchQuery = "| inputlookup kafka_alerting_maintenance | eval maintenance_mode=if(now()<maintenance_mode_start AND maintenance_mode_end>now(), \"scheduled\", maintenance_mode)";
+
+                                                // Set the search parameters--specify a time range
+                                                var searchParams = {
+                                                    earliest_time: "-60m",
+                                                    latest_time: "now"
+                                                };
+
+                                                // Run a oneshot search that returns the job's results
+                                                service.oneshotSearch(
+                                                    searchQuery,
+                                                    searchParams,
+                                                    function(err, results) {
+
+                                                        // Display the results
+                                                        var fields = results.fields;
+                                                        var rows = results.rows;
+                                                        var current_maintenance_mode;
+                                                        var current_time_updated;
+
+                                                        for (var i = 0; i < rows.length; i++) {
+                                                            var values = rows[i];
+                                                            //console.log("Row " + i + ": ");
+
+                                                            for (var j = 0; j < values.length; j++) {
+                                                                var field = fields[j];
+
+                                                                if (fields[j] == "maintenance_mode") {
+                                                                    current_maintenance_mode = values[j];
+                                                                }
+                                                                if (fields[j] == "time_updated") {
+                                                                    current_time_updated = values[j];
+                                                                }
+
+                                                                //console.log("current_maintenance_mode: " + current_maintenance_mode + " ,current_time_updated: " + current_time_updated);
+                                                            }
+                                                        }
+
+                                                        if (!current_maintenance_mode) {
+                                                            $("#modal_loading_maintenance_mode_failure").modal()
+                                                            document.getElementById('btn_press_enable_maintenance').disabled = true;
+                                                            document.getElementById('btn_press_disable_maintenance').disabled = true;
+                                                            return;
+                                                        }
+
+                                                        // Dynamically manage buttons states
+                                                        if (current_maintenance_mode == "disabled") {
+                                                            //console.log("maintenance_mode is disabled");
+                                                            document.getElementById('btn_press_disable_maintenance').disabled = true;
+                                                            document.getElementById('btn_press_enable_maintenance').disabled = false;
+                                                        }
+                                                        else if (current_maintenance_mode == "scheduled") {
+                                                            document.getElementById('btn_press_disable_maintenance').disabled = false;
+                                                            document.getElementById('btn_press_enable_maintenance').disabled = true;
+                                                        }
+                                                        else {
+                                                            //console.log("maintenance_mode is enabled");
+                                                            document.getElementById('btn_press_disable_maintenance').disabled = false;
+                                                            document.getElementById('btn_press_enable_maintenance').disabled = true;
+                                                        }
+
+                                                    });
+
                                             },
                                             failed: function(properties) {
                                                 let errorStr = "Unknown Error!";
@@ -4252,6 +4696,16 @@ require([
 
                                 // Clear date inputs
                                 $("input[type=date]").val("");
+
+                                // Show confirmed modal
+
+                                if (inputStartMaintenanceTime == "now") {
+                                    $("#modal_maintenance_mode_confirmed").modal()
+                                }
+                                else {
+                                    $("#modal_maintenance_mode_scheduled").modal()
+                                }
+
 
                             }
 
@@ -4306,6 +4760,10 @@ require([
                                 // buttons states
                                 document.getElementById('btn_press_disable_maintenance').disabled = true;
                                 document.getElementById('btn_press_enable_maintenance').disabled = false;
+
+                                // Show final modal
+                                $("#modal_maintenance_mode_disabled").modal()
+
                             },
                             failed: function(properties) {
                                 let errorStr = "Unknown Error!";
