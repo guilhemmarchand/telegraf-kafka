@@ -719,10 +719,10 @@ require([
         host_location_form.on("valueChange", function(e) {
             if (e.value === "remotehost") {
                 EventHandler.setToken("host_is_remote", "true", {}, e.data);
-                console.log("Host is remote");
+                //console.log("Host is remote");
             } else if (e.value === "localhost") {
                 EventHandler.unsetToken("host_is_remote");
-                console.log("Host is not remote");
+                //console.log("Host is not remote");
             }
         });
 
