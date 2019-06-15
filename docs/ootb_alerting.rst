@@ -476,9 +476,13 @@ For convenience of the documentation bellow
 Authentication
 ^^^^^^^^^^^^^^
 
+
+For Splunk prior to 7.3.x
+-------------------------
+
 The recommended approach is authentication to Splunk API via a token, see:
 
-https://docs.splunk.com/Documentation/Splunk/latest/RESTUM/RESTusing#Authentication_and_authorization
+Official documentation: `Splunk docs API token <https://docs.splunk.com/Documentation/Splunk/latest/RESTUM/RESTusing#Authentication_and_authorization>`_.
 
 *Example authenticating with a user called svc_kafka that is member of the kafka_admin role:*
 
@@ -497,11 +501,26 @@ https://docs.splunk.com/Documentation/Splunk/latest/RESTUM/RESTusing#Authenticat
 
 A token remains valid for the time of a session, which is by default valid for 1 hour.
 
+For Splunk 7.3.0 and later
+--------------------------
+
+Splunk 7.3.0 introduced the usage of proper authentication tokens, which is the recommended way to authenticate against splunkd API:
+
+Official documentation: `Splunk docs JSON authentication token <https://docs.splunk.com/Documentation/Splunk/latest/Security/UseAuthTokens>`_.
+
+Once you have created an authentication token for the user to be used as the service account, using curl specify the bearer token:
+
+::
+
+    curl -k –H "Authorization: Bearer <token>"
+
 Maintenance mode management
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Get the current maintenance mode status
 ---------------------------------------
+
+*For Splunk 7.3.0 and later, replace with –H "Authorization: Bearer <token>"*
 
 ::
 
@@ -518,6 +537,8 @@ Enabling the maintenance mode requires:
 - the current time in epochtime (field time_updated)
 
 *Example: Enable the maintenance mode till the 11 of May 2019 at 9.pm*
+
+*For Splunk 7.3.0 and later, replace with –H "Authorization: Bearer <token>"*
 
 ::
 
@@ -537,6 +558,8 @@ Disabling the maintenance mode requires:
 - a first operation that flushed any record of the KVstore collection
 - the current time in epochtime (field time_updated)
 
+*For Splunk 7.3.0 and later, replace with –H "Authorization: Bearer <token>"*
+
 ::
 
     curl -k -H "Authorization: Splunk $token" -X DELETE \
@@ -554,6 +577,8 @@ Kafka Connect task monitoring management
 Retrieve all the records from the KVstore
 -----------------------------------------
 
+*For Splunk 7.3.0 and later, replace with –H "Authorization: Bearer <token>"*
+
 ::
 
     curl -k -H "Authorization: Splunk $token" \
@@ -561,6 +586,8 @@ Retrieve all the records from the KVstore
 
 Request tasks inventory update: automatically Add any new task to the collection
 --------------------------------------------------------------------------------
+
+*For Splunk 7.3.0 and later, replace with –H "Authorization: Bearer <token>"*
 
 ::
 
@@ -576,6 +603,8 @@ Create a new connector to be monitored
 ::
 
     {"env": "docker_env", "label": "testing", "connector": "kafka-connect-my-connector", "role": "kafka_sink_task", "monitoring_state": "enabled", "grace_period": "300"}
+
+*For Splunk 7.3.0 and later, replace with –H "Authorization: Bearer <token>"*
 
 ::
 
@@ -598,6 +627,8 @@ Get the entries for a specific connector
 
 *Notes: URI encode everything after the "query="*
 
+*For Splunk 7.3.0 and later, replace with –H "Authorization: Bearer <token>"*
+
 ::
 
     curl -k -H "Authorization: Splunk $token" \
@@ -607,6 +638,8 @@ Delete a Kafka connector
 ------------------------
 
 **Delete the record with the key ID " 5410be5441ba15298e4624d1":**
+
+*For Splunk 7.3.0 and later, replace with –H "Authorization: Bearer <token>"*
 
 ::
 
@@ -618,6 +651,8 @@ Deactivating the monitoring state of a connector
 
 **Using a search triggered via rest call: (a different method is possible by altering the record, see after)**
 
+*For Splunk 7.3.0 and later, replace with –H "Authorization: Bearer <token>"*
+
 ::
 
     curl -k -H "Authorization: Splunk $token" https://$splunk_url/servicesNS/nobody/telegraf-kafka/search/jobs -d search="| inputlookup kafka_connect_tasks_monitoring | search env=\"docker_env\" label=\"testing\" connector=\"kafka-connect-syslog\" | eval monitoring_state=\"disabled\" | outputlookup kafka_connect_tasks_monitoring append=t key_field=_key"
@@ -625,6 +660,8 @@ Deactivating the monitoring state of a connector
 **Or using a rest call (all wanted fields have to be mentioned):**
 
 - get the key ID, and if required get the current value of every field to be preserved
+
+*For Splunk 7.3.0 and later, replace with –H "Authorization: Bearer <token>"*
 
 ::
 
@@ -638,6 +675,8 @@ Activating the monitoring state of a connector
 
 **Using a search triggered via rest call: (a different method is possible by altering the record, see after)**
 
+*For Splunk 7.3.0 and later, replace with –H "Authorization: Bearer <token>"*
+
 ::
 
     curl -k -H "Authorization: Splunk $token" https://$splunk_url/servicesNS/nobody/telegraf-kafka/search/jobs -d search="| inputlookup kafka_connect_tasks_monitoring | search env=\"docker_env\" label=\"testing\" connector=\"kafka-connect-syslog\" | eval monitoring_state=\"enabled\" | outputlookup kafka_connect_tasks_monitoring append=t key_field=_key"
@@ -645,6 +684,8 @@ Activating the monitoring state of a connector
 **Or using a rest call (all wanted fields have to be mentioned):**
 
 - get the key ID, and if required get the current value of every field to be preserved
+
+*For Splunk 7.3.0 and later, replace with –H "Authorization: Bearer <token>"*
 
 ::
 
@@ -667,12 +708,16 @@ Delete a connector
 
 *Notes: URI encode everything after the "query="*
 
+*For Splunk 7.3.0 and later, replace with –H "Authorization: Bearer <token>"*
+
 ::
 
     curl -k -H "Authorization: Splunk $token" \
         https://$splunk_url/servicesNS/nobody/telegraf-kafka/storage/collections/data/kv_telegraf_kafka_connect_tasks_monitoring?query=%7B%22connector%22%3A%20%22kafka-connect-my-connector%22%7D
 
 **Delete the record using the key ID:**
+
+*For Splunk 7.3.0 and later, replace with –H "Authorization: Bearer <token>"*
 
 ::
 
