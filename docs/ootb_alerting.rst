@@ -63,6 +63,8 @@ Shall the maintenance be enabled by an administrator, Splunk will continue to ru
 
 When the end of maintenance time window is reached, its state will be automatically disabled and alerts will be able to trigger again.
 
+A maintenance time window can start immediately, or be automatically automatically scheduled according to your selection.
+
 Enabling the maintenance mode
 -----------------------------
 
@@ -80,6 +82,8 @@ Enabling the maintenance mode
 
 - When the date and hours of the maintenance time window are reached, the scheduled report "Verify Kafka alerting maintenance status" will automatically disable the maintenance mode.
 
+- If a start date time different than the current time is selected (default), this action will automatically schedule the maintenance time window.
+
 Disabling the maintenance mode
 ------------------------------
 
@@ -87,6 +91,23 @@ During any time of the maintenance time window, an administrator can decide to d
 
 .. image:: img/ootb_alerting_user_maintenance_mode3.png
    :alt: ootb_alerting_user_maintenance_mode3.png
+   :align: center
+
+Scheduling a maintenance window
+-------------------------------
+
+You can configure the maintenance mode to be automatically enabled between a specific date time that you enter in the UI.
+
+- When the end time is reached, the maintenance mode will automatically be disable, and the alerting will return to normal operations.
+
+.. image:: img/ootb_alerting_user_maintenance_mode4.png
+   :alt: ootb_alerting_user_maintenance_mode4.png
+   :align: center
+
+- When a maintenance mode window has been scheduled, the UI shows a specific message with the starts / ends on dates:
+
+.. image:: img/ootb_alerting_user_maintenance_mode5.png
+   :alt: ootb_alerting_user_maintenance_mode5.png
    :align: center
 
 *The collection KVstore endpoint can be programmatically managed, as such it is easily possible to reproduce this behaviour from an external system.*
@@ -189,7 +210,7 @@ Shall the action be requested and confirmed, the object state will be entirely r
 
 By default, objects are discovered every 4 hours looking at metrics available for the last 4 hours.
 
-This means that is the object has been still generated metrics to Splunk, it will be re-created automatically by the workflow.
+This means that if the object has been still generated metrics to Splunk, it will be re-created automatically by the workflow.
 
 To avoid having to re-delete the same object again, you should wait 4 hours minimum before purging the object that was decommissioned.
 
