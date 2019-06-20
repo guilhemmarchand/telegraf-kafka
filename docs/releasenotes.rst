@@ -2,6 +2,12 @@ Release notes
 #############
 
 ==============
+Version 1.1.29
+==============
+
+- fix: Realtime traffic In and Out refer to the same field in Kafka broker entity view
+
+==============
 Version 1.1.28
 ==============
 
