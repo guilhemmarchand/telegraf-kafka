@@ -2,6 +2,12 @@ Release notes
 #############
 
 ==============
+Version 1.1.30
+==============
+
+- fix: Realtime traffic In and Out refer to the same field in Overview for Kafka Brokers
+
+==============
 Version 1.1.29
 ==============
 
