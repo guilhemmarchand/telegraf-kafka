@@ -694,7 +694,7 @@
         <panel>
             <single>
                 <search base="broker_activity_summary">
-                    <query>fields KBytesInPerSec</query>
+                    <query>fields KBytesOutPerSec</query>
                 </search>
                 <option name="colorMode">block</option>
                 <option name="drilldown">none</option>
