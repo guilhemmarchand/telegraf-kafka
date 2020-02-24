@@ -23,14 +23,14 @@
 
     <!-- Retrieve all metrics available for all components -->
     <search id="all_kafka_components_mcatalog">
-        <query>| mcatalog values(server) as server values(jolokia_agent_url) as jolokia_agent_url where `telegraf_kafka_index` metric_name=* $env$ $label$ by metric_name</query>
+        <query>| mcatalog values(env) as env, values(label) as label, values(jolokia_agent_url) as jolokia_agent_url where `telegraf_kafka_index` metric_name=* $env$ $label$ by metric_name</query>
         <earliest>-5m</earliest>
         <latest>now</latest>
     </search>
 
     <!-- Detect Zookeeper nodes -->
     <search id="detect_zookeeper" base="all_kafka_components_mcatalog">
-        <query>where metric_name="zookeeper.avg_latency" OR metric_name="zookeeper.open_file_descriptor_count"</query>
+        <query>where match(metric_name, "(?i)(zk|zookeeper)_[^\.]*.AvgRequestLatency")</query>
         <progress>
             <condition match="$job.resultCount$ == 0">
                 <unset token="zookeeper_detected"></unset>
@@ -122,11 +122,10 @@
     <!-- base search for Zookeeper -->
 
     <search id="server_activity_summary" depends="$zookeeper_detected$">
-        <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.avg_latency" OR metric_name="zookeeper.outstanding_requests" OR metric_name="zookeeper.pending_syncs" $env$ $label$ by metric_name span=1s
-            | eval {metric_name}=value
-            | stats first(zookeeper.*) as "*" by _time
-            | stats avg(*) as "*"
-            | eval pending_syncs=if(isnull(pending_syncs), 0, pending_syncs)</query>
+        <query>| mstats latest(_value) as value where `telegraf_kafka_index` (metric_name="zk_*.AvgRequestLatency" OR metric_name="zk_*.OutstandingRequests" OR metric_name="zk_*.FsyncThresholdExceedCount") $env$ $label$ by metric_name, jolokia_agent_url span=1s
+| streamstats current=f last(value) as "value_prev" by jolokia_agent_url, metric_name
+| eval metric=(value-value_prev)
+| fields _time, jolokia_agent_url, metric_name, metric</query>
         <earliest>-90s</earliest>
         <latest>now</latest>
         <refresh>90s</refresh>
@@ -492,7 +491,9 @@
         <panel>
             <single>
                 <search base="server_activity_summary">
-                    <query>fields avg_latency</query>
+                    <query>search metric_name="zookeeper.avg_latency" OR metric_name="zk_*.AvgRequestLatency"
+| where metric>=0
+| stats avg(metric) as latency</query>
                 </search>
                 <option name="numberPrecision">0.00</option>
                 <option name="colorMode">block</option>
@@ -507,7 +508,9 @@
         <panel>
             <single>
                 <search base="server_activity_summary">
-                    <query>fields outstanding_requests</query>
+                    <query>search metric_name="zookeeper.outstanding_requests" OR metric_name="zk_*.OutstandingRequests"
+| where metric>=0
+| stats avg(metric) as OutstandingRequests</query>
                 </search>
                 <option name="colorMode">block</option>
                 <option name="drilldown">none</option>
@@ -521,7 +524,9 @@
         <panel>
             <single>
                 <search base="server_activity_summary">
-                    <query>fields pending_syncs</query>
+                    <query>search metric_name="zookeeper.outstanding_requests" OR metric_name="zk_*.FsyncThresholdExceedCount"
+| where metric>=0
+| stats avg(metric) as FsyncThresholdExceedCount</query>
                 </search>
                 <option name="colorMode">block</option>
                 <option name="drilldown">none</option>
@@ -535,10 +540,10 @@
         <panel depends="$monoenv_detected$">
             <single>
                 <search depends="$zookeeper_detected$ $monoenv_detected$">
-                    <query>| mstats prestats=t latest(_value) where `telegraf_kafka_index` metric_name="zookeeper.followers" $env$ $label$ by env, label, server span=10s
-| stats latest(_value) as value by _time, env, label, server
-| stats latest(server) as leader by env, label
-| stats values(leader) as leader</query>
+                    <query>| mcatalog values(server) as server, values(jolokia_agent_url) as jolokia_agent_url where `telegraf_kafka_index` (metric_name="zookeeper.followers" OR metric_name="zk_leader.AvgRequestLatency") $env$ $label$ by env, label
+| rex field=jolokia_agent_url "//(?&lt;jolokia_agent_url_short&gt;[^:]*)\:"
+| eval agent_url=case(isnotnull(server), server, isnotnull(jolokia_agent_url_short), jolokia_agent_url_short)
+| fields env, label, agent_url | fields agent_url</query>
                     <earliest>-5m</earliest>
                     <latest>now</latest>
                     <refresh>30s</refresh>
