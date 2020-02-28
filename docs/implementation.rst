@@ -242,6 +242,7 @@ Jolokia JVM monitoring
 
 **The following Kafka components require Jolokia to be deployed and started, as the modern and efficient interface to JMX that is collected by Telegraf:**
 
+* Zookeeper
 * Apache Kafka Brokers
 * Apache Kafka Connect
 * Confluent schema-registry
@@ -512,62 +513,82 @@ Starting Jolokia on the fly
 Zookeeper monitoring
 ====================
 
+*Since the v1.1.31, Zookeeper metrics are now collected via JMX and Jolokia rather than the Telegraf Zookeeper plugin.*
+
 Collecting with Telegraf
 ------------------------
 
-The Zookeeper monitoring is very simple and achieved by Telegraf and the Zookeeper input plugin.
+Depending on how you run Kafka and your architecture preferences, you may prefer to collect all the brokers metrics from one Telegraf collector, or installed locally on the Kafka brocker machine.
 
-**The following configuration stands in telegraf.conf and configures the input plugin to monitor multiple Zookeeper servers from one source:**
-
-::
-
-    # zookeeper metrics
-    [[inputs.zookeeper]]
-      servers = ["zookeeper-1:12181","zookeeper-2:22181","zookeeper-3:32181"]
-
-**If each server runs an instance of Zookeeper and you deploy Telegraf, you can simply collect from the localhost:**
+**Connecting to multiple remote Jolokia instances:**
 
 ::
 
-    # zookeeper metrics
-    [[inputs.zookeeper]]
-      servers = ["$HOSTNAME:2181"]
+    [[inputs.jolokia2_agent]]
+      name_prefix = "zk_"
+      urls = ["http://zookeeper-1:8778/jolokia","http://zookeeper-2:8778/jolokia","http://zookeeper-3:8778/jolokia"]
+
+**Connecting to the local Jolokia instance:**
+
+::
+
+    # Zookeeper JVM monitoring
+    [[inputs.jolokia2_agent]]
+      name_prefix = "zk_"
+      urls = ["http://$HOSTNAME:8778/jolokia"]
 
 Full telegraf.conf example
 --------------------------
 
-*The following telegraf.conf collects a cluster of 3 Zookeeper servers:*
+*The following telegraf.conf collects a cluster of 3 Zookeeper nodes:*
 
 ::
 
-   [global_tags]
-     # the env tag is used by the application for multi-environments management
-     env = "my_env"
-     # the label tag is an optional tag used by the application that you can use as additional label for the services or infrastructure
-     label = "my_env_label"
+    [global_tags]
+      # the env tag is used by the application for multi-environments management
+      env = "my_env"
+      # the label tag is an optional tag used by the application that you can use as additional label for the services or infrastructure
+      label = "my_env_label"
 
-   [agent]
-     interval = "10s"
-     flush_interval = "10s"
-     hostname = "$HOSTNAME"
+    [agent]
+      interval = "10s"
+      flush_interval = "10s"
+      hostname = "$HOSTNAME"
 
-   # outputs
-   [[outputs.http]]
-      url = "https://splunk:8088/services/collector"
-      insecure_skip_verify = true
-      data_format = "splunkmetric"
-       ## Provides time, index, source overrides for the HEC
-      splunkmetric_hec_routing = true
-       ## Additional HTTP headers
-       [outputs.http.headers]
-      # Should be set manually to "application/json" for json data_format
-         Content-Type = "application/json"
-         Authorization = "Splunk 205d43f1-2a31-4e60-a8b3-327eda49944a"
-         X-Splunk-Request-Channel = "205d43f1-2a31-4e60-a8b3-327eda49944a"
+    # outputs
+    [[outputs.http]]
+       url = "https://splunk:8088/services/collector"
+       insecure_skip_verify = true
+       data_format = "splunkmetric"
+        ## Provides time, index, source overrides for the HEC
+       splunkmetric_hec_routing = true
+        ## Additional HTTP headers
+        [outputs.http.headers]
+       # Should be set manually to "application/json" for json data_format
+          Content-Type = "application/json"
+          Authorization = "Splunk 205d43f1-2a31-4e60-a8b3-327eda49944a"
+          X-Splunk-Request-Channel = "205d43f1-2a31-4e60-a8b3-327eda49944a"
 
-   # zookeeper metrics
-   [[inputs.zookeeper]]
-     servers = ["zookeeper-1:12181","zookeeper-2:22181","zookeeper-3:32181"]
+    # Zookeeper JMX collection
+
+    [[inputs.jolokia2_agent]]
+      name_prefix = "zk_"
+      urls = ["http://zookeeper-1:8778/jolokia","http://zookeeper-2:8778/jolokia","http://zookeeper-3:8778/jolokia"]
+
+    [[inputs.jolokia2_agent.metric]]
+      name  = "quorum"
+      mbean = "org.apache.ZooKeeperService:name0=*"
+      tag_keys = ["name0"]
+
+    [[inputs.jolokia2_agent.metric]]
+      name = "leader"
+      mbean = "org.apache.ZooKeeperService:name0=*,name1=*,name2=Leader"
+      tag_keys = ["name1"]
+
+    [[inputs.jolokia2_agent.metric]]
+      name = "follower"
+      mbean = "org.apache.ZooKeeperService:name0=*,name1=*,name2=Follower"
+      tag_keys = ["name1"]
 
 **Visualization of metrics within the Splunk metrics workspace application:**
 
@@ -579,7 +600,7 @@ Full telegraf.conf example
 
 ::
 
-    | mcatalog values(metric_name) values(_dims) where index=* metric_name=zookeeper.*
+    | mcatalog values(metric_name) values(_dims) where index=* metric_name=zk_*
 
 Kafka brokers monitoring with Jolokia
 =====================================
