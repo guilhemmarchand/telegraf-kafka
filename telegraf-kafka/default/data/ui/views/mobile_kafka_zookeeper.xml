@@ -8,7 +8,7 @@
             <title>Number of active nodes</title>
             <single>
                 <search>
-                    <query>| mcatalog values(metric_name) as metric_name where `telegraf_kafka_index` metric_name="zookeeper.avg_latency" OR metric_name="zookeeper.open_file_descriptor_count" env=* label=* by env, label, server | stats count</query>
+                    <query>| mcatalog values(metric_name) as metric_name where `telegraf_kafka_index` metric_name="zk_*.AvgRequestLatency" env=* label=* by env, label, jolokia_agent_url | stats count</query>
                     <earliest>-5m</earliest>
                     <latest>now</latest>
                     <refresh>30s</refresh>
@@ -28,7 +28,12 @@
             <title>Latency</title>
             <single>
                 <search>
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.avg_latency" env=* label=*</query>
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` (metric_name="zk_*.AvgRequestLatency") env=* label=* by metric_name, jolokia_agent_url span=1s
+| streamstats current=f last(value) as "value_prev" by jolokia_agent_url, metric_name
+| eval metric=(value-value_prev)
+| fields _time, jolokia_agent_url, metric_name, metric
+| where metric>=0
+| stats avg(metric) as latency</query>
                     <earliest>-5m</earliest>
                     <latest>now</latest>
                     <refresh>30s</refresh>
@@ -48,11 +53,12 @@
             <title>Outstanding requests</title>
             <single>
                 <search>
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.outstanding_requests" env=* label=*</query>
-                    <earliest>-5m</earliest>
-                    <latest>now</latest>
-                    <refresh>30s</refresh>
-                    <refreshType>delay</refreshType>
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` (metric_name="zk_*.OutstandingRequests") env=* label=* by metric_name, jolokia_agent_url span=1s
+| streamstats current=f last(value) as "value_prev" by jolokia_agent_url, metric_name
+| eval metric=(value-value_prev)
+| fields _time, jolokia_agent_url, metric_name, metric
+| where metric>=0
+| stats avg(metric) as latency</query>
                 </search>
                 <option name="colorMode">block</option>
                 <option name="drilldown">none</option>
@@ -70,8 +76,12 @@
             <chart>
                 <title>Average latency (millisecond)</title>
                 <search>
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="zookeeper.avg_latency" env=* label=* by server span=1s
-| timechart span=5m avg(_value) as "Avg" by server</query>
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` (metric_name="zk_*.AvgRequestLatency") env=* label=* by metric_name, jolokia_agent_url span=1s
+| streamstats current=f last(value) as "value_prev" by jolokia_agent_url, metric_name
+| eval metric=(value-value_prev)
+| fields _time, jolokia_agent_url, metric_name, metric
+| where metric>=0
+| timechart span=5m avg(metric) as "Avg" by jolokia_agent_url</query>
                     <earliest>-4h</earliest>
                     <latest>now</latest>
                     <sampleRatio>1</sampleRatio>
@@ -91,8 +101,12 @@
             <chart>
                 <title>Outstanding requests</title>
                 <search>
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="zookeeper.outstanding_requests" env=* label=* by server span=1s
-| timechart span=5m avg(_value) as "Avg" by server</query>
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` (metric_name="zk_*.OutstandingRequests") env=* label=* by metric_name, jolokia_agent_url span=1s
+| streamstats current=f last(value) as "value_prev" by jolokia_agent_url, metric_name
+| eval metric=(value-value_prev)
+| fields _time, jolokia_agent_url, metric_name, metric
+| where metric>=0
+| timechart span=5m avg(metric) as "Avg" by jolokia_agent_url</query>
                     <earliest>-4h</earliest>
                     <latest>now</latest>
                     <sampleRatio>1</sampleRatio>
@@ -112,8 +126,12 @@
             <chart>
                 <title>Pending Sync</title>
                 <search>
-                    <query>| mstats avg(_value) prestats=true where `telegraf_kafka_index` metric_name="zookeeper.pending_syncs" env=* label=* by server span=1s
-| timechart span=5m avg(_value) as "Avg" by server</query>
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` (metric_name="zk_*.FsyncThresholdExceedCount") env=* label=* by metric_name, jolokia_agent_url span=1s
+| streamstats current=f last(value) as "value_prev" by jolokia_agent_url, metric_name
+| eval metric=(value-value_prev)
+| fields _time, jolokia_agent_url, metric_name, metric
+| where metric>=0
+| timechart span=5m avg(metric) as "Avg" by jolokia_agent_url</query>
                     <earliest>-4h</earliest>
                     <latest>now</latest>
                     <sampleRatio>1</sampleRatio>
@@ -133,34 +151,40 @@
 
     <row>
         <panel>
-            <table>
-                <title>File descriptor percentage used</title>
+            <chart>
+                <title>Number Alive Connections</title>
                 <search>
-                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.max_file_descriptor_count" OR metric_name="zookeeper.open_file_descriptor_count" env=* label=* by metric_name, server
-| eval {metric_name}=value
-| stats first(zookeeper.*) as "*" by server
-| eval percent_used=round((open_file_descriptor_count/max_file_descriptor_count)*100, 3)
-| fields server, percent_used</query>
-                    <earliest>-5m</earliest>
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="zk_*.NumAliveConnections" env=* label=* by metric_name, jolokia_agent_url span=1s
+| streamstats current=f last(value) as "value_prev" by jolokia_agent_url
+| eval metric=(value-value_prev)
+| fields _time, jolokia_agent_url, metric
+| where metric&gt;=0
+| timechart span=5m avg(metric) as num_alive_connections by jolokia_agent_url</query>
+                    <earliest>-4h</earliest>
                     <latest>now</latest>
+                    <sampleRatio>1</sampleRatio>
                     <refresh>30s</refresh>
                     <refreshType>delay</refreshType>
                 </search>
-                <option name="drilldown">none</option>
-            </table>
+                <option name="charting.chart">line</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="charting.drilldown">all</option>
+            </chart>
         </panel>
         <panel>
             <chart>
                 <title>Packets received</title>
                 <search>
-                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.packets_received" env=* label=* by metric_name, server span=1s
-| eval {metric_name}=value
-| stats first(zookeeper.*) as "*_counter" by _time, server
-| streamstats current=f last(*_counter) as "*_prev" by server
-| eval packets_received=(packets_received_counter-packets_received_prev)
-| fields _time, server, packets_received
-| where packets_received&gt;=0
-| timechart span=5m avg(packets_received) as packets_received by server</query>
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="zk_*.PacketsReceived" env=* label=* by metric_name, jolokia_agent_url span=1s
+| streamstats current=f last(value) as "value_prev" by jolokia_agent_url
+| eval metric=(value-value_prev)
+| fields _time, jolokia_agent_url, metric
+| where metric&gt;=0
+| timechart span=5m avg(metric) as packets_received by jolokia_agent_url</query>
                     <earliest>-4h</earliest>
                     <latest>now</latest>
                     <sampleRatio>1</sampleRatio>
@@ -180,14 +204,12 @@
             <chart>
                 <title>Packets sent</title>
                 <search>
-                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="zookeeper.packets_sent" env=* label=* by metric_name, server span=1s
-| eval {metric_name}=value
-| stats first(zookeeper.*) as "*_counter" by _time, server
-| streamstats current=f last(*_counter) as "*_prev" by server
-| eval packets_sent=(packets_sent_counter-packets_sent_prev)
-| fields _time, server, packets_sent
-| where packets_sent&gt;=0
-| timechart span=5m avg(packets_sent) as packets_sent by server</query>
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="zk_*.PacketsSent" env=* label=* by metric_name, jolokia_agent_url span=1s
+| streamstats current=f last(value) as "value_prev" by jolokia_agent_url
+| eval metric=(value-value_prev)
+| fields _time, jolokia_agent_url, metric
+| where metric&gt;=0
+| timechart span=5m avg(metric) as packets_sent by jolokia_agent_url</query>
                     <earliest>-4h</earliest>
                     <latest>now</latest>
                     <sampleRatio>1</sampleRatio>

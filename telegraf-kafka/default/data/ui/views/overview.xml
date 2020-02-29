@@ -741,7 +741,7 @@
         <panel>
             <html>
                 <div style="text-align: center;">
-                    <a target="_blank" class="btn btn-primary" href="telegraf-kafka-kafka-brokers?form.env=$form.env$&amp;form.label=$form.label$" role="button"> OPEN ENTITY DASHBOARD VIEW</a>
+                    <a target="_blank" class="btn btn-primary" href="telegraf-kafka-kafka-brokers?form.env=$form.env$&amp;form.label=$form.label$" role="button"> OPEN BROKERS DASHBOARD VIEW</a>
                 </div>
             </html>
         </panel>
@@ -755,7 +755,7 @@
         <panel>
             <html>
                 <div style="text-align: center;">
-                    <a target="_blank" class="btn btn-primary" href="telegraf-kafka-kafka-topics?form.env=$form.env$&amp;form.label=$form.label$" role="button"> OPEN ENTITY DASHBOARD VIEW</a>
+                    <a target="_blank" class="btn btn-primary" href="telegraf-kafka-kafka-topics?form.env=$form.env$&amp;form.label=$form.label$" role="button"> OPEN TOPICS DASHBOARD VIEW</a>
                 </div>
             </html>
         </panel>
@@ -1253,7 +1253,7 @@ OR metric_name="kafka_topics.FailedProduceRequestsPerSec.MeanRate" OR metric_nam
         <panel>
             <html>
                 <div style="text-align: center;">
-                    <a target="_blank" class="btn btn-primary" href="telegraf-kafka-kafka-connect?form.env=$form.env$&amp;form.label=$form.label$" role="button"> OPEN ENTITY DASHBOARD VIEW</a>
+                    <a target="_blank" class="btn btn-primary" href="telegraf-kafka-kafka-connect?form.env=$form.env$&amp;form.label=$form.label$" role="button"> OPEN CONNECT DASHBOARD VIEW</a>
                 </div>
             </html>
         </panel>
