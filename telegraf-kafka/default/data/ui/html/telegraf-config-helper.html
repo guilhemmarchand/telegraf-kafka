@@ -103,7 +103,7 @@ styles in <div> tags, similar to Bootstrap's grid system.
                         <a style="margin-right: 10px;" class="btn btn-primary" target="_blank" href="https://telegraf-kafka.readthedocs.io/en/latest/implementation.html#telegraf-installation-and-configuration" role="button">Consult documentation</a>
                     </div>
 
-                    <div class="modal-sent-payload">
+                    <div class="modal-sent-payload" style="height: 20%;">
                       <pre class="modal-guts" style="margin: 10px 0; padding: 10px; border-radius: 3px 3px 3px 3px; color: #059; background-color: #BEF;">message config sample</pre>
                     </div>
 
@@ -677,7 +677,7 @@ require([
 
         component_form.on("valueChange", function(e) {
             if (e.value === "zookeeper") {
-                EventHandler.setToken("port_number", "2181", {}, e.data);
+                EventHandler.setToken("port_number", "8778", {}, e.data);
             } else if (e.value === "kafka_broker") {
                 EventHandler.setToken("port_number", "8778", {}, e.data);
             } else if (e.value === "kafka_connect") {
@@ -928,27 +928,32 @@ require([
                 // telegraf_config is ready for component addition
 
                 if (component_tk == "zookeeper") {
-                    telegraf_config = telegraf_config + "# zookeeper metrics" + "\n" + "[[inputs.zookeeper]]" + "\n" + "  servers = [\"" + host_target_tk + ":" + port_number + "\"]" + "\n";
+                    telegraf_config = telegraf_config + "# zookeeper metrics" + "\n" + "[[inputs.jolokia2_agent]]" + "\n" + "  name_prefix = \"zk_\""  + "\n" + "  urls = [\"http://" + host_target_tk + ":" + port_number + "/jolokia\"]" + "\n\n";
+                    jQuery.get('../../static/app/telegraf-kafka/telegraf_conf_zookeeper.txt', function(data) {
+                        telegraf_config = telegraf_config + data
 
-                    if (telegraf_os_metrics_tk == "yes") {
-                        jQuery.get('../../static/app/telegraf-kafka/telegraf_conf_linux.txt', function(data) {
-                            telegraf_config = telegraf_config + "\n" + data
-                            $("#modal_config_helper").find('.modal-sent-payload pre').text(telegraf_config);
+                        if (telegraf_os_metrics_tk == "yes") {
+                            jQuery.get('../../static/app/telegraf-kafka/telegraf_conf_linux.txt', function(data) {
+                                telegraf_config = telegraf_config + "\n" + data
+                                $("#modal_config_helper").find('.modal-sent-payload pre').text(telegraf_config);
 
-                            var download_data = new Blob([telegraf_config], {type: 'application/octet-stream'});
-                            var download_url = window.URL.createObjectURL(download_data);
-                            document.getElementById('btn_download_config').href = download_url;
+                                var download_data = new Blob([telegraf_config], {type: 'application/octet-stream'});
+                                var download_url = window.URL.createObjectURL(download_data);
+                                document.getElementById('btn_download_config').href = download_url;
 
-                        });
-                    }
+                            });
+                        }
 
-                    else {
-                            var download_data = new Blob([telegraf_config], {type: 'application/octet-stream'});
-                            var download_url = window.URL.createObjectURL(download_data);
-                            document.getElementById('btn_download_config').href = download_url;
-                    }
+                        else {
+                                var download_data = new Blob([telegraf_config], {type: 'application/octet-stream'});
+                                var download_url = window.URL.createObjectURL(download_data);
+                                document.getElementById('btn_download_config').href = download_url;
+                        }
 
-                    $("#modal_config_helper").find('.modal-sent-payload pre').text(telegraf_config);
+                        $("#modal_config_helper").find('.modal-sent-payload pre').text(telegraf_config);
+
+                    });
+
                 }
 
                 else if (component_tk == "kafka_broker") {

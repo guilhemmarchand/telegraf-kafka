@@ -2,6 +2,20 @@ Release notes
 #############
 
 ==============
+Version 1.1.31
+==============
+
+CAUTION: Zookeeper metric collection switches from Telegraf plugin to JMX for easier and more consistent metric collection across all the components.
+If you were using the application prior to this version, please update your configuration to collect metrics via JMX.
+
+See: https://telegraf-kafka.readthedocs.io/en/latest/implementation.html
+
+- change: Zookeeper metric collection switches from Telegraf plugin to JMX collection via Jolokia Telegraf input
+- fix: Topic entity dashboard should break by topic rather than per broker, fix aggregation when any selected
+- fix: Burrow does not show up in Overview page
+- fix: Telegraf configuration helper UI is broken, and update for Zookeeper collection
+
+==============
 Version 1.1.30
 ==============
 

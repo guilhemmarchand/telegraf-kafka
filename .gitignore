@@ -30,3 +30,6 @@ backups
 # spl
 *.spl
 
+# Mac
+.DS_Store
+*/.DS_Store
