@@ -780,8 +780,8 @@
             <input type="time" token="brokers_time" searchWhenChanged="true">
                 <label></label>
                 <default>
-                    <earliestTime>-4h</earliestTime>
-                    <latestTime>now</latestTime>
+                    <earliest>-4h</earliest>
+                    <latest>now</latest>
                 </default>
             </input>
             <input type="dropdown" token="env" searchWhenChanged="true">
@@ -1020,8 +1020,8 @@ OR metric_name="kafka_topics.FailedProduceRequestsPerSec.MeanRate" OR metric_nam
             <input type="time" token="topics_time" searchWhenChanged="true">
                 <label></label>
                 <default>
-                    <earliestTime>-4h</earliestTime>
-                    <latestTime>now</latestTime>
+                    <earliest>-4h</earliest>
+                    <latest>now</latest>
                 </default>
             </input>
             <input type="dropdown" token="env" searchWhenChanged="true">
