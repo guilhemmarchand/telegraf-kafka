@@ -126,7 +126,7 @@
 | streamstats current=f last(value) as "value_prev" by jolokia_agent_url, metric_name
 | eval metric=(value-value_prev)
 | fields _time, jolokia_agent_url, metric_name, metric</query>
-        <earliest>-90s</earliest>
+        <earliest>-300s</earliest>
         <latest>now</latest>
         <refresh>90s</refresh>
         <refreshType>delay</refreshType>
@@ -140,7 +140,7 @@
             | stats first(kafka_topics.*.OneMinuteRate) as "*"
             | eval KBytesInPerSec=round(BytesInPerSec/1024, 2), KBytesOutPerSec=round(BytesOutPerSec/1024, 2), MessagesInPerSec=round(MessagesInPerSec, 2)
             | fields KBytesInPerSec, KBytesOutPerSec, MessagesInPerSec</query>
-        <earliest>-90s</earliest>
+        <earliest>-300s</earliest>
         <latest>now</latest>
         <refresh>90s</refresh>
         <refreshType>delay</refreshType>
@@ -155,7 +155,7 @@
             | stats min(worker.time-since-last-rebalance-ms) as worker.time-since-last-rebalance-ms, sum(*) as "*"
             | eval duration=tostring(round('worker.time-since-last-rebalance-ms'/1000, 0), "duration")
             | fields worker.connector-startup-failure-total, worker.task-startup-failure-total, worker.task-count, duration</query>
-        <earliest>-90s</earliest>
+        <earliest>-300s</earliest>
         <latest>now</latest>
         <refresh>90s</refresh>
         <refreshType>delay</refreshType>
@@ -168,7 +168,7 @@
             | eval connector-task.running-ratio=round('connector-task.running-ratio'*100, 2) | fields env, label, connector connector-task.status | rename connector-task.status as integer_status
             | eval status=case(integer_status=0, "paused", integer_status=1, "running", integer_status=2, "unassigned", integer_status=3, "failed", integer_status=4, "destroyed")
             | join env, label, connector [ | inputlookup kafka_connect_tasks_monitoring ] | where monitoring_state="enabled"</query>
-        <earliest>-90s</earliest>
+        <earliest>-300s</earliest>
         <latest>now</latest>
         <refresh>90s</refresh>
         <refreshType>delay</refreshType>
@@ -180,7 +180,7 @@
         <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_schema-registry.jetty-metrics.connections-active" OR  metric_name="kafka_schema-registry.jetty-metrics.connections-opened-rate" OR metric_name="kafka_schema-registry.jetty-metrics.connections-closed-rate" $env$ $label$ by metric_name
             | eval {metric_name}=value
             | stats first(kafka_schema-registry.*) as "*"</query>
-        <earliest>-90s</earliest>
+        <earliest>-300s</earliest>
         <latest>now</latest>
         <refresh>90s</refresh>
         <refreshType>delay</refreshType>
@@ -190,7 +190,7 @@
         <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_schema-registry.jersey-metrics.request-error-rate" $env$ $label$ by metric_name
             | eval {metric_name}=value
             | stats first(kafka_schema-registry.*) as "*"</query>
-        <earliest>-90s</earliest>
+        <earliest>-300s</earliest>
         <latest>now</latest>
         <refresh>90s</refresh>
         <refreshType>delay</refreshType>
@@ -204,7 +204,7 @@
             | eval {metric_name}=value
             | stats first(*) as "*"
             | fields num-active-queries, num-persistent-queries, num-idle-queries</query>
-        <earliest>-90s</earliest>
+        <earliest>-300s</earliest>
         <latest>now</latest>
         <refresh>30s</refresh>
         <refreshType>delay</refreshType>
@@ -217,7 +217,7 @@
             | stats first(*) as "*"
             | eval messages-consumed-per-sec=round('messages-consumed-per-sec', 2), messages-produced-per-sec=round('messages-produced-per-sec', 2)
             | fields messages-produced-per-sec, messages-consumed-per-sec, error-rate</query>
-        <earliest>-90s</earliest>
+        <earliest>-300s</earliest>
         <latest>now</latest>
         <refresh>30s</refresh>
         <refreshType>delay</refreshType>
@@ -229,7 +229,7 @@
         <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_kafka-rest.jetty-metrics.connections-active" OR  metric_name="kafka_kafka-rest.jetty-metrics.connections-opened-rate" OR metric_name="kafka_kafka-rest.jetty-metrics.connections-closed-rate" $env$ $label$ by metric_name
             | eval {metric_name}=value
             | stats first(kafka_kafka-rest.*) as "*"</query>
-        <earliest>-90s</earliest>
+        <earliest>-300s</earliest>
         <latest>now</latest>
         <refresh>90s</refresh>
         <refreshType>delay</refreshType>
@@ -239,7 +239,7 @@
         <query>| mstats avg(_value) as value WHERE `telegraf_kafka_index` metric_name="kafka_kafka-rest.jersey-metrics.request-error-rate" $env$ $label$ by metric_name
             | eval {metric_name}=value
             | stats first(kafka_kafka-rest.*) as "*"</query>
-        <earliest>-90s</earliest>
+        <earliest>-300s</earliest>
         <latest>now</latest>
         <refresh>90s</refresh>
         <refreshType>delay</refreshType>
@@ -256,7 +256,7 @@
 | rangemap field=status_code low=1-1 elevated=2-2 default=severe
 | eval avg_lag=round(avg_lag, 3), delta_lastTime=now()-lastTime, lastTime=strftime(lastTime, "%H:%M:%S")
 | fields env, label, cluster, group, avg_lag, max_lag, current, status, range, lastTime</query>
-        <earliest>-90s</earliest>
+        <earliest>-300s</earliest>
         <latest>now</latest>
         <refresh>90s</refresh>
         <refreshType>delay</refreshType>
@@ -623,7 +623,7 @@
                 <search depends="$kafka_broker_detected$">
                     <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_controller.OfflinePartitionsCount.Value" $env$ $label$ by jolokia_agent_url
                         | stats sum(value) as value</query>
-                    <earliest>-90s</earliest>
+                    <earliest>-300s</earliest>
                     <latest>now</latest>
                     <refresh>90s</refresh>
                     <refreshType>delay</refreshType>
@@ -645,7 +645,7 @@
                 <search depends="$kafka_broker_detected$">
                     <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_replica_manager.UnderReplicatedPartitions.Value" $env$ $label$ by jolokia_agent_url
                         | stats sum(value) as value</query>
-                    <earliest>-90s</earliest>
+                    <earliest>-300s</earliest>
                     <latest>now</latest>
                     <refresh>90s</refresh>
                     <refreshType>delay</refreshType>
