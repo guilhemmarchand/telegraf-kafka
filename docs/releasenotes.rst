@@ -2,7 +2,7 @@ Release notes
 #############
 
 ==============
-Version 1.1.34
+Version 1.1.35
 ==============
 
 CAUTION: Zookeeper metric collection switches from Telegraf plugin to JMX for easier and more consistent metric collection across all the components.
@@ -17,6 +17,12 @@ See: https://telegraf-kafka.readthedocs.io/en/latest/implementation.html
 - fix: appinspect warnings
 - fix: Increase time range of searches in Overview page to better cover longer time between measures
 - fix: Kafka Connect connectors discovery does not preserve a non default monitoring_state
+
+==============
+Version 1.1.34
+==============
+
+ - unpublished
 
 ==============
 Version 1.1.33
