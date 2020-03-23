@@ -7,7 +7,7 @@
       <title>Number of active brokers</title>
       <single>
         <search>
-          <query>| mcatalog values(metric_name) as metric_name where `telegraf_kafka_index` metric_name="kafka_controller.ActiveControllerCount.Value" env=* label=* by env, label, jolokia_agent_url
+          <query>| mcatalog values(metric_name) where `telegraf_kafka_index` metric_name="kafka_controller.ActiveControllerCount.Value" env=* label=* by env, label, jolokia_agent_url
 | eval role="kafka_broker" | rex field=jolokia_agent_url "//(?&lt;kafka_broker&gt;[^:]*)\:" | fields role, env, label, jolokia_agent_url, kafka_broker | stats count</query>
           <earliest>-5m</earliest>
           <latest>now</latest>
