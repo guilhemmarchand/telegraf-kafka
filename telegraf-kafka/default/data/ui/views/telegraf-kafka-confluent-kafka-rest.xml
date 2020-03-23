@@ -380,7 +380,8 @@
             <input type="multiselect" token="per_endpoint_tk" searchWhenChanged="true">
                 <label>metrics:</label>
                 <search depends="$chart3$">
-                    <query>| mcatalog values(metric_name) as metric_name where `telegraf_kafka_index` metric_name="kafka_kafka-rest.jersey-metrics.*" $env$ $label$ $jolokia_agent_url$
+                    <query>| mcatalog values(metric_name) as metrics where `telegraf_kafka_index` metric_name="kafka_kafka-rest.jersey-metrics.*" $env$ $label$ $jolokia_agent_url$
+| rename metrics as metric_name
 | mvexpand metric_name
 | sort 0 metric_name</query>
                     <earliest>$earliest$</earliest>

@@ -21,7 +21,8 @@
 | sort limit=0 env, label, connector, task
 | stats list(jolokia_agent_url) as jolokia_agent_url, list(task) as task, list(integer_status) as integer_status, list(status) as status, max(lastTime) as lastTime by env, label, connector
 | join max=1 overwrite=1 type=inner usetime=0 connector env label
-    [| mcatalog values(metric_name) as metric_name where `telegraf_kafka_index` metric_name="kafka_connect.source-task.source-record-poll-total" OR metric_name="kafka_connect.sink-task.sink-record-read-total" $env$ $label$ $jolokia_agent_url$ by env, label, jolokia_agent_url, connector
+    [| mcatalog values(metric_name) as metrics where `telegraf_kafka_index` metric_name="kafka_connect.source-task.source-record-poll-total" OR metric_name="kafka_connect.sink-task.sink-record-read-total" $env$ $label$ $jolokia_agent_url$ by env, label, jolokia_agent_url, connector
+    | rename metrics as metric_name
     | eval role=case(match(metric_name,"sink-task"),"kafka_sink_task",match(metric_name,"source-task"),"kafka_source_task")
     | fields env, label, connector, role]
 | fields env, label, jolokia_agent_url, connector, role, task, status, integer_status, lastTime

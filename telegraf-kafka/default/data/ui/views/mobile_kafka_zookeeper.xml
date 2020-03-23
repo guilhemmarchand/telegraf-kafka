@@ -8,7 +8,7 @@
             <title>Number of active nodes</title>
             <single>
                 <search>
-                    <query>| mcatalog values(metric_name) as metric_name where `telegraf_kafka_index` metric_name="zk_*.AvgRequestLatency" env=* label=* by env, label, jolokia_agent_url | stats count</query>
+                    <query>| mcatalog values(metric_name) where `telegraf_kafka_index` metric_name="zk_*.AvgRequestLatency" env=* label=* by env, label, jolokia_agent_url | stats count</query>
                     <earliest>-5m</earliest>
                     <latest>now</latest>
                     <refresh>30s</refresh>

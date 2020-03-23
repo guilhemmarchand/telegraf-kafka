@@ -5,7 +5,7 @@
             <title>Kafka Connect workers</title>
             <single>
                 <search>
-                    <query>| mcatalog values(metric_name) as metric_name where `telegraf_kafka_index` metric_name="kafka_connect.worker.connector-count" by env, label, jolokia_agent_url
+                    <query>| mcatalog values(metric_name) where `telegraf_kafka_index` metric_name="kafka_connect.worker.connector-count" by env, label, jolokia_agent_url
 | search (env="*" label="*")
 | stats count</query>
                     <earliest>-5m</earliest>
