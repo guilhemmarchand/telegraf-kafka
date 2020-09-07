@@ -86,7 +86,7 @@
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
                 <option name="underLabel">NUMBER OF CURRENT TASK(S)</option>
-                <option name="unit">TASK(S)</option>
+                <option name="unit"></option>
                 <option name="useColors">1</option>
             </single>
         </panel>

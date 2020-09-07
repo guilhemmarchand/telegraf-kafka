@@ -141,8 +141,8 @@
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
-                <option name="underLabel">REALTIME AVG MESSAGES/IN SEC</option>
-                <option name="unit">msg/sec</option>
+                <option name="underLabel">REALTIME AVG MESSAGES/IN SEC (msg/sec)</option>
+                <option name="unit"></option>
                 <option name="useColors">1</option>
             </single>
         </panel>
@@ -157,8 +157,8 @@
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
-                <option name="underLabel">REALTIME AVG TRAFFIC IN</option>
-                <option name="unit">Kbps in</option>
+                <option name="underLabel">REALTIME AVG TRAFFIC IN (Kbps in)</option>
+                <option name="unit"></option>
                 <option name="useColors">1</option>
             </single>
         </panel>
@@ -173,8 +173,8 @@
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
-                <option name="underLabel">REALTIME AVG TRAFFIC OUT</option>
-                <option name="unit">Kbps out</option>
+                <option name="underLabel">REALTIME AVG TRAFFIC OUT (Kbps out)</option>
+                <option name="unit"></option>
                 <option name="useColors">1</option>
             </single>
         </panel>
@@ -326,7 +326,7 @@
                 <option name="drilldown">none</option>
                 <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
                 <option name="underLabel">TOTAL BROKERS</option>
-                <option name="unit">- Brokers</option>
+                <option name="unit"></option>
                 <option name="numberPrecision">0</option>
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>
@@ -340,7 +340,7 @@
                 <option name="drilldown">none</option>
                 <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
                 <option name="underLabel">TOTAL PARTITIONS</option>
-                <option name="unit">- Partitions</option>
+                <option name="unit"></option>
                 <option name="numberPrecision">0</option>
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>
@@ -352,8 +352,8 @@
                 </search>
                 <option name="drilldown">none</option>
                 <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
-                <option name="underLabel">TOTAL VOLUME USED</option>
-                <option name="unit"> MB</option>
+                <option name="underLabel">TOTAL VOLUME USED (MB)</option>
+                <option name="unit"></option>
                 <option name="numberPrecision">0.00</option>
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>

@@ -2,6 +2,18 @@ Release notes
 #############
 
 ==============
+Version 1.1.36
+==============
+
+CAUTION: Zookeeper metric collection switches from Telegraf plugin to JMX for easier and more consistent metric collection across all the components.
+If you were using the application prior to this version, please update your configuration to collect metrics via JMX.
+
+See: https://telegraf-kafka.readthedocs.io/en/latest/implementation.html
+
+- Fix: Show Kafka Connect tasks return empty results in home page
+- Fix: The usage of unit makes single form content way too small in different views
+
+==============
 Version 1.1.35
 ==============
 

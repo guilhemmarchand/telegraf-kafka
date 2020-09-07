@@ -676,7 +676,7 @@
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
                 <option name="underLabel">REALTIME AVG MESSAGES/IN SEC</option>
-                <option name="unit">msg/sec</option>
+                <option name="unit"></option>
                 <option name="useColors">1</option>
             </single>
         </panel>
@@ -691,8 +691,8 @@
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
-                <option name="underLabel">REALTIME AVG TRAFFIC IN</option>
-                <option name="unit">Kbps in</option>
+                <option name="underLabel">REALTIME AVG TRAFFIC IN (Kbps in)</option>
+                <option name="unit"></option>
                 <option name="useColors">1</option>
             </single>
         </panel>
@@ -707,8 +707,8 @@
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
-                <option name="underLabel">REALTIME AVG TRAFFIC OUT</option>
-                <option name="unit">Kbps out</option>
+                <option name="underLabel">REALTIME AVG TRAFFIC OUT (Kbps out)</option>
+                <option name="unit"></option>
                 <option name="useColors">1</option>
             </single>
         </panel>
@@ -1971,8 +1971,8 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
-                <option name="underLabel">REALTIME MESSAGES CONSUMED/SEC</option>
-                <option name="unit">msg/sec</option>
+                <option name="underLabel">REALTIME MESSAGES CONSUMED/SEC (msg/sec)</option>
+                <option name="unit"></option>
                 <option name="useColors">1</option>
             </single>
         </panel>
@@ -1987,8 +1987,8 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
-                <option name="underLabel">REALTIME MESSAGES PRODUCED/SEC</option>
-                <option name="unit">msg/sec</option>
+                <option name="underLabel">REALTIME MESSAGES PRODUCED/SEC (msg/sec)</option>
+                <option name="unit"></option>
                 <option name="useColors">1</option>
             </single>
         </panel>

@@ -140,8 +140,8 @@
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
-                <option name="underLabel">REALTIME MESSAGES CONSUMED/SEC</option>
-                <option name="unit">msg/sec</option>
+                <option name="underLabel">REALTIME MESSAGES CONSUMED/SEC (msg/sec)</option>
+                <option name="unit"></option>
                 <option name="useColors">1</option>
             </single>
         </panel>
@@ -156,8 +156,8 @@
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
-                <option name="underLabel">REALTIME MESSAGES PRODUCED/SEC</option>
-                <option name="unit">msg/sec</option>
+                <option name="underLabel">REALTIME MESSAGES PRODUCED/SEC (msg/sec)</option>
+                <option name="unit"></option>
                 <option name="useColors">1</option>
             </single>
         </panel>
