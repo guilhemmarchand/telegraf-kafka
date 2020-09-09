@@ -80,8 +80,8 @@
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
-                <option name="underLabel">REALTIME AVG ACTIVE CONNECTIONS</option>
-                <option name="unit">req/sec</option>
+                <option name="underLabel">REALTIME AVG ACTIVE CONNECTIONS (req/sec)</option>
+                <option name="unit"></option>
                 <option name="useColors">1</option>
             </single>
         </panel>
@@ -96,8 +96,8 @@
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
-                <option name="underLabel">REALTIME AVG OPENED CONNECTIONS RATE</option>
-                <option name="unit">req/sec</option>
+                <option name="underLabel">REALTIME AVG OPENED CONNECTIONS RATE (req/sec)</option>
+                <option name="unit"></option>
                 <option name="useColors">1</option>
             </single>
         </panel>
@@ -112,8 +112,8 @@
                 <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
-                <option name="underLabel">REALTIME AVG CLOSED CONNECTIONS RATE</option>
-                <option name="unit">req/sec</option>
+                <option name="underLabel">REALTIME AVG CLOSED CONNECTIONS RATE (req/sec)</option>
+                <option name="unit"></option>
                 <option name="useColors">1</option>
             </single>
         </panel>
