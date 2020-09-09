@@ -2,6 +2,17 @@ Release notes
 #############
 
 ==============
+Version 1.1.36
+==============
+
+CAUTION: Zookeeper metric collection switches from Telegraf plugin to JMX for easier and more consistent metric collection across all the components.
+If you were using the application prior to this version, please update your configuration to collect metrics via JMX.
+
+See: https://telegraf-kafka.readthedocs.io/en/latest/implementation.html
+
+- Fix: Avoid mcatalog calls with metric_name as metric_name, some versions of Splunk will incorrectly complain about this, and this causes appinpsect failures in Splunk Base
+
+==============
 Version 1.1.35
 ==============
 
