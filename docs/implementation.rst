@@ -1263,6 +1263,8 @@ Implement Confluent Interceptor integration to Splunk
   indexes = confluent_interceptor_metrics
   token = xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx
 
+**The following props.conf and transforms.conf configuration need to be deployed to the indexers or intermediate forwarders, these are not need on the search heads:**
+
 *Define the following sourcetype in a props.conf configuration file in Splunk:*
 
 ::
@@ -1271,6 +1273,8 @@ Implement Confluent Interceptor integration to Splunk
   SHOULD_LINEMERGE=false
   LINE_BREAKER=([\r\n]+)
   CHARSET=UTF-8
+  # Add the env and label inside the JSON
+  SEDCMD-add_tags=s/env=([^\s]*)\slabel=([^\s]*)\shost=([^\s]*)\s.*?\{/{"env":"\1","label":"\2","host":"\3"/g
   # remove the header before the JSON payload
   SEDCMD-remove_header=s/.*?\{/{/g
 
@@ -1279,8 +1283,10 @@ Implement Confluent Interceptor integration to Splunk
   TIME_PREFIX=\"timestamp\":\"
   MAX_TIMESTAMP_LOOKAHEAD=35
 
+  # Handle the host Meta
+  TRANSFORMS-confluent-interceptor-host = confluent_interceptor_host
   # Only keep the metrics, send any other events from the container to the null queue
-  TRANSFORMS-confluent-interceptor = confluent_interceptor_setnull
+  TRANSFORMS-setnull = confluent_interceptor_setnull
 
   # Logs to metrics
   TRANSFORMS-fieldvalue=confluent_interceptor_fields_extraction
@@ -1303,13 +1309,18 @@ Implement Confluent Interceptor integration to Splunk
   SOURCE_KEY = _raw
   WRITE_META = true
 
+  [confluent_interceptor_host]
+  DEST_KEY = MetaData:Host
+  REGEX = \"host\":\"([^\"]*)\"
+  FORMAT = host::$1
+
   [confluent_interceptor_eval_pipeline]
   INGEST_EVAL = metric_name="confluent_interceptor"
 
   [metric-schema:extract_metrics]
   METRIC-SCHEMA-MEASURES-confluent_interceptor=_ALLNUMS_
   METRIC-SCHEMA-MEASURES-confluent_interceptor=count,aggregateBytes,aggregateCrc,totalLatency,minLatency,maxLatency,arrivalTime
-  METRIC-SCHEMA-BLACKLIST-DIMS-confluent_interceptor=session,sequence,window,minWindow,maxWindow
+  METRIC-SCHEMA-BLACKLIST-DIMS-confluent_interceptor=host,session,sequence,window,minWindow,maxWindow
 
 *Define a new Docker container, you can use docker-compose for an easier deployment and maintenance:*
 
@@ -1481,7 +1492,7 @@ Implement Confluent Interceptor integration to Splunk
     environment:
       env: "docker_env"
       label: "testing"
-      host: "confluent-control-center-metrics"
+      host: "confluent-consumer-interceptor"
     command: "/usr/bin/control-center-console-consumer /etc/confluent-control-center/control-center.properties --topic _confluent-monitoring"
 
 *Start the container:*
