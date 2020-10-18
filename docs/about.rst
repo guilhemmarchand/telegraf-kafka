@@ -19,6 +19,8 @@ About
 
 * LinkedIn Kafka monitor to provide end to end monitoring (https://github.com/linkedin/kafka-monitor)
 
+* Confluent Interceptors Monitoring (https://docs.confluent.io/current/control-center/installation/clients.html)
+
 * Kafka Consumers lag monitoring with Burrow (https://github.com/linkedin/Burrow)
 
 **An ITSI module is also available:** https://da-itsi-telegraf-kafka.readthedocs.io

@@ -1212,6 +1212,256 @@ Full telegraf.conf example
 
     | mcatalog values(metric_name) values(_dims) where index=* metric_name=kafka_kafka_kafka-rest.*
 
+Confluent Interceptor Monitoring
+================================
+
+**Confluent Interceptor allows monitoring latency from producers and consumers in any kind of ways and is a very performing and rich way to monitor your Kafka components for Confluent customers:**
+
+- https://docs.confluent.io/current/control-center/installation/clients.html
+
+**To collect Confluent Interceptors metrics in Splunk, we use the following method:**
+
+- We use a Docker container to run the command center console consumer from the interceptor topic, by default "_confluent-monitoring"
+- You cannot consume this topic directly in Splunk without the command center console consumer as it contains binary data that would not be readbale
+- Once started, the Docker container consumes the topic and outputs the data in the stdout
+- Finally, we use the Docker logging driver to forward this data to a Splunk HTTP Event Collector endpoint
+
+.. image:: img/draw.io/confluent_interceptor_diagram.png
+   :alt: confluent_interceptor_diagram.png
+   :align: center
+
+**Make sure you enabled Interceptors in your products as explained in the Confluent documentation, for instance for Kafka Connect you will add the following configuration in your worker properties:**
+
+::
+
+  producer.interceptor.classes=io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+  consumer.interceptor.classes=io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+
+*Note: adding this config would require a restart of Kafka Connect to be applied*
+
+**Once you decided where to run the Docker container, which could be the same machine hosting the command center for example, you will:**
+
+*Create an HEC token dedicated for it, or allow an existing token to forward to a new event index, example:*
+
+::
+
+  [http://confluent_interceptor_metrics]
+  disabled = 0
+  index = confluent_interceptor_metrics
+  indexes = confluent_interceptor_metrics
+  token = xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx
+
+*Define the following sourcetype in a props.conf configuration file in Splunk:*
+
+::
+
+  [confluent:interceptor]
+  SHOULD_LINEMERGE=false
+  LINE_BREAKER=([\r\n]+)
+  CHARSET=UTF-8
+  # remove the header before the JSON payload
+  SEDCMD-remove_header=s/.*?\{/{/g
+
+  # Be strict and performer
+  TIME_FORMAT=%s%3N
+  TIME_PREFIX=\"timestamp\":\"
+  MAX_TIMESTAMP_LOOKAHEAD=35
+
+  # Only keep the metrics, send any other events from the container to the null queue
+  TRANSFORMS-confluent-interceptor = confluent_interceptor_setnull
+
+*Define the following transforms in a transforms.conf configuration file in Splunk:*
+
+::
+
+  [confluent_interceptor_setnull]
+  REGEX = ^confluentinc/cp-enterprise-control-center
+  DEST_KEY = queue
+  FORMAT = nullQueue
+
+*Define a new Docker container, you can use docker-compose for an easier deployment and maintenance:*
+
+- On the machine hosting the Docker container, create a new directory:
+
+::
+
+  mkdir /opt/confluent-interceptor
+  cd /opt/confluent-interceptor
+
+- In this directory, copy the command center properties file that you use for command center, at the minimal you need to define the kafka broker and zookeeper connection string:
+
+*control-center.properties*
+
+::
+
+  # (Copyright) Confluent, Inc.
+
+  # These configs are designed to make control center's system requirements as low as
+  # reasonably possible. It is still capable of monitoring a moderate number of resources,
+  # but it specifically trades off throughput in favor of low CPU load.
+
+  ############################# Server Basics #############################
+
+  # A comma separated list of Apache Kafka cluster host names (required)
+  bootstrap.servers=localhost:9092
+
+  # A comma separated list of ZooKeeper host names (for ACLs)
+  zookeeper.connect=localhost:2181
+
+  ############################# Control Center Settings #############################
+
+  # Unique identifier for the Control Center
+  confluent.controlcenter.id=1
+
+  # Directory for Control Center to store data
+  confluent.controlcenter.data.dir=/tmp/confluent/control-center
+
+  # License string for the Control Center
+  # confluent.license=Xyz
+
+  # A comma separated list of Connect host names
+  confluent.controlcenter.connect.cluster=http://localhost:8083
+
+  # KSQL cluster URL
+  confluent.controlcenter.ksql.ksqlDB.url=http://localhost:8088
+
+  # Schema Registry cluster URL
+  confluent.controlcenter.schema.registry.url=http://localhost:8081
+
+  # Kafka REST endpoint URL
+  confluent.controlcenter.streams.cprest.url=http://localhost:8090
+
+  # Settings to enable email alerts
+  #confluent.controlcenter.mail.enabled=true
+  #confluent.controlcenter.mail.host.name=smtp1
+  #confluent.controlcenter.mail.port=587
+  #confluent.controlcenter.mail.from=kafka-monitor@example.com
+  #confluent.controlcenter.mail.password=abcdefg
+  #confluent.controlcenter.mail.starttls.required=true
+
+  # Replication for internal Control Center topics.
+  # Only lower them for testing.
+  # WARNING: replication factor of 1 risks data loss.
+  confluent.controlcenter.internal.topics.replication=1
+
+  # Number of partitions for Control Center internal topics
+  # Increase for better throughput on monitored data (CPU bound)
+  # NOTE: changing requires running `bin/control-center-reset` prior to restart
+  confluent.controlcenter.internal.topics.partitions=1
+
+  # Topic used to store Control Center configuration
+  # WARNING: replication factor of 1 risks data loss.
+  confluent.controlcenter.command.topic.replication=1
+
+  # Enable automatic UI updates
+  confluent.controlcenter.ui.autoupdate.enable=true
+
+  # Enable usage data collection
+  confluent.controlcenter.usage.data.collection.enable=true
+
+  # Enable Controller Chart in Broker page
+  #confluent.controlcenter.ui.controller.chart.enable=true
+
+  ############################# Control Center RBAC Settings #############################
+
+  # Enable RBAC authorization in Control Center by providing a comma-separated list of Metadata Service (MDS) URLs
+  #confluent.metadata.bootstrap.server.urls=http://localhost:8090
+
+  # MDS credentials of an RBAC user for Control Center to act on behalf of
+  # NOTE: This user must be a SystemAdmin on each Apache Kafka cluster
+  #confluent.metadata.basic.auth.user.info=username:password
+
+  # Enable SASL-based authentication for each Apache Kafka cluster (SASL_PLAINTEXT or SASL_SSL required)
+  #confluent.controlcenter.streams.security.protocol=SASL_PLAINTEXT
+  #confluent.controlcenter.kafka.<name>.security.protocol=SASL_PLAINTEXT
+
+  # Enable authentication using a bearer token for Control Center's REST endpoints
+  #confluent.controlcenter.rest.authentication.method=BEARER
+
+  # Public key used to verify bearer tokens
+  # NOTE: Must match the MDS public key
+  #public.key.path=/path/to/publickey.pem
+
+  ############################# Broker (Metrics reporter) Monitoring #############################
+
+  # Set how far back in time metrics reporter data should be processed
+  #confluent.metrics.topic.skip.backlog.minutes=15
+
+  ############################# Stream (Interceptor) Monitoring #############################
+
+  # Keep these settings default unless using non-Confluent interceptors
+
+  # Override topic name for intercepted (should mach custom interceptor settings)
+  #confluent.monitoring.interceptor.topic=_confluent-monitoring
+
+  # Number of partitions for the intercepted topic
+  confluent.monitoring.interceptor.topic.partitions=1
+
+  # Amount of replication for intercepted topics
+  # WARNING: replication factor of 1 risks data loss.
+  confluent.monitoring.interceptor.topic.replication=1
+
+  # Set how far back in time interceptor data should be processed
+  #confluent.monitoring.interceptor.topic.skip.backlog.minutes=15
+
+  ############################# System Health (Broker) Monitoring #############################
+
+  # Number of partitions for the metrics topic
+  confluent.metrics.topic.partitions=1
+
+  # Replication factor for broker monitoring data
+  # WARNING: replication factor of 1 risks data loss.
+  confluent.metrics.topic.replication=1
+
+  ############################# Streams (state store) settings #############################
+
+  # Increase for better throughput on data processing (CPU bound)
+  confluent.controlcenter.streams.num.stream.threads=1
+
+  # Amount of heap to use for internal caches. Increase for better thoughput
+  confluent.controlcenter.streams.cache.max.bytes.buffering=100000000
+
+*Finally, create a new docker-compose.yml file as follows, edit the Splunk index, the HEC target token to match your deployment:*
+
+::
+
+  confluent-interceptor:
+    image: confluentinc/cp-enterprise-control-center
+    restart: always
+    hostname: confluent-interceptor
+    logging:
+      driver: splunk
+      options:
+        splunk-token: "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx"
+        splunk-url: "https://mysplunk.domain.com:8088"
+        splunk-insecureskipverify: "true"
+        splunk-verify-connection: "false"
+        splunk-index: "confluent_interceptor_logs"
+        splunk-sourcetype: "confluent:interceptor"
+        splunk-format: "raw"
+        tag: "{{.ImageName}}/{{.Name}}/{{.ID}}"
+        env: "env,label,host"
+    mem_limit: 600m
+    volumes:
+      - control-center.properties:/etc/confluent-control-center/control-center.properties
+    environment:
+      env: "docker_env"
+      label: "testing"
+      host: "confluent-control-center-metrics"
+    command: "/usr/bin/control-center-console-consumer /etc/confluent-control-center/control-center.properties --topic _confluent-monitoring"
+
+*Start the container:*
+
+::
+
+  docker-compose up -d
+
+*After the image has been downloaded, the container automatically starts and metrics start to be forwarded to Splunk:*
+
+.. image:: img/confluent_interceptor1.png
+   :alt: confluent_interceptor1.png
+   :align: center
+
 Burrow Lag Consumers
 ====================
 

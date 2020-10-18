@@ -2,6 +2,12 @@ Release notes
 #############
 
 ==============
+Version 1.1.38
+==============
+
+- Feature: Integration with Confluent Interceptor Monitoring for producers and consumers advanced lag monitoring with Confluent
+
+==============
 Version 1.1.37
 ==============
 
