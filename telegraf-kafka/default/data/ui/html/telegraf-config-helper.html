@@ -910,7 +910,7 @@ require([
                 telegraf_config = telegraf_config + "\n" + "  # the label tag is an additional tag used by the application to identify an environment" + "\n" + "  label = \"" + telegraf_label + "\"";
 
                 // Add the agent section
-                telegraf_config = telegraf_config + "\n\n" + "[agent]" + "\n  interval = \"" + interval_tk + "\"" + "\n  flush_interval = \"" + interval_tk + "\n  hostname = \"$HOSTNAME\"";
+                telegraf_config = telegraf_config + "\n\n" + "[agent]" + "\n  interval = \"" + interval_tk + "\"" + "\n  flush_interval = \"" + interval_tk + "\"\n  hostname = \"$HOSTNAME\"";
 
                 // Add the Splunk HEC output section
                 telegraf_config = telegraf_config + "\n\n" + "# outputs" + "\n" + "[[outputs.http]]" + "\n" + "  url = \"" + splunk_hec_url_tk + "\"";
