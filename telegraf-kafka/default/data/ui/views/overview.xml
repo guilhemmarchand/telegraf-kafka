@@ -1,4 +1,4 @@
-<dashboard stylesheet="common.css,boottsrap-btn.css,table.css" script="load_spinner.js,load_components_v2.js,configcheck.js,token_buttons.js,table.js" hideEdit="True" isVisible="True">
+<dashboard stylesheet="common.css,boottsrap-btn.css,table.css" script="load_spinner.js,load_components_v2.js,configcheck.js,token_buttons.js,table.js" theme="dark" hideEdit="True" isVisible="True">
     <label>Overview</label>
 
     <search id="main_populate">
@@ -917,11 +917,11 @@
                     <option name="height">25</option>
                 </format>
                 <format type="color" field="KBytes in">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="KBytes out">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <drilldown>
@@ -2008,23 +2008,23 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
                     <link>/app/telegraf-kafka/confluent_interceptor_monitoring?form.env=$row.env$&amp;form.label=$row.label$&amp;form.clientType=$row.clientType$&amp;form.clientId=$row.clientId$&amp;form.topic=$row.topic$</link>
                 </drilldown>
                 <format type="color" field="avg MB/sec">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="max MB/sec">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="avg Latency">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="perc95 Latency">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="curr Latency">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format field="spk_latency" type="sparkline">
@@ -2081,23 +2081,23 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
                     <link>/app/telegraf-kafka/confluent_interceptor_monitoring?form.env=$row.env$&amp;form.label=$row.label$&amp;form.clientType=$row.clientType$&amp;form.clientId=$row.clientId$&amp;form.topic=$row.topic$</link>
                 </drilldown>
                 <format type="color" field="avg MB/sec">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="max MB/sec">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="avg Latency">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="perc95 Latency">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="curr Latency">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format field="spk_latency" type="sparkline">

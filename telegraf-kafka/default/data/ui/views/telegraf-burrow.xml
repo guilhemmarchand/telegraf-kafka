@@ -1,4 +1,4 @@
-<form script="telegraf-kafka:table.js" stylesheet="telegraf-kafka:common.css,telegraf-kafka:table.css">
+<form script="telegraf-kafka:table.js" stylesheet="telegraf-kafka:common.css,telegraf-kafka:table.css" theme="dark" hideEdit="true" isVisible="true">
     <label>Burrow</label>
     <search id="main_populate">
         <query>| savedsearch telegraf-kafka-burrow-partition</query>
@@ -130,15 +130,15 @@
                 <option name="totalsRow">false</option>
                 <option name="wrap">true</option>
                 <format type="color" field="avg_lag">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="max_lag">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="current">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format field="sparkline" type="sparkline">
@@ -225,15 +225,15 @@
                 <option name="totalsRow">false</option>
                 <option name="wrap">true</option>
                 <format type="color" field="avg_lag">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="max_lag">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="current">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format field="sparkline" type="sparkline">

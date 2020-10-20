@@ -71,7 +71,7 @@
             <view name="telegraf-kafka-confluent-ksql-server" />
         </collection>
 
-        <collection label="Kafka LinkedIn monitor">
+        <collection label="Kafka Xinfra monitor">
             <view name="telegraf-kafka-kafka-monitor" />
         </collection>
 

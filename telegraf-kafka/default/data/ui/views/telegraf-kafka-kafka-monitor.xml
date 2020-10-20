@@ -1,5 +1,5 @@
-<form stylesheet="telegraf-kafka:common.css" hideEdit="true" isVisible="true">
-    <label>Kafka LinkedIn monitor - End to End monitoring with kafka-monitor</label>
+<form stylesheet="telegraf-kafka:common.css" theme="dark" hideEdit="true" isVisible="true">
+    <label>Kafka Xinfra monitor - End to End monitoring with kafka-monitor</label>
 
     <search id="Global">
         <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name="kafka_kafka-monitor.produce-availability-avg" OR metric_name="kafka_kafka-monitor.consume-availability-avg" $env$ $label$ $jolokia_agent_url$ by metric_name, jolokia_agent_url

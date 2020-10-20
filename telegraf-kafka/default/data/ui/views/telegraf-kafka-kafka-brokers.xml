@@ -1,4 +1,4 @@
-<form stylesheet="telegraf-kafka:common.css,telegraf-kafka:table.css" script="telegraf-kafka:table.js" hideEdit="true" isVisible="True">
+<form stylesheet="telegraf-kafka:common.css,telegraf-kafka:table.css" script="telegraf-kafka:table.js" theme="dark" hideEdit="true" isVisible="True">
     <label>Kafka Broker - Entity health view</label>
 
     <search id="broker_activity_summary">
@@ -470,11 +470,11 @@
                 </search>
                 <option name="count">8</option>
                 <format type="color" field="# Partitions">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="# UnderReplicatedPartitions">
-                    <colorPalette type="minMidMax" maxColor="#ff6961" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#ff6961" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
             </table>
@@ -1060,7 +1060,7 @@
                 <option name="count">15</option>
                 <option name="dataOverlayMode">none</option>
                 <format type="color" field="Size">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
             </table>

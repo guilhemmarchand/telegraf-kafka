@@ -1,4 +1,4 @@
-<form script="telegraf-kafka:table.js" stylesheet="telegraf-kafka:common.css,telegraf-kafka:table.css">
+<form script="telegraf-kafka:table.js" stylesheet="telegraf-kafka:common.css,telegraf-kafka:table.css" theme="dark" hideEdit="true" isVisible="true">
   <label>Confluent Interceptors Monitoring</label>
   <search id="MainPopulate">
     <query>| mstats latest(_value) where `confluent_interceptor_index` metric_name="confluent_interceptor.totalLatency" by env, label, clientType, clusterId, clientId, topic</query>
@@ -164,23 +164,23 @@
         <option name="drilldown">none</option>
         <option name="refresh.display">progressbar</option>
         <format type="color" field="avg MB/sec">
-          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
           <scale type="minMidMax"></scale>
         </format>
         <format type="color" field="max MB/sec">
-          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
           <scale type="minMidMax"></scale>
         </format>
         <format type="color" field="avg Latency">
-          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
           <scale type="minMidMax"></scale>
         </format>
         <format type="color" field="perc95 Latency">
-          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
           <scale type="minMidMax"></scale>
         </format>
         <format type="color" field="curr Latency">
-          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
           <scale type="minMidMax"></scale>
         </format>
         <format field="spk_latency" type="sparkline">

@@ -1,4 +1,4 @@
-<dashboard stylesheet="telegraf-kafka:common.css" hideEdit="True" isVisible="False">
+<dashboard stylesheet="telegraf-kafka:common.css" theme="dark" hideEdit="True" isVisible="False">
     <label>Broker View</label>
     <row>
         <panel>
@@ -189,15 +189,15 @@ OR metric_name="kafka_topics.FailedProduceRequestsPerSec.MeanRate" OR metric_nam
                 <option name="count">50</option>
                 <option name="drilldown">row</option>
                 <format type="color" field="Total Partitions">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="Partitions on broker">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="Size MB">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <drilldown>
