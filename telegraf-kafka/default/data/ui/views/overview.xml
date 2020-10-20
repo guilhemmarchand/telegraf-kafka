@@ -280,10 +280,10 @@
     <!-- base search for Confluence Interceptor -->
 
     <search id="interceptor" depends="$interceptor_detected$">
-        <query>| mstats latest(confluent_interceptor.maxLatency) as maxLatency, latest(confluent_interceptor.minLatency) as minLatency, latest(confluent_interceptor.totalLatency) as totalLatency sum(confluent_interceptor.aggregateBytes) as aggregateBytes where `confluent_interceptor_index` $env$ $label$ clientType="*" clusterId="*" clientId="*" topic="*" by env, label, clientType, clientId, topic span=15s
+        <query>| mstats latest(confluent_interceptor.maxLatency) as maxLatency, latest(confluent_interceptor.minLatency) as minLatency, sum(confluent_interceptor.aggregateBytes) as aggregateBytes where `confluent_interceptor_index` $env$ $label$ clientType="*" clusterId="*" clientId="*" topic="*" by env, label, clientType, clientId, topic span=15s
 | eval key = clientId
 | eval aggregateMB=(aggregateBytes/1024/1024)/15
-| stats avg(aggregateMB) as "avg MB/sec", max(aggregateMB) as "max MB/sec", avg(maxLatency) as "avg Latency", perc95(maxLatency) as "perc95 Latency", latest(maxLatency) as "curr maxLatency", latest(minLatency) as "curr minLatency", latest(totalLatency) as "curr totalLatency", sparkline(avg(maxLatency),) As spk_latency, sparkline(avg(aggregateMB),) As spk_mbsec by env, label, clientType, clientId, topic
+| stats avg(aggregateMB) as "avg MB/sec", max(aggregateMB) as "max MB/sec", avg(maxLatency) as "avg Latency", perc95(maxLatency) as "perc95 Latency", latest(maxLatency) as "curr Latency", sparkline(avg(maxLatency),) As spk_latency, sparkline(avg(aggregateMB),) As spk_mbsec by env, label, clientType, clientId, topic
 | eval lastTime=strftime(lastTime, "%c")
 | sort 0 group, clientId, topic
 | foreach "avg MB/sec" "max MB/sec" "avg Latency", "perc95 Latency"[ eval &lt;&lt;FIELD&gt;&gt; = round('&lt;&lt;FIELD&gt;&gt;', 3) ]</query>
@@ -1346,7 +1346,7 @@ OR metric_name="kafka_topics.FailedProduceRequestsPerSec.MeanRate" OR metric_nam
 | rangemap field=range_status low=0-0 high=1-1 severe=2-5 default=severe
 | fields status, range, integer_status, range_status
 | sort - limit=0 range_status
-| append [ makeresults ] | fillnull value="unknown" status | fillnull value="elevated" range | fields - _time</query>
+| append [ makeresults ] | fillnull value="unknown" status | fillnull value="info" range | fields - _time</query>
                 </search>
                 <option name="colorBy">value</option>
                 <option name="colorMode">block</option>
@@ -1403,7 +1403,7 @@ OR metric_name="kafka_topics.FailedProduceRequestsPerSec.MeanRate" OR metric_nam
 | rangemap field=range_status low=0-0 high=1-1 severe=2-5 default=severe
 | fields status, range, integer_status, range_status
 | sort - limit=0 range_status
-| append [ makeresults ] | fillnull value="unknown" status | fillnull value="elevated" range | fields - _time</query>
+| append [ makeresults ] | fillnull value="unknown" status | fillnull value="info" range | fields - _time</query>
                 </search>
                 <option name="colorBy">value</option>
                 <option name="colorMode">block</option>
@@ -1826,6 +1826,26 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
 
     -->
 
+  <search id="interceptorSingleMbsecProducer" depends="$load_confluent_interceptor$ $interceptor_detected$">
+    <query>| mstats sum(confluent_interceptor.aggregateBytes) as aggregateBytes where `confluent_interceptor_index` $env$ $label$ clientType="PRODUCER" by env, label, clientType, topic span=15s
+| eval aggregateMB=(aggregateBytes/1024/1024)/15
+| stats avg(aggregateMB) as avg_mbsec by env, label, clientType, topic | stats avg(avg_mbsec) as avg_mbsec | append [ | makeresults | eval avg_mbsec="0.000" | fields - _time ] | head 1</query>
+    <earliest>-90s</earliest>
+    <latest>now</latest>
+    <refresh>30s</refresh>
+    <refreshType>delay</refreshType>
+  </search>
+
+  <search id="interceptorSingleMbsecConsumer" depends="$load_confluent_interceptor$ $interceptor_detected$">
+    <query>| mstats sum(confluent_interceptor.aggregateBytes) as aggregateBytes where `confluent_interceptor_index` $env$ $label$ clientType="CONSUMER" by env, label, clientType, topic span=15s
+| eval aggregateMB=(aggregateBytes/1024/1024)/15
+| stats avg(aggregateMB) as avg_mbsec by env, label, clientType, topic | stats avg(avg_mbsec) as avg_mbsec | append [ | makeresults | eval avg_mbsec="0.000" | fields - _time ] | head 1</query>
+    <earliest>-90s</earliest>
+    <latest>now</latest>
+    <refresh>30s</refresh>
+    <refreshType>delay</refreshType>
+  </search>
+
     <row depends="$load_confluent_interceptor$ $interceptor_detected$">
         <panel>
             <html>
@@ -1874,6 +1894,21 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
         </panel>
         <panel>
             <single>
+                <search base="interceptorSingleMbsecProducer">
+                <query>fields avg_mbsec</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">REALTIME AVERAGE MB / SEC</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
                 <search base="interceptor">
                     <query>where clientType="CONSUMER" | search $env$ $label$ | stats count by clientId, env, label | stats count</query>
                 </search>
@@ -1884,6 +1919,21 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
                 <option name="rangeValues">[0]</option>
                 <option name="refresh.display">progressbar</option>
                 <option name="underLabel">CONSUMERS</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="interceptorSingleMbsecConsumer">
+                <query>fields avg_mbsec</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">REALTIME AVERAGE MB / SEC</option>
                 <option name="useColors">1</option>
             </single>
         </panel>
@@ -1973,15 +2023,7 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
                     <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
-                <format type="color" field="curr maxLatency">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
-                    <scale type="minMidMax"></scale>
-                </format>
-                <format type="color" field="curr minLatency">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
-                    <scale type="minMidMax"></scale>
-                </format>
-                <format type="color" field="curr totalLatency">
+                <format type="color" field="curr Latency">
                     <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
@@ -2054,15 +2096,7 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
                     <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
-                <format type="color" field="curr maxLatency">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
-                    <scale type="minMidMax"></scale>
-                </format>
-                <format type="color" field="curr minLatency">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
-                    <scale type="minMidMax"></scale>
-                </format>
-                <format type="color" field="curr totalLatency">
+                <format type="color" field="curr Latency">
                     <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>

@@ -2,14 +2,14 @@
   <label>Confluent Interceptors Monitoring</label>
   <search id="MainPopulate">
     <query>| mstats latest(_value) where `confluent_interceptor_index` metric_name="confluent_interceptor.totalLatency" by env, label, clientType, clusterId, clientId, topic</query>
-    <earliest>-15m</earliest>
-    <latest>now</latest>
+    <earliest>$timerange.earliest$</earliest>
+    <latest>$timerange.latest$</latest>
   </search>
   <search id="singleMbsec">
     <query>| mstats sum(confluent_interceptor.aggregateBytes) as aggregateBytes where `confluent_interceptor_index` $env$ $label$ $clientType$ $clusterId$ $clientId$ $topic$ by env, label, clientType, $statsBy$ span=15s
 | eval key = $chartBy$
 | eval aggregateMB=(aggregateBytes/1024/1024)/15
-| stats avg(aggregateMB) as mbsec by env, label, clientType, $statsBy$ | stats avg(mbsec) as avg_mbsec, max(mbsec) as max_mbsec</query>
+| stats avg(aggregateMB) as avg_mbsec, max(aggregateMB) as max_mbsec by env, label, clientType, $statsBy$ | stats avg(avg_mbsec) as avg_mbsec, max(max_mbsec) as max_mbsec</query>
     <earliest>-90s</earliest>
     <latest>now</latest>
     <refresh>30s</refresh>
@@ -18,7 +18,7 @@
   <search id="singleLatency">
     <query>| mstats latest(confluent_interceptor.maxLatency) as maxLatency where `confluent_interceptor_index` $env$ $label$ $clientType$ $clusterId$ $clientId$ $topic$ by env, label, clientType, $statsBy$ span=15s
 | eval key = $chartBy$
-| stats avg(maxLatency) as latency by env, label, clientType, $statsBy$ | stats avg(latency) as avg_latency, max(latency) as max_latency</query>
+| stats avg(maxLatency) as avg_latency, max(maxLatency) as max_latency by env, label, clientType, $statsBy$ | stats avg(avg_latency) as avg_latency, max(max_latency) as max_latency</query>
     <earliest>-90s</earliest>
     <latest>now</latest>
     <refresh>30s</refresh>
@@ -35,6 +35,17 @@
             </div>
         </div>
       </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <input type="time" token="timerange">
+        <label>Period:</label>
+        <default>
+          <earliest>-4h@m</earliest>
+          <latest>now</latest>
+        </default>
+      </input>
     </panel>
   </row>
   <row>
@@ -138,10 +149,10 @@
       </input>
       <table>
         <search>
-          <query>| mstats latest(confluent_interceptor.maxLatency) as maxLatency, latest(confluent_interceptor.minLatency) as minLatency, latest(confluent_interceptor.totalLatency) as totalLatency sum(confluent_interceptor.aggregateBytes) as aggregateBytes where `confluent_interceptor_index` $env$ $label$ $clientType$ $clusterId$ $clientId$ $topic$ by env, label, clientType, $statsBy$ span=15s
+          <query>| mstats latest(confluent_interceptor.maxLatency) as maxLatency, latest(confluent_interceptor.minLatency) as minLatency, sum(confluent_interceptor.aggregateBytes) as aggregateBytes where `confluent_interceptor_index` $env$ $label$ $clientType$ $clusterId$ $clientId$ $topic$ by env, label, clientType, $statsBy$ span=15s
 | eval key = clientId
 | eval aggregateMB=(aggregateBytes/1024/1024)/15
-| stats avg(aggregateMB) as "avg MB/sec", max(aggregateMB) as "max MB/sec", avg(maxLatency) as "avg Latency", perc95(maxLatency) as "perc95 Latency", latest(maxLatency) as "curr maxLatency", latest(minLatency) as "curr minLatency", latest(totalLatency) as "curr totalLatency", sparkline(avg(maxLatency),) As spk_latency, sparkline(avg(aggregateMB),) As spk_mbsec by env, label, clientType, $statsBy$
+| stats avg(aggregateMB) as "avg MB/sec", max(aggregateMB) as "max MB/sec", avg(maxLatency) as "avg Latency", perc95(maxLatency) as "perc95 Latency", latest(maxLatency) as "curr Latency", sparkline(avg(maxLatency),) As spk_latency, sparkline(avg(aggregateMB),) As spk_mbsec by env, label, clientType, $statsBy$
 | eval lastTime=strftime(lastTime, "%c")
 | sort 0 group, clientId, topic
 | foreach "avg MB/sec" "max MB/sec" "avg Latency", "perc95 Latency"[ eval &lt;&lt;FIELD&gt;&gt; = round('&lt;&lt;FIELD&gt;&gt;', 3) ]</query>
@@ -168,15 +179,7 @@
           <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
           <scale type="minMidMax"></scale>
         </format>
-        <format type="color" field="curr maxLatency">
-          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
-          <scale type="minMidMax"></scale>
-        </format>
-        <format type="color" field="curr minLatency">
-          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
-          <scale type="minMidMax"></scale>
-        </format>
-        <format type="color" field="curr totalLatency">
+        <format type="color" field="curr Latency">
           <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
           <scale type="minMidMax"></scale>
         </format>
@@ -197,13 +200,6 @@
   </row>
   <row>
     <panel>
-      <input type="time" token="timerange">
-        <label>Period:</label>
-        <default>
-          <earliest>-4h@m</earliest>
-          <latest>now</latest>
-        </default>
-      </input>
       <input type="dropdown" token="chartBy" searchWhenChanged="true">
         <label>Chart by:</label>
         <choice value="clientId">clientId</choice>
@@ -226,7 +222,7 @@
         <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
         <option name="rangeValues">[0]</option>
         <option name="refresh.display">progressbar</option>
-        <option name="underLabel">Realtime Average MB/sec</option>
+        <option name="underLabel">REALTIME AVERAGE MB / SEC</option>
         <option name="useColors">1</option>
       </single>
     </panel>
@@ -241,7 +237,7 @@
         <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
         <option name="rangeValues">[0]</option>
         <option name="refresh.display">progressbar</option>
-        <option name="underLabel">Realtime Max MB/sec</option>
+        <option name="underLabel">REALTIME MAX MB / SEC</option>
         <option name="useColors">1</option>
       </single>
     </panel>
@@ -256,7 +252,7 @@
         <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
         <option name="rangeValues">[0]</option>
         <option name="refresh.display">progressbar</option>
-        <option name="underLabel">Realtime Average Latency</option>
+        <option name="underLabel">REALTIME AVERAGE LATENCY</option>
         <option name="useColors">1</option>
       </single>
     </panel>
@@ -271,7 +267,7 @@
         <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
         <option name="rangeValues">[0]</option>
         <option name="refresh.display">progressbar</option>
-        <option name="underLabel">Realtime Max Latency</option>
+        <option name="underLabel">REALTIME MAX LATENCY</option>
         <option name="useColors">1</option>
       </single>
     </panel>

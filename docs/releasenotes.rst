@@ -8,6 +8,7 @@ Version 1.1.38
 - Feature: Integration with Confluent Interceptor Monitoring for producers and consumers advanced lag monitoring with Confluent
 - Fix: Issue #64 - mMissing double quotes in the flush interval telegraf config UI generator #64
 - Fix: Issue #66 - Missing dot in telegraf config for Kafka Connect #66
+- Change: When no Kafka Connect source or sink connector have been detected, show the aggregated single form in black rather than yellow
 
 ==============
 Version 1.1.37
