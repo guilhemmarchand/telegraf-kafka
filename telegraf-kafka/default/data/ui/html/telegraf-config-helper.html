@@ -985,7 +985,7 @@ require([
                 }
 
                 else if (component_tk == "kafka_connect") {
-                    telegraf_config = telegraf_config + "# Kafka Connect" + "\n" + "[[inputs.jolokia2_agent]]" + "\n" + "  name_prefix = \"kafka_connect\""  + "\n" + "  urls = [\"http://" + host_target_tk + ":" + port_number + "/jolokia\"]" + "\n\n";
+                    telegraf_config = telegraf_config + "# Kafka Connect" + "\n" + "[[inputs.jolokia2_agent]]" + "\n" + "  name_prefix = \"kafka_connect.\""  + "\n" + "  urls = [\"http://" + host_target_tk + ":" + port_number + "/jolokia\"]" + "\n\n";
                     jQuery.get('../../static/app/telegraf-kafka/telegraf_conf_kafka_connect.txt', function(data) {
                         telegraf_config = telegraf_config + data
 
