@@ -2,6 +2,7 @@
     <view name="overview" default="true"/>
     <view name="overview_brokers"/>
     <view name="overview_topics" />
+    <a href="confluent_interceptor_monitoring">Interceptors</a>
     <view name="telegraf-burrow" />
     <!--
     ####################################################################################################################
@@ -52,6 +53,10 @@
             <view name="telegraf-kafka-kafka-connect-source-task" />
             <view name="telegraf-kafka-kafka-connect-sink-task" />
             <saved name="Kafka monitoring - tasks status report" />
+        </collection>
+
+        <collection label="Confluent Interceptors Monitoring">
+            <view name="confluent_interceptor_monitoring" />
         </collection>
 
         <collection label="Confluent schema-registry">

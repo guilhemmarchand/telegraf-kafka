@@ -67,6 +67,7 @@ require(['jquery',
                     var load_kafka_broker = true;
                     var load_kafka_connect = true;
                     var load_kafka_burrow = true;
+                    var load_confluent_interceptor = true;
                     var load_confluent_kafka_rest = true;
                     var load_confluent_ksql_server = true;
                     var load_confluent_schema_registry = true;
@@ -100,6 +101,14 @@ require(['jquery',
                         setToken(tk_name, "true");
                     } else {
                         tk_name = "load_kafka_burrow"
+                        unsetToken(tk_name);
+                    }
+
+                    if (load_confluent_interceptor) {
+                        tk_name = "load_confluent_interceptor"
+                        setToken(tk_name, "true");
+                    } else {
+                        tk_name = "load_confluent_interceptor"
                         unsetToken(tk_name);
                     }
 
@@ -202,6 +211,7 @@ require(['jquery',
                         var load_kafka_broker = false;
                         var load_kafka_connect = false;
                         var load_kafka_burrow = false;
+                        var load_confluent_interceptor = false;
                         var load_confluent_kafka_rest = false;
                         var load_confluent_ksql_server = false;
                         var load_confluent_schema_registry = false;
@@ -228,6 +238,11 @@ require(['jquery',
                             // Kafka_Burrow
                             if (component_label == "Kafka_Burrow" && component_state == "enabled") {
                                 load_kafka_burrow = true;
+                            }
+
+                            // Confluent_Interceptor
+                            if (component_label == "Confluent_Interceptor" && component_state == "enabled") {
+                                load_confluent_interceptor = true;
                             }
 
                             // Confluent_Kafka_Rest
@@ -276,6 +291,14 @@ require(['jquery',
                             setToken(tk_name, "true");
                         } else {
                             tk_name = "load_kafka_burrow"
+                            unsetToken(tk_name);
+                        }
+
+                        if (load_confluent_interceptor) {
+                            tk_name = "load_confluent_interceptor"
+                            setToken(tk_name, "true");
+                        } else {
+                            tk_name = "load_confluent_interceptor"
                             unsetToken(tk_name);
                         }
 

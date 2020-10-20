@@ -6,6 +6,7 @@ Version 1.1.38
 ==============
 
 - Feature: Integration with Confluent Interceptor Monitoring for producers and consumers advanced lag monitoring with Confluent
+- Fix: Issue #64 - mMissing double quotes in the flush interval telegraf config UI generator #64
 
 ==============
 Version 1.1.37
