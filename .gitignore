@@ -33,3 +33,6 @@ backups
 # Mac
 .DS_Store
 */.DS_Store
+
+# appinspect reports
+appinspect_report_*
