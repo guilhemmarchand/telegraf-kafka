@@ -1846,7 +1846,7 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
     <refreshType>delay</refreshType>
   </search>
 
-    <row depends="$load_confluent_interceptor$ $interceptor_detected$">
+    <row depends="$load_confluent_interceptor$">
         <panel>
             <html>
                 <div class="dashseparator">
