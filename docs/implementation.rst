@@ -1273,10 +1273,8 @@ Implement Confluent Interceptor integration to Splunk
   SHOULD_LINEMERGE=false
   LINE_BREAKER=([\r\n]+)
   CHARSET=UTF-8
-  # Add the env and label inside the JSON
-  SEDCMD-add_tags=s/env=([^\s]*)\slabel=([^\s]*)\shost=([^\s]*)\s.*?\{/{"env":"\1","label":"\2","host":"\3"/g
-  # remove the header before the JSON payload
-  SEDCMD-remove_header=s/.*?\{/{/g
+  # Add the env, label and host inside the JSON, remove anything before the json start
+  SEDCMD-add_tags=s/.*?env=([^\s]*)\slabel=([^\s]*)\shost=([^\s]*)\s.*?\{/{"env":"\1","label":"\2","host":"\3",/g
 
   # Be strict and performer
   TIME_FORMAT=%s%3N
