@@ -1468,30 +1468,33 @@ Implement Confluent Interceptor integration to Splunk
 
 ::
 
-  confluent-interceptor:
-    image: confluentinc/cp-enterprise-control-center
-    restart: always
-    hostname: confluent-interceptor
-    logging:
-      driver: splunk
-      options:
-        splunk-token: "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx"
-        splunk-url: "https://mysplunk.domain.com:8088"
-        splunk-insecureskipverify: "true"
-        splunk-verify-connection: "false"
-        splunk-index: "confluent_interceptor_metrics"
-        splunk-sourcetype: "confluent_interceptor"
-        splunk-format: "raw"
-        tag: "{{.ImageName}}/{{.Name}}/{{.ID}}"
-        env: "env,label,host"
-    mem_limit: 600m
-    volumes:
-      - control-center.properties:/etc/confluent-control-center/control-center.properties
-    environment:
-      env: "docker_env"
-      label: "testing"
-      host: "confluent-consumer-interceptor"
-    command: "/usr/bin/control-center-console-consumer /etc/confluent-control-center/control-center.properties --topic _confluent-monitoring"
+  version: '2.4'
+  services:
+
+    confluent-interceptor:
+      image: confluentinc/cp-enterprise-control-center
+      restart: "no"
+      hostname: confluent-interceptor
+      logging:
+        driver: splunk
+        options:
+          splunk-token: "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx"
+          splunk-url: "https://mysplunk.domain.com:8088"
+          splunk-insecureskipverify: "true"
+          splunk-verify-connection: "false"
+          splunk-index: "confluent_interceptor_metrics"
+          splunk-sourcetype: "confluent_interceptor"
+          splunk-format: "raw"
+          tag: "{{.ImageName}}/{{.Name}}/{{.ID}}"
+          env: "env,label,host"
+      mem_limit: 600m
+      volumes:
+        - ../confluent/control-center.properties:/etc/confluent-control-center/control-center.properties
+      environment:
+        env: "docker_env"
+        label: "testing"
+        host: "confluent-consumer-interceptor"
+      command: "/usr/bin/control-center-console-consumer /etc/confluent-control-center/control-center.properties --topic _confluent-monitoring"
 
 *Start the container:*
 
