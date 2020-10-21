@@ -191,7 +191,7 @@
       <panel>
             <html>
                 <div style="text-align: center;">
-                    <img src="../../static/app/DA-ITSI-TELEGRAF-KAFKA/icons/warning_amber.png" alt="warning"/>
+                    <img src="../../static/app/telegraf-kafka/icons/warning_amber.png" alt="warning"/>
                     <p style="color:red;font-size:18px;font-weight:bold;"><br/>REALTIME DATA NOT AVAILABLE - BROKER IS OFFLINE !</p>
                 </div>
             </html>
