@@ -1693,7 +1693,7 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
         <panel>
             <html>
                 <div style="text-align: left; font-style: italic;">
-                    <h2 style="color: #779ecb;">NO ACTIVE KAFKA CONNECT WORKER DETECTED</h2>
+                    <h2 style="color: #779ecb;">NO ACTIVE KAFKA CONNECT WORKER DETECTED, DISABLE THIS COMPONENT IN THE APP CONFIG IF NOT USED</h2>
                 </div>
             </html>
         </panel>
@@ -1814,7 +1814,7 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
         <panel>
             <html>
                 <div style="text-align: left; font-style: italic;">
-                    <h2 style="color: #779ecb;">NO ACTIVE BURROW DETECTED</h2>
+                    <h2 style="color: #779ecb;">NO ACTIVE BURROW DETECTED, DISABLE THIS COMPONENT IN THE APP CONFIG IF NOT USED</h2>
                 </div>
             </html>
         </panel>
@@ -1854,6 +1854,16 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
                       <img src="../../static/app/telegraf-kafka/icons/confluent-logo.png"/>
                       <span style="font-size: 22px; font-weight: bold; color: #999999; margin-top: 5px;">INTERCEPTOR MONITORING</span>
                     </div>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+    <row depends="$load_confluent_interceptor$" rejects="$interceptor_detected$">
+        <panel>
+            <html>
+                <div style="text-align: left; font-style: italic;">
+                    <h2 style="color: #779ecb;">NO CONFLUENT INTERCEPTOR METRICS DETECTED, DISABLE THIS COMPONENT IN THE APP CONFIG IF NOT USED</h2>
                 </div>
             </html>
         </panel>
@@ -2229,7 +2239,7 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
         <panel>
             <html>
                 <div style="text-align: left; font-style: italic;">
-                    <h2 style="color: #779ecb;">NO ACTIVE SCHEMA-REGISTRY NODES DETECTED</h2>
+                    <h2 style="color: #779ecb;">NO ACTIVE SCHEMA-REGISTRY NODES DETECTED, DISABLE THIS COMPONENT IN THE APP CONFIG IF NOT USED</h2>
                 </div>
             </html>
         </panel>
@@ -2349,7 +2359,7 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
         <panel>
             <html>
                 <div style="text-align: left; font-style: italic;">
-                    <h2 style="color: #779ecb;">NO ACTIVE KSQL-SERVER NODES DETECTED</h2>
+                    <h2 style="color: #779ecb;">NO ACTIVE KSQL-SERVER NODES DETECTED, DISABLE THIS COMPONENT IN THE APP CONFIG IF NOT USED</h2>
                 </div>
             </html>
         </panel>
@@ -2468,7 +2478,7 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
         <panel>
             <html>
                 <div style="text-align: left; font-style: italic;">
-                    <h2 style="color: #779ecb;">NO ACTIVE KAFKA-REST NODES DETECTED</h2>
+                    <h2 style="color: #779ecb;">NO ACTIVE KAFKA-REST NODES DETECTED, DISABLE THIS COMPONENT IN THE APP CONFIG IF NOT USED</h2>
                 </div>
             </html>
         </panel>
