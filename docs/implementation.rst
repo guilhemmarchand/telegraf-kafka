@@ -1531,13 +1531,16 @@ Troubleshoot Confluent Interceptor consumer
 
 **If you do not receive the metrics in Splunk, the first verification you should do would to be comment out the logging driver settings in the docker-compose.yml, then manually start the container to verify its output:**
 
+*docker-compose.yml*
+
 ::
 
-  *docker-compose.yml*
+  version: '2.4'
+  services:
 
     confluent-interceptor:
       image: confluentinc/cp-enterprise-control-center
-      restart: always
+      restart: "no"
       hostname: confluent-interceptor
       #logging:
       #  driver: splunk
@@ -1553,11 +1556,11 @@ Troubleshoot Confluent Interceptor consumer
       #    env: "env,label,host"
       mem_limit: 600m
       volumes:
-        - control-center.properties:/etc/confluent-control-center/control-center.properties
+        - ../confluent/control-center.properties:/etc/confluent-control-center/control-center.properties
       environment:
         env: "docker_env"
         label: "testing"
-        host: "confluent-control-center-metrics"
+        host: "confluent-consumer-interceptor"
       command: "/usr/bin/control-center-console-consumer /etc/confluent-control-center/control-center.properties --topic _confluent-monitoring"
 
 *Then run the container:*
