@@ -1529,7 +1529,19 @@ Implement Confluent Interceptor integration to Splunk
 Troubleshoot Confluent Interceptor consumer
 -------------------------------------------
 
-**If you do not receive the metrics in Splunk, the first verification you should do would to be comment out the logging driver settings in the docker-compose.yml, then manually start the container to verify its output:**
+**If you do not receive the metrics in Splunk, there can different issues happening, between the main options:**
+
+- The Docker container started and stopped almost immediately, which is most certainly linked to your configuration
+- The connectivity between the Docker container and Splunk HTTP Event Collector is not working
+
+**A first verification that can be done easily consists in turining off the Splunk logging driver to review the standard and error output of the container and command-center:**
+
+*Stop the container if it is running, then edit the configuration, remove, create amd start the container:*
+
+::
+
+  docker-compose stop confluent-interceptor
+  docker-compose rm -f confluent-interceptor
 
 *docker-compose.yml*
 
@@ -1563,12 +1575,10 @@ Troubleshoot Confluent Interceptor consumer
         host: "confluent-consumer-interceptor"
       command: "/usr/bin/control-center-console-consumer /etc/confluent-control-center/control-center.properties --topic _confluent-monitoring"
 
-*Then run the container:*
+*Then run the container in attached mode: (as opposed to daemon mode with the -d option)*
 
 ::
 
-  docker-compose stop confluent-interceptor
-  docker-compose rm -f confluent-interceptor
   docker-compose up confluent-interceptor
 
 *The container will output to stdout, any failure to start the console consumer due to a properties issues would appear clearly:*
@@ -1605,6 +1615,90 @@ Troubleshoot Confluent Interceptor consumer
 If you can see metrics here, then the command center console consumer is able to bootstrap, access Kafka and Zookeeper, and there are activity in the topic.
 
 Note that if you have no consumers or producers with the Confluent interceptors enabled, there will be no metrics generated here.
+
+**Disable command-center startup, keep the container running and exec into the container:**
+
+The next troubleshooting steps will allow you to enter the container and manually troubleshoot the startup of command center.
+
+*To achieve this, we disable the command replaced by a tail which allows keeping the container ready for operations:*
+
+::
+
+  version: '2.4'
+  services:
+
+    confluent-interceptor:
+      image: confluentinc/cp-enterprise-control-center
+      restart: "no"
+      hostname: confluent-interceptor
+      #logging:
+      #  driver: splunk
+      #  options:
+      #    splunk-token: "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx"
+      #    splunk-url: "https://mysplunk.domain.com:8088"
+      #    splunk-insecureskipverify: "true"
+      #    splunk-verify-connection: "false"
+      #    splunk-index: "confluent_interceptor_metrics"
+      #    splunk-sourcetype: "confluent_interceptor"
+      #    splunk-format: "raw"
+      #    tag: "{{.ImageName}}/{{.Name}}/{{.ID}}"
+      #    env: "env,label,host"
+      mem_limit: 600m
+      volumes:
+        - ../confluent/control-center.properties:/etc/confluent-control-center/control-center.properties
+      environment:
+        env: "docker_env"
+        label: "testing"
+        host: "confluent-consumer-interceptor"
+      #command: "/usr/bin/control-center-console-consumer /etc/confluent-control-center/control-center.properties --topic _confluent-monitoring"
+      command: "tail -f /dev/null"
+
+*If the container is started, stop the container, then remove and create the container:*
+
+::
+
+  docker-compose stop confluent-interceptor
+  docker-compose rm -f confluent-interceptor
+
+*Start the container in daemon mode:*
+
+::
+
+  docker-compose up -d confluent-interceptor
+
+*Exec into the container:*
+
+::
+
+  docker-compose exec confluent-interceptor /bin/bash
+
+*Once you are in container, you can review the properties file as it seen by the container, make sure it contains the proper required configuration:*
+
+::
+
+  cat /etc/confluent-control-center/control-center.properties
+
+*You can attempt to manually run command-center console consumer and review step by step any failure:*
+
+::
+
+  /usr/bin/control-center-console-consumer /etc/confluent-control-center/control-center.properties --topic _confluent-monitoring
+
+*Review carefully any failure.*
+
+*Note:*
+
+By default, the exec command will make you enter the container as the relevant user "appuser".
+
+If you wish to access as the root user instead, use the --user switch:
+
+::
+
+  docker-compose exec confluent-interceptor /bin/bash
+
+**For anymore troubleshooting related to command-center itself, consult:**
+
+- https://docs.confluent.io/current/control-center/installation/troubleshooting.html
 
 **If these steps are fine but you do not receive metrics in Splunk, there might a connectivity issue or misconfiguration on between the Docker container and Splunk, you can force the Docker logging driver to verify the connectivty when starting up:**
 
