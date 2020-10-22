@@ -39,6 +39,30 @@ All Splunk searches included in the added refer to the utilisation of a macro ca
 
 If you wish to use a different index model, this macro shall be customized to override the default model.
 
+**Confluent Interceptors monitoring:**
+
+If you plan to use Confluent Interceptors monitoring, the application expects a seperate metrix index for Interceptor:
+
+*indexes.conf example with no Splunk volume:*::
+
+   [confluent_interceptor_index]
+   coldPath = $SPLUNK_DB/confluent_interceptor_index/colddb
+   datatype = metric
+   homePath = $SPLUNK_DB/confluent_interceptor_index/db
+   thawedPath = $SPLUNK_DB/confluent_interceptor_index/thaweddb
+
+*indexes.conf example with Splunk volumes:*::
+
+   [confluent_interceptor_index]
+   coldPath = volume:cold/confluent_interceptor_index/colddb
+   datatype = metric
+   homePath = volume:primary/confluent_interceptor_index/db
+   thawedPath = $SPLUNK_DB/confluent_interceptor_index/thaweddb
+
+You can technically use the same index than for telegraf based metrics, or any index of your choice, if so update the macro called **confluent_interceptor_index** configured in:
+
+* telegraf-kafka/default/macros.conf
+
 Role membership
 ---------------
 
@@ -59,12 +83,24 @@ HEC input ingestion and definition
 
 ::
 
-   [http://telegraf_kafka_monitoring]
+   [http://kafka_monitoring]
    disabled = 0
    index = telegraf_kafka
+   indexes = telegraf_kafka
    token = 205d43f1-2a31-4e60-a8b3-327eda49944a
 
 If you create the HEC input via Splunk Web interface, it is not required to select an explicit value for source and sourcetype.
+
+If you plan to use Confluent Interceptors monitoring, you need to allow the target index too, for instance:
+
+::
+
+   [http://kafka_monitoring]
+   disabled = 0
+   index = telegraf_kafka
+   indexes = telegraf_kafka,confluent_interceptor_index
+   token = 205d43f1-2a31-4e60-a8b3-327eda49944a
+
 
 The HEC input will be ideally relying on a load balancer to provides resiliency and load balancing across your HEC input nodes.
 
@@ -1529,10 +1565,11 @@ Implement Confluent Interceptor integration to Splunk
 Troubleshoot Confluent Interceptor consumer
 -------------------------------------------
 
-**If you do not receive the metrics in Splunk, there can different issues happening, between the main options:**
+**If you do not receive the metrics in Splunk, there can be different root causes:**
 
-- The Docker container started and stopped almost immediately, which is most certainly linked to your configuration
-- The connectivity between the Docker container and Splunk HTTP Event Collector is not working
+- The Docker container started and stopped almost immediately, which is most certainly linked to the properties configuration
+- The command-center console consumer cannot access to Kafka due to configuration issues, network connectivity, etc
+- The connectivity between the Docker container and Splunk HTTP Event Collector is not valid
 
 **A first verification that can be done easily consists in turining off the Splunk logging driver to review the standard and error output of the container and command-center:**
 
