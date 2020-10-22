@@ -61,6 +61,10 @@ Zookeeper dashboard view
    :alt: dashboard_zookeeper1.png
    :align: center
 
+.. image:: img/dashboard_zookeeper2.png
+   :alt: dashboard_zookeeper2.png
+   :align: center
+
 Kafka broker dashboard view
 ###########################
 
@@ -98,6 +102,10 @@ Kafka broker dashboard view
 
 .. image:: img/dashboard_kafka_broker_pic9.png
    :alt: dashboard_kafka_broker_pic9.png
+   :align: center
+
+.. image:: img/dashboard_kafka_broker_pic10.png
+   :alt: dashboard_kafka_broker_pic10.png
    :align: center
 
 Kafka topic dashboard view
@@ -138,6 +146,14 @@ Kafka connect dashboard view
    :alt: dashboard_kafka_connect_pic5.png
    :align: center
 
+.. image:: img/dashboard_kafka_connect_pic6.png
+   :alt: dashboard_kafka_connect_pic6.png
+   :align: center
+
+.. image:: img/dashboard_kafka_connect_pic7.png
+   :alt: dashboard_kafka_connect_pic7.png
+   :align: center
+
 Kafka connect sink task dashboard view
 ######################################
 
@@ -151,6 +167,10 @@ Kafka connect sink task dashboard view
 
 .. image:: img/dashboard_kafka_connect_sink_pic3.png
    :alt: dashboard_kafka_connect_sink_pic3.png
+   :align: center
+
+.. image:: img/dashboard_kafka_connect_sink_pic4.png
+   :alt: dashboard_kafka_connect_sink_pic4.png
    :align: center
 
 Kafka connect source task dashboard view
@@ -168,6 +188,17 @@ Kafka connect source task dashboard view
    :alt: dashboard_kafka_connect_source_pic3.png
    :align: center
 
+.. image:: img/dashboard_kafka_connect_source_pic4.png
+   :alt: dashboard_kafka_connect_source_pic4.png
+   :align: center
+
+Confluent Interceptors Monitoring
+#################################
+
+.. image:: img/dashboard_confluent_interceptors.png
+   :alt: dashboard_confluent_interceptors.png
+   :align: center
+
 Confluent schema-registry dashboard view
 ########################################
 
@@ -179,8 +210,8 @@ Confluent schema-registry dashboard view
    :alt: dashboard_schema_registry_pic2.png
    :align: center
 
-LinkedIn Kafka monitor view
-###########################
+Xinfra Kafka monitor view
+#########################
 
 .. image:: img/dashboard_kafka_monitor_pic1.png
    :alt: dashboard_kafka_monitor_pic1.png

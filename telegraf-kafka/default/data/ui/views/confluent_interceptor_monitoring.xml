@@ -1,0 +1,376 @@
+<form script="telegraf-kafka:table.js" stylesheet="telegraf-kafka:common.css,telegraf-kafka:table.css" theme="dark" hideEdit="true" isVisible="true">
+  <label>Confluent Interceptors Monitoring</label>
+  <search id="MainPopulate">
+    <query>| mstats latest(_value) where `confluent_interceptor_index` metric_name="confluent_interceptor.totalLatency" by env, label, clientType, clusterId, clientId, topic</query>
+    <earliest>$timerange.earliest$</earliest>
+    <latest>$timerange.latest$</latest>
+  </search>
+  <search id="singleMbsec">
+    <query>| mstats sum(confluent_interceptor.aggregateBytes) as aggregateBytes where `confluent_interceptor_index` $env$ $label$ $clientType$ $clusterId$ $clientId$ $topic$ by env, label, clientType, $statsBy$ span=15s
+| eval key = $chartBy$
+| eval aggregateMB=(aggregateBytes/1024/1024)/15
+| stats avg(aggregateMB) as avg_mbsec, max(aggregateMB) as max_mbsec by env, label, clientType, $statsBy$ | stats avg(avg_mbsec) as avg_mbsec, max(max_mbsec) as max_mbsec</query>
+    <earliest>-90s</earliest>
+    <latest>now</latest>
+    <refresh>30s</refresh>
+    <refreshType>delay</refreshType>
+  </search>
+  <search id="singleLatency">
+    <query>| mstats latest(confluent_interceptor.maxLatency) as maxLatency where `confluent_interceptor_index` $env$ $label$ $clientType$ $clusterId$ $clientId$ $topic$ by env, label, clientType, $statsBy$ span=15s
+| eval key = $chartBy$
+| stats avg(maxLatency) as avg_latency, max(maxLatency) as max_latency by env, label, clientType, $statsBy$ | stats avg(avg_latency) as avg_latency, max(max_latency) as max_latency</query>
+    <earliest>-90s</earliest>
+    <latest>now</latest>
+    <refresh>30s</refresh>
+    <refreshType>delay</refreshType>
+  </search>
+  <fieldset submitButton="false"></fieldset>
+  <row>
+    <panel>
+      <html>
+        <div class="dashseparator">
+            <div class="box">
+              <img src="../../static/app/telegraf-kafka/icons/confluent-logo.png"/>
+              <span style="font-size: 22px; font-weight: bold; color: #999999; margin-top: 5px;">INTERCEPTOR</span>
+            </div>
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <input type="time" token="timerange">
+        <label>Period:</label>
+        <default>
+          <earliest>-4h@m</earliest>
+          <latest>now</latest>
+        </default>
+      </input>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <input type="multiselect" token="env" searchWhenChanged="true">
+        <label>env:</label>
+        <choice value="*">ANY</choice>
+        <initialValue>*</initialValue>
+        <valuePrefix>env="</valuePrefix>
+        <valueSuffix>"</valueSuffix>
+        <delimiter> OR </delimiter>
+        <fieldForLabel>env</fieldForLabel>
+        <fieldForValue>env</fieldForValue>
+        <search base="MainPopulate">
+          <query>search $label$ $clusterId$ $clientId$ $topic$
+| stats c by env
+| sort 0 env</query>
+        </search>
+      </input>
+      <input type="multiselect" token="label" searchWhenChanged="true">
+        <label>label:</label>
+        <choice value="*">ANY</choice>
+        <initialValue>*</initialValue>
+        <valuePrefix>label="</valuePrefix>
+        <valueSuffix>"</valueSuffix>
+        <delimiter> OR </delimiter>
+        <fieldForLabel>label</fieldForLabel>
+        <fieldForValue>label</fieldForValue>
+        <search base="MainPopulate">
+          <query>search $env$ $clusterId$ $clientId$ $topic$
+| stats c by label
+| sort 0 label</query>
+        </search>
+      </input>
+      <input type="multiselect" token="clientType" searchWhenChanged="true">
+        <label>clientType:</label>
+        <choice value="*">ANY</choice>
+        <initialValue>*</initialValue>
+        <valuePrefix>clientType="</valuePrefix>
+        <valueSuffix>"</valueSuffix>
+        <delimiter> OR </delimiter>
+        <fieldForLabel>clientType</fieldForLabel>
+        <fieldForValue>clientType</fieldForValue>
+        <search base="MainPopulate">
+          <query>search $env$ $label$ $clusterId$ $clientId$ $topic$
+| stats c by clientType
+| sort 0 clientType</query>
+        </search>
+      </input>
+      <input type="multiselect" token="clusterId" searchWhenChanged="true">
+        <label>clusterId:</label>
+        <choice value="*">ANY</choice>
+        <initialValue>*</initialValue>
+        <valuePrefix>clusterId="</valuePrefix>
+        <valueSuffix>"</valueSuffix>
+        <delimiter> OR </delimiter>
+        <fieldForLabel>clusterId</fieldForLabel>
+        <fieldForValue>clusterId</fieldForValue>
+        <search base="MainPopulate">
+          <query>search $env$ $label$ $clientType$ $clientId$ $topic$
+| stats c by clusterId
+| sort 0 clusterId</query>
+        </search>
+      </input>
+      <input type="multiselect" token="clientId" searchWhenChanged="true">
+        <label>clientId:</label>
+        <choice value="*">ANY</choice>
+        <initialValue>*</initialValue>
+        <valuePrefix>clientId="</valuePrefix>
+        <valueSuffix>"</valueSuffix>
+        <delimiter> OR </delimiter>
+        <fieldForLabel>clientId</fieldForLabel>
+        <fieldForValue>clientId</fieldForValue>
+        <search base="MainPopulate">
+          <query>search $env$ $label$ $clientType$ $clusterId$ $topic$
+| stats c by clientId
+| sort 0 clientId</query>
+        </search>
+      </input>
+      <input type="multiselect" token="topic" searchWhenChanged="true">
+        <label>topic:</label>
+        <choice value="*">ANY</choice>
+        <initialValue>*</initialValue>
+        <valuePrefix>topic="</valuePrefix>
+        <valueSuffix>"</valueSuffix>
+        <delimiter> OR </delimiter>
+        <fieldForLabel>topic</fieldForLabel>
+        <fieldForValue>topic</fieldForValue>
+        <search base="MainPopulate">
+          <query>search $env$ $label$ $clientType$ $clusterId$ $clientId$
+| stats c by topic
+| sort 0 topic</query>
+        </search>
+      </input>
+      <input type="dropdown" token="statsBy" searchWhenChanged="true">
+        <label>statsBy:</label>
+        <choice value="clientId, topic">clientId / topic</choice>
+        <choice value="clientId">clientId</choice>
+        <choice value="clientId, topic, partition">clientId / topic / partition</choice>
+        <initialValue>clientId, topic</initialValue>
+      </input>
+      <table>
+        <search>
+          <query>| mstats latest(confluent_interceptor.maxLatency) as maxLatency, latest(confluent_interceptor.minLatency) as minLatency, sum(confluent_interceptor.aggregateBytes) as aggregateBytes where `confluent_interceptor_index` $env$ $label$ $clientType$ $clusterId$ $clientId$ $topic$ by env, label, clientType, $statsBy$ span=15s
+| eval key = clientId
+| eval aggregateMB=(aggregateBytes/1024/1024)/15
+| stats avg(aggregateMB) as "avg MB/sec", max(aggregateMB) as "max MB/sec", avg(maxLatency) as "avg Latency", perc95(maxLatency) as "perc95 Latency", latest(maxLatency) as "curr Latency", sparkline(avg(maxLatency),) As spk_latency, sparkline(avg(aggregateMB),) As spk_mbsec by env, label, clientType, $statsBy$
+| eval lastTime=strftime(lastTime, "%c")
+| sort 0 group, clientId, topic
+| foreach "avg MB/sec" "max MB/sec" "avg Latency", "perc95 Latency"[ eval &lt;&lt;FIELD&gt;&gt; = round('&lt;&lt;FIELD&gt;&gt;', 3) ]</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+          <refresh>30s</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <format type="color" field="avg MB/sec">
+          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <format type="color" field="max MB/sec">
+          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <format type="color" field="avg Latency">
+          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <format type="color" field="perc95 Latency">
+          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <format type="color" field="curr Latency">
+          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <format field="spk_latency" type="sparkline">
+          <option name="lineColor">#5379af</option>
+          <option name="fillColor">#CCDDFF</option>
+          <option name="lineWidth">1</option>
+          <option name="height">25</option>
+        </format>
+        <format field="spk_mbsec" type="sparkline">
+          <option name="lineColor">#5379af</option>
+          <option name="fillColor">#CCDDFF</option>
+          <option name="lineWidth">1</option>
+          <option name="height">25</option>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <input type="dropdown" token="chartBy" searchWhenChanged="true">
+        <label>Chart by:</label>
+        <choice value="clientId">clientId</choice>
+        <choice value="clientId . &quot;:&quot; . topic">clientId / topic</choice>
+        <choice value="clientId . &quot;:&quot; . topic . &quot;:&quot; . partition">clientId / topic / partition</choice>
+        <choice value="env . &quot;:&quot; . clientId . &quot;:&quot; . topic">env / clientId / topic</choice>
+        <initialValue>clientId</initialValue>
+      </input>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <search base="singleMbsec">
+          <query>fields avg_mbsec</query>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0.000</option>
+        <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="underLabel">REALTIME AVERAGE MB / SEC</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <search base="singleMbsec">
+          <query>fields max_mbsec</query>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0.000</option>
+        <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="underLabel">REALTIME MAX MB / SEC</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <search base="singleLatency">
+          <query>fields avg_latency</query>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="underLabel">REALTIME AVERAGE LATENCY</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <search base="singleLatency">
+          <query>fields max_latency</query>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="underLabel">REALTIME MAX LATENCY</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Group consumer lag over time - top 10</title>
+        <search>
+          <query>| mstats avg(confluent_interceptor.maxLatency) as avg_latency where `confluent_interceptor_index` $env$ $label$ $clientType$ $clusterId$ $clientId$ $topic$ by env, clientId, topic, partition span=15s
+| eval key = $chartBy$
+| timechart limit=10 useother=f `interceptor_span` avg(avg_latency) as avg_latency by key</query>
+          <earliest>$timerange.earliest$</earliest>
+          <latest>$timerange.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+          <refresh>30s</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.text">Offset</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">top</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Group consumer volume (MB/sec) over time - top 10</title>
+        <search>
+          <query>| mstats sum(confluent_interceptor.aggregateBytes) as aggregateBytes where `confluent_interceptor_index` $env$ $label$ $clientType$ $clusterId$ $clientId$ $topic$ by env, clientId, topic, partition span=15s
+| eval key = $chartBy$
+| eval aggregateMB=(aggregateBytes/1024/1024)/15
+| timechart limit=10 useother=f `interceptor_span` avg(aggregateMB) as "MB/sec" by key</query>
+          <earliest>$timerange.earliest$</earliest>
+          <latest>$timerange.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+          <refresh>30s</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.text">MB/sec</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">top</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+</form>

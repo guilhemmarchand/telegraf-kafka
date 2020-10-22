@@ -1,4 +1,4 @@
-<dashboard stylesheet="telegraf-kafka:common.css" hideEdit="True" isVisible="False">
+<dashboard stylesheet="telegraf-kafka:common.css" theme="dark" hideEdit="True" isVisible="False">
     <label>Topic View</label>
     <row>
         <panel>

@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 #set -x
 
+# for Mac OS X
+export COPYFILE_DISABLE=true
+
 PWD=`pwd`
 app="telegraf-kafka"
 version=`grep 'version =' telegraf-kafka/default/app.conf | awk '{print $3}' | sed 's/\.//g'`

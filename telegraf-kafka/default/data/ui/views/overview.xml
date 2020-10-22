@@ -1,4 +1,4 @@
-<dashboard stylesheet="common.css,boottsrap-btn.css,table.css" script="load_spinner.js,load_components.js,configcheck.js,token_buttons.js,table.js" hideEdit="True" isVisible="True">
+<dashboard stylesheet="common.css,boottsrap-btn.css,table.css" script="load_spinner.js,load_components_v2.js,configcheck.js,token_buttons.js,table.js" theme="dark" hideEdit="True" isVisible="True">
     <label>Overview</label>
 
     <search id="main_populate">
@@ -115,6 +115,21 @@
             </condition>
             <condition>
                 <set token="burrow_detected">true</set>
+            </condition>
+        </progress>
+    </search>
+
+    <!-- Detect Confluent Interceptor -->
+    <search id="detect_confluent_interceptor">
+        <query>| mcatalog values(metric_name) as metrics values(_dims) as dims where `confluent_interceptor_index` metric_name=* env="*" label="*" clientType="*" by env, label</query>
+        <earliest>-5m</earliest>
+        <latest>now</latest>
+        <progress>
+            <condition match="$job.resultCount$ == 0">
+                <unset token="interceptor_detected"></unset>
+            </condition>
+            <condition>
+                <set token="interceptor_detected">true</set>
             </condition>
         </progress>
     </search>
@@ -256,6 +271,22 @@
 | rangemap field=status_code low=1-1 elevated=2-2 default=severe
 | eval avg_lag=round(avg_lag, 3), delta_lastTime=now()-lastTime, lastTime=strftime(lastTime, "%H:%M:%S")
 | fields env, label, cluster, group, avg_lag, max_lag, current, status, range, lastTime</query>
+        <earliest>-300s</earliest>
+        <latest>now</latest>
+        <refresh>90s</refresh>
+        <refreshType>delay</refreshType>
+    </search>
+
+    <!-- base search for Confluence Interceptor -->
+
+    <search id="interceptor" depends="$interceptor_detected$">
+        <query>| mstats latest(confluent_interceptor.maxLatency) as maxLatency, latest(confluent_interceptor.minLatency) as minLatency, sum(confluent_interceptor.aggregateBytes) as aggregateBytes where `confluent_interceptor_index` $env$ $label$ clientType="*" clusterId="*" clientId="*" topic="*" by env, label, clientType, clientId, topic span=15s
+| eval key = clientId
+| eval aggregateMB=(aggregateBytes/1024/1024)/15
+| stats avg(aggregateMB) as "avg MB/sec", max(aggregateMB) as "max MB/sec", avg(maxLatency) as "avg Latency", perc95(maxLatency) as "perc95 Latency", latest(maxLatency) as "curr Latency", sparkline(avg(maxLatency),) As spk_latency, sparkline(avg(aggregateMB),) As spk_mbsec by env, label, clientType, clientId, topic
+| eval lastTime=strftime(lastTime, "%c")
+| sort 0 group, clientId, topic
+| foreach "avg MB/sec" "max MB/sec" "avg Latency", "perc95 Latency"[ eval &lt;&lt;FIELD&gt;&gt; = round('&lt;&lt;FIELD&gt;&gt;', 3) ]</query>
         <earliest>-300s</earliest>
         <latest>now</latest>
         <refresh>90s</refresh>
@@ -886,11 +917,11 @@
                     <option name="height">25</option>
                 </format>
                 <format type="color" field="KBytes in">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="KBytes out">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <drilldown>
@@ -1315,7 +1346,7 @@ OR metric_name="kafka_topics.FailedProduceRequestsPerSec.MeanRate" OR metric_nam
 | rangemap field=range_status low=0-0 high=1-1 severe=2-5 default=severe
 | fields status, range, integer_status, range_status
 | sort - limit=0 range_status
-| append [ makeresults ] | fillnull value="unknown" status | fillnull value="elevated" range | fields - _time</query>
+| append [ makeresults ] | fillnull value="unknown" status | fillnull value="info" range | fields - _time</query>
                 </search>
                 <option name="colorBy">value</option>
                 <option name="colorMode">block</option>
@@ -1372,7 +1403,7 @@ OR metric_name="kafka_topics.FailedProduceRequestsPerSec.MeanRate" OR metric_nam
 | rangemap field=range_status low=0-0 high=1-1 severe=2-5 default=severe
 | fields status, range, integer_status, range_status
 | sort - limit=0 range_status
-| append [ makeresults ] | fillnull value="unknown" status | fillnull value="elevated" range | fields - _time</query>
+| append [ makeresults ] | fillnull value="unknown" status | fillnull value="info" range | fields - _time</query>
                 </search>
                 <option name="colorBy">value</option>
                 <option name="colorMode">block</option>
@@ -1662,7 +1693,7 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
         <panel>
             <html>
                 <div style="text-align: left; font-style: italic;">
-                    <h2 style="color: #779ecb;">NO ACTIVE KAFKA CONNECT WORKER DETECTED</h2>
+                    <h2 style="color: #779ecb;">NO ACTIVE KAFKA CONNECT WORKER DETECTED, DISABLE THIS COMPONENT IN THE APP CONFIG IF NOT USED</h2>
                 </div>
             </html>
         </panel>
@@ -1783,9 +1814,315 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
         <panel>
             <html>
                 <div style="text-align: left; font-style: italic;">
-                    <h2 style="color: #779ecb;">NO ACTIVE BURROW DETECTED</h2>
+                    <h2 style="color: #779ecb;">NO ACTIVE BURROW DETECTED, DISABLE THIS COMPONENT IN THE APP CONFIG IF NOT USED</h2>
                 </div>
             </html>
+        </panel>
+    </row>
+
+    <!--
+
+    CONFLUENT INTERCEPTOR
+
+    -->
+
+  <search id="interceptorSingleMbsecProducer" depends="$load_confluent_interceptor$ $interceptor_detected$">
+    <query>| mstats sum(confluent_interceptor.aggregateBytes) as aggregateBytes where `confluent_interceptor_index` $env$ $label$ clientType="PRODUCER" by env, label, clientType, topic span=15s
+| eval aggregateMB=(aggregateBytes/1024/1024)/15
+| stats avg(aggregateMB) as avg_mbsec by env, label, clientType, topic | stats avg(avg_mbsec) as avg_mbsec | append [ | makeresults | eval avg_mbsec="0.000" | fields - _time ] | head 1</query>
+    <earliest>-90s</earliest>
+    <latest>now</latest>
+    <refresh>30s</refresh>
+    <refreshType>delay</refreshType>
+  </search>
+
+  <search id="interceptorSingleMbsecConsumer" depends="$load_confluent_interceptor$ $interceptor_detected$">
+    <query>| mstats sum(confluent_interceptor.aggregateBytes) as aggregateBytes where `confluent_interceptor_index` $env$ $label$ clientType="CONSUMER" by env, label, clientType, topic span=15s
+| eval aggregateMB=(aggregateBytes/1024/1024)/15
+| stats avg(aggregateMB) as avg_mbsec by env, label, clientType, topic | stats avg(avg_mbsec) as avg_mbsec | append [ | makeresults | eval avg_mbsec="0.000" | fields - _time ] | head 1</query>
+    <earliest>-90s</earliest>
+    <latest>now</latest>
+    <refresh>30s</refresh>
+    <refreshType>delay</refreshType>
+  </search>
+
+    <row depends="$load_confluent_interceptor$">
+        <panel>
+            <html>
+                <div class="dashseparator">
+                    <div class="box">
+                      <img src="../../static/app/telegraf-kafka/icons/confluent-logo.png"/>
+                      <span style="font-size: 22px; font-weight: bold; color: #999999; margin-top: 5px;">INTERCEPTOR MONITORING</span>
+                    </div>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+    <row depends="$load_confluent_interceptor$" rejects="$interceptor_detected$">
+        <panel>
+            <html>
+                <div style="text-align: left; font-style: italic;">
+                    <h2 style="color: #779ecb;">NO CONFLUENT INTERCEPTOR METRICS DETECTED, DISABLE THIS COMPONENT IN THE APP CONFIG IF NOT USED</h2>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+    <row depends="$load_confluent_interceptor$ $interceptor_detected$">
+        <panel>
+            <html>
+                <div class="dashseparator">
+                    <h1>PRODUCERS MONITORING</h1>
+                </div>
+            </html>
+        </panel>
+        <panel>
+            <html>
+                <div class="dashseparator">
+                    <h1>CONSUMERS MONITORING</h1>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+    <row depends="$load_confluent_interceptor$ $interceptor_detected$">
+        <panel>
+            <single>
+                <search base="interceptor">
+                    <query>where clientType="PRODUCER" | search $env$ $label$ | stats count by clientId, env, label | stats count</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">PRODUCERS</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="interceptorSingleMbsecProducer">
+                <query>fields avg_mbsec</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">REALTIME AVERAGE MB / SEC</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="interceptor">
+                    <query>where clientType="CONSUMER" | search $env$ $label$ | stats count by clientId, env, label | stats count</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">all</option>
+                <option name="numberPrecision">0</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">CONSUMERS</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+        <panel>
+            <single>
+                <search base="interceptorSingleMbsecConsumer">
+                <query>fields avg_mbsec</query>
+                </search>
+                <option name="colorMode">block</option>
+                <option name="drilldown">none</option>
+                <option name="numberPrecision">0.00</option>
+                <option name="rangeColors">["0x006d9c","0x006d9c"]</option>
+                <option name="rangeValues">[0]</option>
+                <option name="refresh.display">progressbar</option>
+                <option name="underLabel">REALTIME AVERAGE MB / SEC</option>
+                <option name="useColors">1</option>
+            </single>
+        </panel>
+    </row>
+
+    <row depends="$load_confluent_interceptor$ $interceptor_detected$">
+        <panel>
+            <html>
+                <div style="text-align: center;">
+                    <a target="_blank" class="btn btn-primary" href="confluent_interceptor_monitoring?form.env=$form.env$&amp;form.label=$form.label$&amp;form.clientType=PRODUCER" role="button"> OPEN INTERCEPTOR DASHBOARD VIEW</a>
+                </div>
+            </html>
+        </panel>
+        <panel>
+            <html>
+                <div style="text-align: center;" class="active-button">
+                    <button class="btn btn-default btn-primary" data-token-name="show_interceptor_producer_activity" data-alt-label="HIDE PRODUCERS ACTIVITY" data-token-value="fields *"><span class="glyphicon glyphicon-remove"></span> SHOW PRODUCERS ACTIVITY</button>
+                </div>
+            </html>
+        </panel>
+        <panel>
+            <html>
+                <div style="text-align: center;">
+                    <a target="_blank" class="btn btn-primary" href="confluent_interceptor_monitoring?form.env=$form.env$&amp;form.label=$form.label$&amp;form.clientType=CONSUMER" role="button"> OPEN INTERCEPTOR DASHBOARD VIEW</a>
+                </div>
+            </html>
+        </panel>
+        <panel>
+            <html>
+                <div style="text-align: center;" class="active-button">
+                    <button class="btn btn-default btn-primary" data-token-name="show_interceptor_consumer_activity" data-alt-label="HIDE CONSUMERS ACTIVITY" data-token-value="fields *"><span class="glyphicon glyphicon-remove"></span> SHOW CONSUMERS ACTIVITY</button>
+                </div>
+            </html>
+        </panel>
+    </row>
+
+    <row depends="$load_confluent_interceptor$ $interceptor_detected$ $show_interceptor_producer_activity$">
+        <panel>
+            <input type="dropdown" token="env" searchWhenChanged="true">
+                <label>Env:</label>
+                <!-- Populating Data Model Search -->
+                <search base="main_populate">
+                    <query>dedup env | sort 0 env</query>
+                </search>
+                <prefix>env="</prefix>
+                <suffix>"</suffix>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>env</fieldForLabel>
+                <fieldForValue>env</fieldForValue>
+            </input>
+            <input type="dropdown" token="label" searchWhenChanged="true">
+                <label>Label:</label>
+                <!-- Populating Data Model Search -->
+                <search base="main_populate">
+                    <query>search $env$ | dedup label | sort 0 label</query>
+                </search>
+                <prefix>label="</prefix>
+                <suffix>"</suffix>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>label</fieldForLabel>
+                <fieldForValue>label</fieldForValue>
+            </input>
+            <table>
+            <title>Conflluent Interceptor Producers monitoring</title>
+                <search base="interceptor">
+                    <query>where clientType="PRODUCER" | search $env$ $label$</query>
+                </search>
+                <option name="drilldown">row</option>
+                <drilldown>
+                    <link>/app/telegraf-kafka/confluent_interceptor_monitoring?form.env=$row.env$&amp;form.label=$row.label$&amp;form.clientType=$row.clientType$&amp;form.clientId=$row.clientId$&amp;form.topic=$row.topic$</link>
+                </drilldown>
+                <format type="color" field="avg MB/sec">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="max MB/sec">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="avg Latency">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="perc95 Latency">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="curr Latency">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format field="spk_latency" type="sparkline">
+                    <option name="lineColor">#5379af</option>
+                    <option name="fillColor">#CCDDFF</option>
+                    <option name="lineWidth">1</option>
+                    <option name="height">25</option>
+                </format>
+                <format field="spk_mbsec" type="sparkline">
+                    <option name="lineColor">#5379af</option>
+                    <option name="fillColor">#CCDDFF</option>
+                    <option name="lineWidth">1</option>
+                    <option name="height">25</option>
+                </format>
+            </table>
+        </panel>
+    </row>
+
+    <row depends="$load_confluent_interceptor$ $interceptor_detected$ $show_interceptor_consumer_activity$">
+        <panel>
+            <input type="dropdown" token="env" searchWhenChanged="true">
+                <label>Env:</label>
+                <!-- Populating Data Model Search -->
+                <search base="main_populate">
+                    <query>dedup env | sort 0 env</query>
+                </search>
+                <prefix>env="</prefix>
+                <suffix>"</suffix>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>env</fieldForLabel>
+                <fieldForValue>env</fieldForValue>
+            </input>
+            <input type="dropdown" token="label" searchWhenChanged="true">
+                <label>Label:</label>
+                <!-- Populating Data Model Search -->
+                <search base="main_populate">
+                    <query>search $env$ | dedup label | sort 0 label</query>
+                </search>
+                <prefix>label="</prefix>
+                <suffix>"</suffix>
+                <choice value="*">ANY</choice>
+                <initialValue>*</initialValue>
+                <fieldForLabel>label</fieldForLabel>
+                <fieldForValue>label</fieldForValue>
+            </input>
+            <table>
+            <title>Conflluent Interceptor Consumers monitoring</title>
+                <search base="interceptor">
+                    <query>where clientType="CONSUMER" | search $env$ $label$</query>
+                </search>
+                <option name="drilldown">row</option>
+                <drilldown>
+                    <link>/app/telegraf-kafka/confluent_interceptor_monitoring?form.env=$row.env$&amp;form.label=$row.label$&amp;form.clientType=$row.clientType$&amp;form.clientId=$row.clientId$&amp;form.topic=$row.topic$</link>
+                </drilldown>
+                <format type="color" field="avg MB/sec">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="max MB/sec">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="avg Latency">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="perc95 Latency">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="curr Latency">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format field="spk_latency" type="sparkline">
+                    <option name="lineColor">#5379af</option>
+                    <option name="fillColor">#CCDDFF</option>
+                    <option name="lineWidth">1</option>
+                    <option name="height">25</option>
+                </format>
+                <format field="spk_mbsec" type="sparkline">
+                    <option name="lineColor">#5379af</option>
+                    <option name="fillColor">#CCDDFF</option>
+                    <option name="lineWidth">1</option>
+                    <option name="height">25</option>
+                </format>
+            </table>
         </panel>
     </row>
 
@@ -1902,7 +2239,7 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
         <panel>
             <html>
                 <div style="text-align: left; font-style: italic;">
-                    <h2 style="color: #779ecb;">NO ACTIVE SCHEMA-REGISTRY NODES DETECTED</h2>
+                    <h2 style="color: #779ecb;">NO ACTIVE SCHEMA-REGISTRY NODES DETECTED, DISABLE THIS COMPONENT IN THE APP CONFIG IF NOT USED</h2>
                 </div>
             </html>
         </panel>
@@ -2022,7 +2359,7 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
         <panel>
             <html>
                 <div style="text-align: left; font-style: italic;">
-                    <h2 style="color: #779ecb;">NO ACTIVE KSQL-SERVER NODES DETECTED</h2>
+                    <h2 style="color: #779ecb;">NO ACTIVE KSQL-SERVER NODES DETECTED, DISABLE THIS COMPONENT IN THE APP CONFIG IF NOT USED</h2>
                 </div>
             </html>
         </panel>
@@ -2141,7 +2478,7 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
         <panel>
             <html>
                 <div style="text-align: left; font-style: italic;">
-                    <h2 style="color: #779ecb;">NO ACTIVE KAFKA-REST NODES DETECTED</h2>
+                    <h2 style="color: #779ecb;">NO ACTIVE KAFKA-REST NODES DETECTED, DISABLE THIS COMPONENT IN THE APP CONFIG IF NOT USED</h2>
                 </div>
             </html>
         </panel>

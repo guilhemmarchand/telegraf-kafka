@@ -2,6 +2,7 @@
     <view name="overview" default="true"/>
     <view name="overview_brokers"/>
     <view name="overview_topics" />
+    <a href="confluent_interceptor_monitoring">Interceptors</a>
     <view name="telegraf-burrow" />
     <!--
     ####################################################################################################################
@@ -54,6 +55,10 @@
             <saved name="Kafka monitoring - tasks status report" />
         </collection>
 
+        <collection label="Confluent Interceptors Monitoring">
+            <view name="confluent_interceptor_monitoring" />
+        </collection>
+
         <collection label="Confluent schema-registry">
             <view name="telegraf-kafka-confluent-shema-registry" />
         </collection>
@@ -66,7 +71,7 @@
             <view name="telegraf-kafka-confluent-ksql-server" />
         </collection>
 
-        <collection label="Kafka LinkedIn monitor">
+        <collection label="Kafka Xinfra monitor">
             <view name="telegraf-kafka-kafka-monitor" />
         </collection>
 

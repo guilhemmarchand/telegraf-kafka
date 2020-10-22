@@ -1,4 +1,4 @@
-<dashboard stylesheet="telegraf-kafka:common.css,telegraf-kafka:table.css" script="telegraf-kafka:table.js" hideEdit="True" isVisible="True">
+<dashboard stylesheet="telegraf-kafka:common.css,telegraf-kafka:table.css" script="telegraf-kafka:table.js" theme="dark" hideEdit="True" isVisible="True">
     <label>Topics</label>
     <search id="main_populate">
         <query>| savedsearch telegraf-kafka-kafka-topics</query>
@@ -89,19 +89,19 @@
                 <option name="totalsRow">false</option>
                 <option name="wrap">true</option>
                 <format type="color" field="# Partitions">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="# UnderReplicatedPartitions">
-                    <colorPalette type="minMidMax" maxColor="#ff6961" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#ff6961" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="Size MB">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="Producer Message/sec">
-                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#FFFFFF"></colorPalette>
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
                 <drilldown>

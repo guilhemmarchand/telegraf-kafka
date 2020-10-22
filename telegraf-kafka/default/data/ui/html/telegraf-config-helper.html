@@ -910,7 +910,7 @@ require([
                 telegraf_config = telegraf_config + "\n" + "  # the label tag is an additional tag used by the application to identify an environment" + "\n" + "  label = \"" + telegraf_label + "\"";
 
                 // Add the agent section
-                telegraf_config = telegraf_config + "\n\n" + "[agent]" + "\n  interval = \"" + interval_tk + "\"" + "\n  flush_interval = \"" + interval_tk + "\n  hostname = \"$HOSTNAME\"";
+                telegraf_config = telegraf_config + "\n\n" + "[agent]" + "\n  interval = \"" + interval_tk + "\"" + "\n  flush_interval = \"" + interval_tk + "\"\n  hostname = \"$HOSTNAME\"";
 
                 // Add the Splunk HEC output section
                 telegraf_config = telegraf_config + "\n\n" + "# outputs" + "\n" + "[[outputs.http]]" + "\n" + "  url = \"" + splunk_hec_url_tk + "\"";
@@ -985,7 +985,7 @@ require([
                 }
 
                 else if (component_tk == "kafka_connect") {
-                    telegraf_config = telegraf_config + "# Kafka Connect" + "\n" + "[[inputs.jolokia2_agent]]" + "\n" + "  name_prefix = \"kafka_connect\""  + "\n" + "  urls = [\"http://" + host_target_tk + ":" + port_number + "/jolokia\"]" + "\n\n";
+                    telegraf_config = telegraf_config + "# Kafka Connect" + "\n" + "[[inputs.jolokia2_agent]]" + "\n" + "  name_prefix = \"kafka_connect.\""  + "\n" + "  urls = [\"http://" + host_target_tk + ":" + port_number + "/jolokia\"]" + "\n\n";
                     jQuery.get('../../static/app/telegraf-kafka/telegraf_conf_kafka_connect.txt', function(data) {
                         telegraf_config = telegraf_config + data
 

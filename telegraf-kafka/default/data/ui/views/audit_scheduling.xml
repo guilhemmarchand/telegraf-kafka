@@ -1,4 +1,4 @@
-<form stylesheet="common.css" script="auditcheck.js">
+<form stylesheet="common.css" script="auditcheck.js" theme="dark" hideEdit="true" isVisible="true">
     <label>Audit - Scheduling performance overview</label>
     <search id="mainScheduleSearch">
         <query>index=_internal host="*" source=*scheduler.log status="*" AND status!="continued" savedsearch_name!="*_ACCELERATE_*" app="telegraf-kafka"

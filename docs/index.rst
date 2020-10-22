@@ -29,6 +29,7 @@ Welcome to the Splunk application for Kafka Smart Monitoring documentation
 * Confluent ksql-server
 * Confluent kafka-rest
 * Kafka SLA and end to end monitoring with the LinkedIn Kafka monitor
+* Confluent Interceptors monitoring for lag monitoring of consumers and producers
 * Kafka Consumers lag monitoring with Burrow (Kafka Connect connectors, Kafka Streams...)
 
 **Fully multi-tenant compatible, the application can manage different environments, data-centers, etc specially using tags at metrics low level.**

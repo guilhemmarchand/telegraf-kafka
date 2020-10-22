@@ -2,6 +2,17 @@ Release notes
 #############
 
 ==============
+Version 1.1.38
+==============
+
+- Feature: Integration with Confluent Interceptor Monitoring for producers and consumers advanced lag monitoring with Confluent
+- Change: Kafka Smart Monitoring goes Dark theme!
+- Change: When no Kafka Connect source or sink connector have been detected, show the aggregated single form in black rather than yellow
+- Fix: Issue #64 - mMissing double quotes in the flush interval telegraf config UI generator #64
+- Fix: Issue #66 - Missing dot in telegraf config for Kafka Connect #66
+- Fix: Issue #67 - Bad image file path in broker view #67
+
+==============
 Version 1.1.37
 ==============
 
