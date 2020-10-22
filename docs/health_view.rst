@@ -192,6 +192,13 @@ Kafka connect source task dashboard view
    :alt: dashboard_kafka_connect_source_pic4.png
    :align: center
 
+Confluent Interceptors Monitoring
+#################################
+
+.. image:: img/dashboard_confluent_interceptors.png
+   :alt: dashboard_confluent_interceptors.png
+   :align: center
+
 Confluent schema-registry dashboard view
 ########################################
 
@@ -203,8 +210,8 @@ Confluent schema-registry dashboard view
    :alt: dashboard_schema_registry_pic2.png
    :align: center
 
-LinkedIn Kafka monitor view
-###########################
+Xinfra Kafka monitor view
+#########################
 
 .. image:: img/dashboard_kafka_monitor_pic1.png
    :alt: dashboard_kafka_monitor_pic1.png
