@@ -6,7 +6,7 @@
     <latest>$timerange.latest$</latest>
   </search>
   <search id="singleMbsec">
-    <query>| mstats sum(confluent_interceptor.aggregateBytes) as aggregateBytes where `confluent_interceptor_index` $env$ $label$ $clientType$ $clusterId$ $clientId$ $topic$ by env, label, clientType, $statsBy$ span=15s
+    <query>| mstats sum(confluent_interceptor.aggregateBytes) as aggregateBytes where `confluent_interceptor_index` $env$ $label$ $clientType$ $clusterId$ $clientId_filter$ $clientId$ $topic$ by env, label, clientType, $statsBy$ span=15s
 | eval key = $chartBy$
 | eval aggregateMB=(aggregateBytes/1024/1024)/15
 | stats avg(aggregateMB) as avg_mbsec, max(aggregateMB) as max_mbsec by env, label, clientType, $statsBy$ | stats avg(avg_mbsec) as avg_mbsec, max(max_mbsec) as max_mbsec</query>
@@ -16,7 +16,7 @@
     <refreshType>delay</refreshType>
   </search>
   <search id="singleLatency">
-    <query>| mstats latest(confluent_interceptor.maxLatency) as maxLatency where `confluent_interceptor_index` $env$ $label$ $clientType$ $clusterId$ $clientId$ $topic$ by env, label, clientType, $statsBy$ span=15s
+    <query>| mstats latest(confluent_interceptor.maxLatency) as maxLatency where `confluent_interceptor_index` $env$ $label$ $clientType$ $clusterId$ $clientId_filter$ $clientId$ $topic$ by env, label, clientType, $statsBy$ span=15s
 | eval key = $chartBy$
 | stats avg(maxLatency) as avg_latency, max(maxLatency) as max_latency by env, label, clientType, $statsBy$ | stats avg(avg_latency) as avg_latency, max(max_latency) as max_latency</query>
     <earliest>-90s</earliest>
@@ -46,10 +46,6 @@
           <latest>now</latest>
         </default>
       </input>
-    </panel>
-  </row>
-  <row>
-    <panel>
       <input type="multiselect" token="env" searchWhenChanged="true">
         <label>env:</label>
         <choice value="*">ANY</choice>
@@ -60,7 +56,7 @@
         <fieldForLabel>env</fieldForLabel>
         <fieldForValue>env</fieldForValue>
         <search base="MainPopulate">
-          <query>search $label$ $clusterId$ $clientId$ $topic$
+          <query>search $label$ $clusterId$ $clientId_filter$ $clientId$ $topic$
 | stats c by env
 | sort 0 env</query>
         </search>
@@ -75,11 +71,15 @@
         <fieldForLabel>label</fieldForLabel>
         <fieldForValue>label</fieldForValue>
         <search base="MainPopulate">
-          <query>search $env$ $clusterId$ $clientId$ $topic$
+          <query>search $env$ $clusterId$ $clientId_filter$ $clientId$ $topic$
 | stats c by label
 | sort 0 label</query>
         </search>
       </input>
+    </panel>
+  </row>
+  <row>
+    <panel>
       <input type="multiselect" token="clientType" searchWhenChanged="true">
         <label>clientType:</label>
         <choice value="*">ANY</choice>
@@ -90,7 +90,7 @@
         <fieldForLabel>clientType</fieldForLabel>
         <fieldForValue>clientType</fieldForValue>
         <search base="MainPopulate">
-          <query>search $env$ $label$ $clusterId$ $clientId$ $topic$
+          <query>search $env$ $label$ $clusterId$ $clientId_filter$ $clientId$ $topic$
 | stats c by clientType
 | sort 0 clientType</query>
         </search>
@@ -105,10 +105,17 @@
         <fieldForLabel>clusterId</fieldForLabel>
         <fieldForValue>clusterId</fieldForValue>
         <search base="MainPopulate">
-          <query>search $env$ $label$ $clientType$ $clientId$ $topic$
+          <query>search $env$ $label$ $clientType$ $clientId_filter$ $clientId$ $topic$
 | stats c by clusterId
 | sort 0 clusterId</query>
         </search>
+      </input>
+      <input type="text" token="clientId_filter" searchWhenChanged="true">
+        <label>Filter clientId:</label>
+        <default>*</default>
+        <prefix>clientId="*</prefix>
+        <suffix>*"</suffix>
+        <initialValue>*</initialValue>
       </input>
       <input type="multiselect" token="clientId" searchWhenChanged="true">
         <label>clientId:</label>
@@ -120,7 +127,7 @@
         <fieldForLabel>clientId</fieldForLabel>
         <fieldForValue>clientId</fieldForValue>
         <search base="MainPopulate">
-          <query>search $env$ $label$ $clientType$ $clusterId$ $topic$
+          <query>search $env$ $label$ $clientId_filter$ $clientType$ $clusterId$ $topic$
 | stats c by clientId
 | sort 0 clientId</query>
         </search>
@@ -135,7 +142,7 @@
         <fieldForLabel>topic</fieldForLabel>
         <fieldForValue>topic</fieldForValue>
         <search base="MainPopulate">
-          <query>search $env$ $label$ $clientType$ $clusterId$ $clientId$
+          <query>search $env$ $label$ $clientType$ $clusterId$ $clientId_filter$ $clientId$
 | stats c by topic
 | sort 0 topic</query>
         </search>
@@ -149,13 +156,13 @@
       </input>
       <table>
         <search>
-          <query>| mstats latest(confluent_interceptor.maxLatency) as maxLatency, latest(confluent_interceptor.minLatency) as minLatency, sum(confluent_interceptor.aggregateBytes) as aggregateBytes where `confluent_interceptor_index` $env$ $label$ $clientType$ $clusterId$ $clientId$ $topic$ by env, label, clientType, $statsBy$ span=15s
+          <query>| mstats latest(confluent_interceptor.maxLatency) as maxLatency, latest(confluent_interceptor.minLatency) as minLatency, sum(confluent_interceptor.aggregateBytes) as aggregateBytes where `confluent_interceptor_index` $env$ $label$ $clientType$ $clusterId$ $clientId_filter$ $clientId$ $topic$ by env, label, clientType, $statsBy$ span=15s
 | eval key = clientId
 | eval aggregateMB=(aggregateBytes/1024/1024)/15
-| stats avg(aggregateMB) as "avg MB/sec", max(aggregateMB) as "max MB/sec", avg(maxLatency) as "avg Latency", perc95(maxLatency) as "perc95 Latency", latest(maxLatency) as "curr Latency", sparkline(avg(maxLatency),) As spk_latency, sparkline(avg(aggregateMB),) As spk_mbsec by env, label, clientType, $statsBy$
+| stats avg(aggregateMB) as "avg MB/sec", max(aggregateMB) as "max MB/sec", avg(maxLatency) as "avg Latency", perc95(maxLatency) as "perc95 Latency", latest(maxLatency) as "curr Latency", latest(aggregateMB) as "curr MB/sec", sparkline(avg(maxLatency),) As spk_latency, sparkline(avg(aggregateMB),) As spk_mbsec by env, label, clientType, $statsBy$
 | eval lastTime=strftime(lastTime, "%c")
 | sort 0 group, clientId, topic
-| foreach "avg MB/sec" "max MB/sec" "avg Latency", "perc95 Latency"[ eval &lt;&lt;FIELD&gt;&gt; = round('&lt;&lt;FIELD&gt;&gt;', 3) ]</query>
+| foreach *MB* *Latency [ eval "&lt;&lt;FIELD&gt;&gt;" = round('&lt;&lt;FIELD&gt;&gt;', 3) ]</query>
           <earliest>-60m@m</earliest>
           <latest>now</latest>
           <refresh>30s</refresh>
@@ -183,6 +190,10 @@
           <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
           <scale type="minMidMax"></scale>
         </format>
+        <format type="color" field="curr MB/sec">
+          <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
         <format field="spk_latency" type="sparkline">
           <option name="lineColor">#5379af</option>
           <option name="fillColor">#CCDDFF</option>
@@ -206,7 +217,30 @@
         <choice value="clientId . &quot;:&quot; . topic">clientId / topic</choice>
         <choice value="clientId . &quot;:&quot; . topic . &quot;:&quot; . partition">clientId / topic / partition</choice>
         <choice value="env . &quot;:&quot; . clientId . &quot;:&quot; . topic">env / clientId / topic</choice>
+        <choice value="aggregate">aggregate</choice>
         <initialValue>clientId</initialValue>
+        <change>
+          <condition value="clientId">
+            <set token="timechartBy">by key</set>
+            <set token="timechartOptions">limit=10 useother=f</set>
+          </condition>
+          <condition value="clientId . &quot;:&quot; . topic">
+            <set token="timechartBy">by key</set>
+            <set token="timechartOptions">limit=10 useother=f</set>
+          </condition>
+          <condition value="clientId . &quot;:&quot; . topic . &quot;:&quot; . partition">
+            <set token="timechartBy">by key</set>
+            <set token="timechartOptions">limit=10 useother=f</set>
+          </condition>
+          <condition value="env . &quot;:&quot; . clientId . &quot;:&quot; . topic">
+            <set token="timechartBy">by key</set>
+            <set token="timechartOptions">limit=10 useother=f</set>
+          </condition>
+          <condition value="aggregate">
+            <set token="timechartBy"></set>
+            <set token="timechartOptions"></set>
+          </condition>
+        </change>
       </input>
     </panel>
   </row>
@@ -277,9 +311,9 @@
       <chart>
         <title>Group consumer lag over time - top 10</title>
         <search>
-          <query>| mstats avg(confluent_interceptor.maxLatency) as avg_latency where `confluent_interceptor_index` $env$ $label$ $clientType$ $clusterId$ $clientId$ $topic$ by env, clientId, topic, partition span=15s
+          <query>| mstats avg(confluent_interceptor.maxLatency) as avg_latency where `confluent_interceptor_index` $env$ $label$ $clientId_filter$ $clientType$ $clusterId$ $clientId$ $topic$ by env, clientId, topic, partition span=15s
 | eval key = $chartBy$
-| timechart limit=10 useother=f `interceptor_span` avg(avg_latency) as avg_latency by key</query>
+| timechart $timechartOptions$ `interceptor_span` avg(avg_latency) as avg_latency $timechartBy$</query>
           <earliest>$timerange.earliest$</earliest>
           <latest>$timerange.latest$</latest>
           <sampleRatio>1</sampleRatio>
@@ -327,10 +361,10 @@
       <chart>
         <title>Group consumer volume (MB/sec) over time - top 10</title>
         <search>
-          <query>| mstats sum(confluent_interceptor.aggregateBytes) as aggregateBytes where `confluent_interceptor_index` $env$ $label$ $clientType$ $clusterId$ $clientId$ $topic$ by env, clientId, topic, partition span=15s
+          <query>| mstats sum(confluent_interceptor.aggregateBytes) as aggregateBytes where `confluent_interceptor_index` $env$ $label$ $clientId_filter$ $clientType$ $clusterId$ $clientId$ $topic$ by env, clientId, topic, partition span=15s
 | eval key = $chartBy$
 | eval aggregateMB=(aggregateBytes/1024/1024)/15
-| timechart limit=10 useother=f `interceptor_span` avg(aggregateMB) as "MB/sec" by key</query>
+| timechart $timechartOptions$ `interceptor_span` avg(aggregateMB) as "MB/sec" $timechartBy$</query>
           <earliest>$timerange.earliest$</earliest>
           <latest>$timerange.latest$</latest>
           <sampleRatio>1</sampleRatio>

@@ -2,6 +2,12 @@ Release notes
 #############
 
 ==============
+Version 1.1.39
+==============
+
+- Feature: Improvements on Confluent Interceptor UI and related Overview page subcomponents
+
+==============
 Version 1.1.38
 ==============
 

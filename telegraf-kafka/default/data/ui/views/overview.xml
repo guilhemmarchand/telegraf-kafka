@@ -283,10 +283,10 @@
         <query>| mstats latest(confluent_interceptor.maxLatency) as maxLatency, latest(confluent_interceptor.minLatency) as minLatency, sum(confluent_interceptor.aggregateBytes) as aggregateBytes where `confluent_interceptor_index` $env$ $label$ clientType="*" clusterId="*" clientId="*" topic="*" by env, label, clientType, clientId, topic span=15s
 | eval key = clientId
 | eval aggregateMB=(aggregateBytes/1024/1024)/15
-| stats avg(aggregateMB) as "avg MB/sec", max(aggregateMB) as "max MB/sec", avg(maxLatency) as "avg Latency", perc95(maxLatency) as "perc95 Latency", latest(maxLatency) as "curr Latency", sparkline(avg(maxLatency),) As spk_latency, sparkline(avg(aggregateMB),) As spk_mbsec by env, label, clientType, clientId, topic
+| stats avg(aggregateMB) as "avg MB/sec", max(aggregateMB) as "max MB/sec", avg(maxLatency) as "avg Latency", perc95(maxLatency) as "perc95 Latency", latest(maxLatency) as "curr Latency", latest(aggregateMB) as "curr MB/sec", sparkline(avg(maxLatency),) As spk_latency, sparkline(avg(aggregateMB),) As spk_mbsec by env, label, clientType, clientId, topic
 | eval lastTime=strftime(lastTime, "%c")
 | sort 0 group, clientId, topic
-| foreach "avg MB/sec" "max MB/sec" "avg Latency", "perc95 Latency"[ eval &lt;&lt;FIELD&gt;&gt; = round('&lt;&lt;FIELD&gt;&gt;', 3) ]</query>
+| foreach *MB* *Latency [ eval "&lt;&lt;FIELD&gt;&gt;" = round('&lt;&lt;FIELD&gt;&gt;', 3) ]</query>
         <earliest>-300s</earliest>
         <latest>now</latest>
         <refresh>90s</refresh>
@@ -2008,10 +2008,17 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
                 <fieldForLabel>label</fieldForLabel>
                 <fieldForValue>label</fieldForValue>
             </input>
+            <input type="text" token="interceptor_producer_clientId_filter" searchWhenChanged="true">
+                <label>Filter clientId:</label>
+                <default>*</default>
+                <prefix>clientId="*</prefix>
+                <suffix>*"</suffix>
+                <initialValue>*</initialValue>
+            </input>
             <table>
             <title>Conflluent Interceptor Producers monitoring</title>
                 <search base="interceptor">
-                    <query>where clientType="PRODUCER" | search $env$ $label$</query>
+                    <query>where clientType="PRODUCER" | search $env$ $label$ $interceptor_producer_clientId_filter$</query>
                 </search>
                 <option name="drilldown">row</option>
                 <drilldown>
@@ -2034,6 +2041,10 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="curr Latency">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="curr MB/sec">
                     <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
@@ -2081,10 +2092,17 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
                 <fieldForLabel>label</fieldForLabel>
                 <fieldForValue>label</fieldForValue>
             </input>
+            <input type="text" token="interceptor_consumer_clientId_filter" searchWhenChanged="true">
+                <label>Filter clientId:</label>
+                <default>*</default>
+                <prefix>clientId="*</prefix>
+                <suffix>*"</suffix>
+                <initialValue>*</initialValue>
+            </input>
             <table>
             <title>Conflluent Interceptor Consumers monitoring</title>
                 <search base="interceptor">
-                    <query>where clientType="CONSUMER" | search $env$ $label$</query>
+                    <query>where clientType="CONSUMER" | search $env$ $label$ $interceptor_consumer_clientId_filter$</query>
                 </search>
                 <option name="drilldown">row</option>
                 <drilldown>
@@ -2107,6 +2125,10 @@ number_tasks&gt;=1 AND delta_seconds&lt;grace_period AND task_state="running", "
                     <scale type="minMidMax"></scale>
                 </format>
                 <format type="color" field="curr Latency">
+                    <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
+                    <scale type="minMidMax"></scale>
+                </format>
+                <format type="color" field="curr MB/sec">
                     <colorPalette type="minMidMax" maxColor="#31A35F" minColor="#353535"></colorPalette>
                     <scale type="minMidMax"></scale>
                 </format>
