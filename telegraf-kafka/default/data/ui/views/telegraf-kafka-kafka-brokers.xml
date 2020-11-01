@@ -1,4 +1,4 @@
-<form stylesheet="telegraf-kafka:common.css,telegraf-kafka:table.css" script="telegraf-kafka:table.js" theme="dark" hideEdit="true" isVisible="True">
+<form stylesheet="telegraf-kafka:common.css,telegraf-kafka:table.css,telegraf-kafka:table_bar.css" script="telegraf-kafka:table.js,telegraf-kafka:table_bar.js" theme="dark" hideEdit="true" isVisible="True">
     <label>Kafka Broker - Entity health view</label>
 
     <search id="broker_activity_summary">
@@ -212,6 +212,7 @@
                 <choice value="chart8">JVM GARBAGE COLLECTION</choice>
                 <choice value="chart9">TABLE TOPICS/PARTITIONS</choice>
                 <choice value="chart10">LOGS ACTIVITY</choice>
+                <choice value="chart11">OS MAIN KPIS</choice>
                 <default>chart1</default>
                 <change>
                     <condition value="chart1">
@@ -225,6 +226,7 @@
                         <unset token="chart8"></unset>
                         <unset token="chart9"></unset>
                         <unset token="chart10"></unset>
+                        <unset token="chart11"></unset>
                     </condition>
                     <condition value="chart2">
                         <set token="chart2">true</set>
@@ -237,6 +239,7 @@
                         <unset token="chart8"></unset>
                         <unset token="chart9"></unset>
                         <unset token="chart10"></unset>
+                        <unset token="chart11"></unset>
                     </condition>
                     <condition value="chart3">
                         <set token="chart3">true</set>
@@ -249,6 +252,7 @@
                         <unset token="chart8"></unset>
                         <unset token="chart9"></unset>
                         <unset token="chart10"></unset>
+                        <unset token="chart11"></unset>
                     </condition>
                     <condition value="chart4">
                         <set token="chart4">true</set>
@@ -261,6 +265,7 @@
                         <unset token="chart8"></unset>
                         <unset token="chart9"></unset>
                         <unset token="chart10"></unset>
+                        <unset token="chart11"></unset>
                     </condition>
                     <condition value="chart5">
                         <set token="chart5">true</set>
@@ -273,6 +278,7 @@
                         <unset token="chart8"></unset>
                         <unset token="chart9"></unset>
                         <unset token="chart10"></unset>
+                        <unset token="chart11"></unset>
                     </condition>
                     <condition value="chart6">
                         <set token="chart6">true</set>
@@ -285,6 +291,7 @@
                         <unset token="chart8"></unset>
                         <unset token="chart9"></unset>
                         <unset token="chart10"></unset>
+                        <unset token="chart11"></unset>
                     </condition>
                     <condition value="chart7">
                         <set token="chart7">true</set>
@@ -297,6 +304,7 @@
                         <unset token="chart8"></unset>
                         <unset token="chart9"></unset>
                         <unset token="chart10"></unset>
+                        <unset token="chart11"></unset>
                     </condition>
                     <condition value="chart8">
                         <set token="chart8">true</set>
@@ -309,6 +317,7 @@
                         <unset token="chart7"></unset>
                         <unset token="chart9"></unset>
                         <unset token="chart10"></unset>
+                        <unset token="chart11"></unset>
                     </condition>
                     <condition value="chart9">
                         <set token="chart9">true</set>
@@ -321,6 +330,7 @@
                         <unset token="chart7"></unset>
                         <unset token="chart8"></unset>
                         <unset token="chart10"></unset>
+                        <unset token="chart11"></unset>
                     </condition>
                     <condition value="chart10">
                         <set token="chart10">true</set>
@@ -333,6 +343,20 @@
                         <unset token="chart7"></unset>
                         <unset token="chart8"></unset>
                         <unset token="chart9"></unset>
+                        <unset token="chart11"></unset>
+                    </condition>
+                    <condition value="chart11">
+                        <set token="chart11">true</set>
+                        <unset token="chart1"></unset>
+                        <unset token="chart2"></unset>
+                        <unset token="chart3"></unset>
+                        <unset token="chart4"></unset>
+                        <unset token="chart5"></unset>
+                        <unset token="chart6"></unset>
+                        <unset token="chart7"></unset>
+                        <unset token="chart8"></unset>
+                        <unset token="chart9"></unset>
+                        <unset token="chart10"></unset>
                     </condition>
                 </change>
             </input>
@@ -1129,4 +1153,251 @@
             </event>
         </panel>
     </row>
+
+    <row depends="$chart11$">
+        <panel>
+            <viz type="horseshoe_meter_app.horseshoe_meter">
+                <search depends="$chart11$">
+                    <query>| savedsearch telegraf-os-Context_Chart_CPU_Search_linux [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] | rename pct_used as "avg % cpu"</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="drilldown">none</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.backgroundColor">#212527</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.dialColor">#d0d5d9</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.maxRangeColor">#b44441</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.maxRangeThreshold">80</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.maxValue">100</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.midRangeColor">#fbcd2f</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.midRangeThreshold">55</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.minRangeColor">#3fc77a</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.minValue">0</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.thresholdStyle">percentage</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.useRangemap">false</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.valueColor">#779ecb</option>
+                <option name="trellis.enabled">0</option>
+                <option name="trellis.scales.shared">1</option>
+                <option name="trellis.size">medium</option>
+                <option name="height">150</option>
+            </viz>
+        </panel>
+        <panel>
+            <viz type="horseshoe_meter_app.horseshoe_meter">
+                <search depends="$chart11$">
+                    <query>| savedsearch telegraf-os-Context_Chart_Memory_Search_linux [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] | rename pct_used as "avg % mem"</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="drilldown">none</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.backgroundColor">#212527</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.dialColor">#d0d5d9</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.maxRangeColor">#b44441</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.maxRangeThreshold">80</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.maxValue">100</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.midRangeColor">#fbcd2f</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.midRangeThreshold">55</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.minRangeColor">#3fc77a</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.minValue">0</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.thresholdStyle">percentage</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.useRangemap">false</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.valueColor">#779ecb</option>
+                <option name="trellis.enabled">0</option>
+                <option name="trellis.scales.shared">1</option>
+                <option name="trellis.size">medium</option>
+                <option name="height">150</option>
+            </viz>
+        </panel>
+        <panel>
+            <viz type="horseshoe_meter_app.horseshoe_meter">
+                <search depends="$chart11$">
+                    <query>| savedsearch telegraf-os-Context_Chart_Disk_Usage_Search_linux [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] | rename pct_used as "% disk used"</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="drilldown">none</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.backgroundColor">#212527</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.dialColor">#d0d5d9</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.maxRangeColor">#b44441</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.maxRangeThreshold">80</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.maxValue">100</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.midRangeColor">#fbcd2f</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.midRangeThreshold">55</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.minRangeColor">#3fc77a</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.minValue">0</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.thresholdStyle">percentage</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.useRangemap">false</option>
+                <option name="horseshoe_meter_app.horseshoe_meter.valueColor">#779ecb</option>
+                <option name="trellis.enabled">0</option>
+                <option name="trellis.scales.shared">1</option>
+                <option name="trellis.size">medium</option>
+                <option name="height">150</option>
+            </viz>
+        </panel>
+    </row>
+    <row depends="$chart11$">
+        <panel>
+            <chart>
+                <title>CPU utilization summary</title>
+                <search depends="$chart11$">
+                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name=cpu.usage_iowait OR metric_name=cpu.usage_steel OR metric_name=cpu.usage_system OR metric_name=cpu.usage_user [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] by metric_name span=1s
+| eval {metric_name}=value
+| stats first(cpu.*) as "cpu.*" by _time
+| eval cpu.usage=('cpu.usage_iowait'+'cpu.usage_system'+'cpu.usage_user')
+| timechart `telegraf_kafka_span` max(cpu.usage) AS "max cpu load %", avg(cpu.usage) AS "avg cpu load %"
+                    </query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <!--  <option name="charting.axisLabelsX.majorLabelVisibility">hide</option> -->
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisY.maximumNumber">100</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="refresh.time.visible">false</option>
+            </chart>
+        </panel>
+        <panel>
+            <chart>
+                <title>Uptime load average</title>
+                <search depends="$chart11$">
+                    <query>
+| mstats avg(_value) as value where `telegraf_kafka_index` metric_name=system.load1 OR metric_name=system.load5 OR metric_name=system.load15 [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] groupby metric_name, host span=1s
+| eval {metric_name}=value
+| timechart `telegraf_kafka_span` avg(system.load1) as load_average_1min, avg(system.load5) as load_average_5min, avg(system.load15) as load_average_15min
+                    </query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <!--  <option name="charting.axisLabelsX.majorLabelVisibility">hide</option> -->
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="refresh.time.visible">false</option>
+            </chart>
+        </panel>
+        <panel>
+            <chart>
+                <title>Memory (%)</title>
+                <search depends="$chart11$">
+                    <query>
+| mstats avg(_value) as value where `telegraf_kafka_index` metric_name=mem.used_percent OR metric_name=swap.used_percent [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] by metric_name span=1s
+| eval {metric_name}=value
+| stats first(*.used_percent) as "*.used_percent" by _time
+| timechart `telegraf_kafka_span` avg(mem.used_percent) AS "mem used (%)", avg(swap.used_percent) AS "swap used (%)"
+                    </query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <!--  <option name="charting.axisLabelsX.majorLabelVisibility">hide</option> -->
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">top</option>
+                <option name="refresh.time.visible">false</option>
+            </chart>
+        </panel>
+    </row>
+
+    <row depends="$chart11$">
+        <panel>
+            <table id="tablebar">
+                <title>file-systems usage</title>
+                <search depends="$chart11$">
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name=disk.used OR metric_name=disk.total OR metric_name=disk.used_percent [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] by metric_name, path
+| eval {metric_name}=value
+| stats first(disk.*) as "disk.*" by path
+| eval "disk.total"=round(((('disk.total' / 1024) / 1024) / 1024),2), used_pct=round('disk.used_percent',2)
+| rename disk.total as "disk total (GB)"
+| fields path, "disk total (GB)", used_pct
+| sort 0 device</query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="wrap">true</option>
+                <option name="rowNumbers">false</option>
+                <option name="dataOverlayMode">none</option>
+                <option name="drilldown">row</option>
+                <option name="count">10</option>
+            </table>
+        </panel>
+        <panel>
+            <chart>
+                <title>Network inbound/outbound traffic (KBps)</title>
+                <search depends="$chart11$">
+                    <query>
+| mstats latest(_value) as value where `telegraf_kafka_index` metric_name=net.bytes_recv OR metric_name=net.bytes_sent [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] by metric_name, interface span=1s
+| eval {metric_name}=value
+| stats first(net.*) as "*_counter" by _time, interface
+| streamstats current=f last(*_counter) as "*_prev" by interface
+| eval inbound=((bytes_recv_counter-bytes_recv_prev)/1024), outbound=((bytes_sent_counter-bytes_sent_prev)/1024)
+| fields _time, interface, inbound, outbound
+| where NOT (inbound&lt;0) AND NOT (outbound&lt;0)
+| timechart `telegraf_kafka_span` avg(inbound) as inbound, avg(outbound) as outbound | eval outbound = "-" . outbound
+                    </query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+                <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.text">KBps</option>
+                <option name="charting.axisTitleY.visibility">visible</option>
+                <option name="charting.axisTitleY2.visibility">visible</option>
+                <option name="charting.axisX.scale">linear</option>
+                <option name="charting.axisY.scale">linear</option>
+                <option name="charting.axisY2.enabled">0</option>
+                <option name="charting.axisY2.scale">inherit</option>
+                <option name="charting.chart">area</option>
+                <option name="charting.chart.bubbleMaximumSize">50</option>
+                <option name="charting.chart.bubbleMinimumSize">10</option>
+                <option name="charting.chart.bubbleSizeBy">area</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+                <option name="charting.chart.stackMode">default</option>
+                <option name="charting.chart.style">shiny</option>
+                <option name="charting.drilldown">all</option>
+                <option name="charting.fieldColors">{"inbound": 0xBDBD5E, "outbound": 0x5F7396}</option>
+                <option name="charting.layout.splitSeries">0</option>
+                <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+                <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+                <option name="charting.legend.placement">top</option>
+            </chart>
+        </panel>
+        <panel>
+            <chart>
+                <title>Disk MB/s</title>
+                <search depends="$chart11$">
+                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name=diskio.write_bytes OR metric_name=diskio.read_bytes [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] name=* by metric_name, name span=1s
+| eval {metric_name}=value
+| stats first(diskio.*) as "*_counter" by _time, name
+| streamstats current=f last(*_counter) as "*_prev" by name
+| eval write_bytes=((write_bytes_counter-write_bytes_prev)/10000000), read_bytes=((read_bytes_counter-read_bytes_prev)/10000000)
+| fields _time, name, write_bytes, read_bytes
+| where NOT (write_bytes&lt;0) AND NOT (read_bytes&lt;0)
+| timechart useother=f limit=45 `telegraf_kafka_span` avg(write_bytes) as write_bytes, avg(read_bytes) as read_bytes by name
+                    </query>
+                    <earliest>$earliest$</earliest>
+                    <latest>$latest$</latest>
+                </search>
+                <option name="charting.chart">line</option>
+                <!--  <option name="charting.axisLabelsX.majorLabelVisibility">hide</option> -->
+                <option name="charting.axisTitleX.visibility">collapsed</option>
+                <option name="charting.axisTitleY.visibility">collapsed</option>
+                <option name="charting.chart.nullValueMode">gaps</option>
+                <option name="charting.chart.showDataLabels">none</option>
+                <option name="charting.legend.placement">none</option>
+                <option name="refresh.time.visible">false</option>
+            </chart>
+        </panel>
+    </row>
+
 </form>
