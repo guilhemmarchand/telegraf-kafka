@@ -43,6 +43,7 @@ Overview:
 
 .. toctree::
    :maxdepth: 2
+   :caption: Overview
 
    about
    compatibility
@@ -55,6 +56,7 @@ Deployment and configuration:
 
 .. toctree::
    :maxdepth: 2
+   :caption: Deployment and configuration
 
    deployment
    implementation
@@ -68,6 +70,7 @@ Troubleshoot:
 
 .. toctree::
    :maxdepth: 1
+   :caption: Troubleshoot
 
    troubleshoot
 
@@ -76,5 +79,6 @@ Versioniong and build history:
 
 .. toctree::
    :maxdepth: 1
+   :caption: Versioning
 
    releasenotes

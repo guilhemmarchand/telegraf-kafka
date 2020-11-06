@@ -306,6 +306,50 @@ Starting Jolokia with the JVM
 
 **When running on dedicated servers or virtual machines, update the relevant systemd configuration file to start Jolokia automatically:**
 
+For Zookeeper
+-------------
+
+**For bare-metals and dedicated VMs:**
+
+- Edit: ``/lib/systemd/system/confluent-zookeeper.service``
+
+- Add ``-javaagent`` argument:
+
+::
+
+  [Unit]
+  Description=Apache Kafka - ZooKeeper
+  Documentation=http://docs.confluent.io/
+  After=network.target
+
+  [Service]
+  Type=simple
+  User=cp-kafka
+  Group=confluent
+  ExecStart=/usr/bin/zookeeper-server-start /etc/kafka/zookeeper.properties
+  Environment="KAFKA_OPTS=-javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0"
+  Environment="LOG_DIR=/var/log/zookeeper"
+  TimeoutStopSec=180
+  Restart=no
+
+  [Install]
+  WantedBy=multi-user.target
+
+- Reload systemd and restart:
+
+::
+
+    sudo systemctl daemon-restart
+    sudo systemctl restart confluent-zookeeper
+
+**For container based environments:**
+
+*Define the following environment variable when starting the containers:*
+
+::
+
+    KAFKA_OPTS: "-javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0"
+
 For Kafka brokers
 -----------------
 
