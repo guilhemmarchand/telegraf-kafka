@@ -486,36 +486,35 @@ For Confluent ksql-server
 
 **For bare-metals and dedicated VMs:**
 
-- Edit: ``/lib/systemd/system/confluent-ksql.service``
+- Edit: ``/lib/systemd/system/confluent-ksqldb.service``
 
 - Add ``-javaagent`` argument:
 
 ::
 
-    [Unit]
-    Description=Streaming SQL engine for Apache Kafka
-    Documentation=http://docs.confluent.io/
-    After=network.target confluent-kafka.target confluent-schema-registry.target
+  Description=Streaming SQL engine for Apache Kafka
+  Documentation=http://docs.confluent.io/
+  After=network.target confluent-kafka.target confluent-schema-registry.target
 
-    [Service]
-    Type=simple
-    User=cp-ksql
-    Group=confluent
-    Environment="LOG_DIR=/var/log/confluent/ksql"
-    Environment="KSQL_OPTS=-javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0"
-    ExecStart=/usr/bin/ksql-server-start /etc/ksql/ksql-server.properties
-    TimeoutStopSec=180
-    Restart=no
+  [Service]
+  Type=simple
+  User=cp-ksql
+  Group=confluent
+  Environment="LOG_DIR=/var/log/confluent/ksql"
+  Environment="KSQL_OPTS=-javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0"
+  ExecStart=/usr/bin/ksql-server-start /etc/ksqldb/ksql-server.properties
+  TimeoutStopSec=180
+  Restart=no
 
-    [Install]
-    WantedBy=multi-user.target
+  [Install]
+  WantedBy=multi-user.target
 
 - Reload systemd and restart:
 
 ::
 
     sudo systemctl daemon-restart
-    sudo systemctl restart confluent-ksql
+    sudo systemctl restart confluent-ksqldb
 
 **For container based environments:**
 
