@@ -1410,7 +1410,11 @@ Implement Confluent Interceptor integration to Splunk
 
 - In this directory, copy the command center properties file that you use for command center, at the minimal you need to define the kafka broker and zookeeper connection string:
 
-*Notes: we use the properties file to bootrap the command center console consumer, not an instance of the command center, so you can certainly be even more strict and remove any useless parameter here.*
+.. admonition:: properties
+
+    - We use the properties file to bootrap the command center console consumer, not an instance of the command center
+    - You can remove most of the configuration from the properties, what is required is providing the connectivity settings to your Kafka brokers
+    - Do not update the setting ``confluent.controlcenter.data.dir`` from your Command center configuration, if the directory cannot be used by the container, the console consumer will not start
 
 *control-center.properties*
 
@@ -1545,14 +1549,19 @@ Implement Confluent Interceptor integration to Splunk
 
 *Finally, create a new docker-compose.yml file as follows, edit the Splunk index, the HEC target and the HEC token to match your deployment:*
 
+.. admonition:: docker-compose version
+
+    - Make sure to download the very last version of docker-compose from https://docs.docker.com/compose/install
+    - If you cannot use a recent version of docker-compose and/or the Docker engine, lower the version on top of the yaml file
+
 ::
 
-  version: '2.4'
+  version: '3.8'
   services:
 
     confluent-interceptor:
       image: confluentinc/cp-enterprise-control-center
-      restart: "no"
+      restart: "always"
       hostname: confluent-interceptor
       logging:
         driver: splunk
