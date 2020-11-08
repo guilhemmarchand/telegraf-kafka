@@ -1223,7 +1223,7 @@
             <title>schema-registry log events by log_level</title>
             <chart>
                 <search depends="$chart10$">
-                    <query>eventtype="kafka_schema_registry" log_level=* [ | `confluent_schema_registry_logs_mapping($env$, $label$, $jolokia_agent_url$)` ]
+                    <query>eventtype="kafka_schema_registry" log_level=* [ | inputlookup kafka_infra_inventory | search role=schema-registry $env$ $label$ | rename name as jolokia_agent_url | search $jolokia_agent_url$ | `extract_jolokia_host` | table host ]
 | timechart useother=f limit=0 minspan=1m count by log_level</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -1259,7 +1259,7 @@
             </input>
             <event>
                 <search depends="$chart10$">
-                    <query>eventtype="kafka_schema_registry" $log_search_tk$ $log_sourcetype_tk$ [ | `confluent_schema_registry_logs_mapping($env$, $label$, $jolokia_agent_url$)` ]</query>
+                    <query>eventtype="kafka_schema_registry" $log_search_tk$ $log_sourcetype_tk$ [ | inputlookup kafka_infra_inventory | search role=schema-registry $env$ $label$ | rename name as jolokia_agent_url | search $jolokia_agent_url$ | `extract_jolokia_host` | table host ]</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>
@@ -1282,7 +1282,7 @@
         <panel>
             <viz type="horseshoe_meter_app.horseshoe_meter">
                 <search depends="$chart11$">
-                    <query>| mstats avg(cpu.usage_iowait) as cpu.usage_iowait, avg(cpu.usage_system) as cpu.usage_system, avg(cpu.usage_user) as cpu.usage_user where `telegraf_kafka_index` [ | `confluent_schema_registry_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] by host span=1s
+                    <query>| mstats avg(cpu.usage_iowait) as cpu.usage_iowait, avg(cpu.usage_system) as cpu.usage_system, avg(cpu.usage_user) as cpu.usage_user where `telegraf_kafka_index` [ | inputlookup kafka_infra_inventory | search role=schema-registry $env$ $label$ | rename name as jolokia_agent_url | search $jolokia_agent_url$ | `extract_jolokia_host` | table host ] by host span=1s
 | eval cpu.usage=('cpu.usage_iowait'+'cpu.usage_system'+'cpu.usage_user')
 | stats avg(cpu.usage) AS pct_used | eval pct_used=round(pct_used, 2) | fields pct_used</query>
                     <earliest>$earliest$</earliest>
@@ -1310,7 +1310,7 @@
         <panel>
             <viz type="horseshoe_meter_app.horseshoe_meter">
                 <search depends="$chart11$">
-                    <query>| mstats avg(mem.used_percent) as avg_usage where `telegraf_kafka_index` [ | `confluent_schema_registry_logs_mapping($env$, $label$, $jolokia_agent_url$)` ]
+                    <query>| mstats avg(mem.used_percent) as avg_usage where `telegraf_kafka_index` [ | inputlookup kafka_infra_inventory | search role=schema-registry $env$ $label$ | rename name as jolokia_agent_url | search $jolokia_agent_url$ | `extract_jolokia_host` | table host ]
 | eval pct_used=round(avg_usage, 2) | fields pct_used</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -1337,7 +1337,7 @@
         <panel>
             <viz type="horseshoe_meter_app.horseshoe_meter">
                 <search depends="$chart11$">
-                    <query>| mstats latest(disk.used) as disk.used, latest(disk.total) as disk.total where `telegraf_kafka_index` [ | `confluent_schema_registry_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] by host, device
+                    <query>| mstats latest(disk.used) as disk.used, latest(disk.total) as disk.total where `telegraf_kafka_index` [ | inputlookup kafka_infra_inventory | search role=schema-registry $env$ $label$ | rename name as jolokia_agent_url | search $jolokia_agent_url$ | `extract_jolokia_host` | table host ] by host, device
 | stats sum(disk.used) as disk.used, sum(disk.total) as disk.total by host
 | eval pct_used=round('disk.used'/'disk.total'*100, 2) | stats avg(pct_used) as pct_used | fields pct_used | eval pct_used=round(pct_used, 2)</query>
                     <earliest>$earliest$</earliest>
@@ -1368,7 +1368,7 @@
             <chart>
                 <title>CPU average load (%)</title>
                 <search depends="$chart11$">
-                    <query>| mstats avg(cpu.usage_iowait) as cpu.usage_iowait, avg(cpu.usage_system) as cpu.usage_system, avg(cpu.usage_user) as cpu.usage_user where `telegraf_kafka_index` [ | `confluent_schema_registry_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] by host span=1s
+                    <query>| mstats avg(cpu.usage_iowait) as cpu.usage_iowait, avg(cpu.usage_system) as cpu.usage_system, avg(cpu.usage_user) as cpu.usage_user where `telegraf_kafka_index` [ | inputlookup kafka_infra_inventory | search role=schema-registry $env$ $label$ | rename name as jolokia_agent_url | search $jolokia_agent_url$ | `extract_jolokia_host` | table host ] by host span=1s
 | eval cpu.usage=('cpu.usage_iowait'+'cpu.usage_system'+'cpu.usage_user')
 | stats avg(cpu.usage) AS pct_used by _time, host | eval pct_used=round(pct_used, 2)
 | timechart `telegraf_kafka_span` limit=40 useother=f avg(pct_used) AS "avg cpu load %" by host
@@ -1391,7 +1391,7 @@
             <chart>
                 <title>Uptime load average</title>
                 <search depends="$chart11$">
-                    <query>| mstats avg(system.load1) as system.load1 where `telegraf_kafka_index` [ | `confluent_schema_registry_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] groupby host span=1s
+                    <query>| mstats avg(system.load1) as system.load1 where `telegraf_kafka_index` [ | inputlookup kafka_infra_inventory | search role=schema-registry $env$ $label$ | rename name as jolokia_agent_url | search $jolokia_agent_url$ | `extract_jolokia_host` | table host ] groupby host span=1s
 | timechart `telegraf_kafka_span` limit=40 useother=f avg(system.load1) as load_average_1min by host
                     </query>
                     <earliest>$earliest$</earliest>
@@ -1412,7 +1412,7 @@
                 <title>Memory (%)</title>
                 <search depends="$chart11$">
                     <query>
-| mstats avg(mem.used_percent) as mem.used_percent where `telegraf_kafka_index` [ | `confluent_schema_registry_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] by host span=1s
+| mstats avg(mem.used_percent) as mem.used_percent where `telegraf_kafka_index` [ | inputlookup kafka_infra_inventory | search role=schema-registry $env$ $label$ | rename name as jolokia_agent_url | search $jolokia_agent_url$ | `extract_jolokia_host` | table host ] by host span=1s
 | timechart `telegraf_kafka_span` limit=40 useother=f avg(mem.used_percent) AS "mem used (%)" by host
                     </query>
                     <earliest>$earliest$</earliest>
@@ -1435,7 +1435,7 @@
             <table id="tablebar">
                 <title>file-systems usage</title>
                 <search depends="$chart11$">
-                    <query>| mstats latest(disk.used) as disk.used, latest(disk.total) as disk.total where `telegraf_kafka_index` [ | `confluent_schema_registry_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] by host, path
+                    <query>| mstats latest(disk.used) as disk.used, latest(disk.total) as disk.total where `telegraf_kafka_index` [ | inputlookup kafka_infra_inventory | search role=schema-registry $env$ $label$ | rename name as jolokia_agent_url | search $jolokia_agent_url$ | `extract_jolokia_host` | table host ] by host, path
 | eval used_pct=round('disk.used'/'disk.total'*100, 2)
 | eval "disk.total"=round(((('disk.total' / 1024) / 1024) / 1024),2)
 | rename disk.total as "disk total (GB)"
@@ -1456,7 +1456,7 @@
                 <title>Network inbound/outbound traffic (KBps)</title>
                 <search depends="$chart11$">
                     <query>
-| mstats latest(net.bytes_recv) as bytes_recv_counter, latest(net.bytes_sent) as bytes_sent_counter where `telegraf_kafka_index` [ | `confluent_schema_registry_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] by host, interface span=1s
+| mstats latest(net.bytes_recv) as bytes_recv_counter, latest(net.bytes_sent) as bytes_sent_counter where `telegraf_kafka_index` [ | inputlookup kafka_infra_inventory | search role=schema-registry $env$ $label$ | rename name as jolokia_agent_url | search $jolokia_agent_url$ | `extract_jolokia_host` | table host ] by host, interface span=1s
 | streamstats current=f last(*_counter) as "*_prev" by host, interface
 | eval inbound=((bytes_recv_counter-bytes_recv_prev)/1024), outbound=((bytes_sent_counter-bytes_sent_prev)/1024)
 | fields _time, host, interface, inbound, outbound
@@ -1496,7 +1496,7 @@
             <chart>
                 <title>Disk MB/s</title>
                 <search depends="$chart11$">
-                    <query>| mstats latest(diskio.write_bytes) as write_bytes_counter, latest(diskio.read_bytes) as read_bytes_counter where `telegraf_kafka_index` [ | `confluent_schema_registry_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] name=* by host, name span=1s
+                    <query>| mstats latest(diskio.write_bytes) as write_bytes_counter, latest(diskio.read_bytes) as read_bytes_counter where `telegraf_kafka_index` [ | inputlookup kafka_infra_inventory | search role=schema-registry $env$ $label$ | rename name as jolokia_agent_url | search $jolokia_agent_url$ | `extract_jolokia_host` | table host ] name=* by host, name span=1s
 | streamstats current=f last(*_counter) as "*_prev" by host, name
 | eval write_bytes=((write_bytes_counter-write_bytes_prev)/10000000), read_bytes=((read_bytes_counter-read_bytes_prev)/10000000)
 | fields _time, host, name, write_bytes, read_bytes
