@@ -4,7 +4,10 @@ Compatibility
 Splunk compatibility
 ####################
 
-All the metrics are ingested into the high performance Splunk metric store, Splunk 7.0.x or higher is required.
+.. admonition:: Splunk core version
+
+    - metrics are ingested into the high performance Splunk metric store, Splunk 7.0.x or later is required
+    - some queries are built using the latest syntax for metrics, Splunk 7.2.x or later is recommended
 
 Telegraf compatibility
 ######################
@@ -23,7 +26,9 @@ If you are running Kafka in containers, you are at the right place, all of the c
 Kafka and Confluent compatibility
 #################################
 
-Qualification and certification is made against Kafka V2.x and Confluent V5.x, earlier versions might however work with no issues but are not being tested.
+.. admonition:: Apache Kafka and Confluent compatibility
+
+    - Qualification and certification is made against Kafka V2.x and Confluent V6.x, earlier versions might however work with no issues but are not being tested
 
 Web Browser compatibility
 #########################

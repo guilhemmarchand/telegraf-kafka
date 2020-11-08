@@ -5,14 +5,14 @@ The Splunk application for Kafka monitoring with Telegraf is community supported
 
 To get support, use of one the following options:
 
-Splunk Answers
-==============
+Splunk community
+================
 
-Open a question in Splunk answers for the application:
+Open a question in Splunk Community:
 
-- https://answers.splunk.com/app/questions/4268.html
+- https://community.splunk.com
 
-Splunk community slack
+Splunk community Slack
 ======================
 
 Contact me on Splunk community slack, or even better, ask the community !

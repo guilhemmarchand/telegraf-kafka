@@ -6,6 +6,7 @@ Version 1.1.40
 ==============
 
 - Feature: OS Main KPIs views in each component dashboard
+- Change: navigation bar review
 
 ==============
 Version 1.1.39

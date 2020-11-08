@@ -14,12 +14,18 @@ Deployment matrix
 
 If Splunk search heads are running in Search Head Cluster (SHC), the Splunk application must be deployed by the SHC deployer.
 
-The deployment and configuration requires the creation of a dedicated metric index (by default called **telegraf_kafka**), see the implementation section.
+Indexes creation
+================
+
+.. admonition:: indexes
+
+    - Kafka SDM expects the creation of a metric index, by default ``telegraf_kafka`` which can be configured by customizing the macro ``telegraf_kafka_index``
+    - If you use Confluent interceptors, the application expects the creation of a metric index ``confluent_interceptor_metrics`` which can be configured by customizing the macro ``confluent_interceptor_index`` 
 
 Dependencies
 ============
 
-**The appplication depends on:**
+**The application depends on:**
 
 - Horseshoe Meter - Custom Visualization, Splunk Base: https://splunkbase.splunk.com/app/3166
 
