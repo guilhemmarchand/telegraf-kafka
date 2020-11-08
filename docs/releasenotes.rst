@@ -2,6 +2,12 @@ Release notes
 #############
 
 ==============
+Version 1.1.40
+==============
+
+- Feature: OS Main KPIs views in each component dashboard
+
+==============
 Version 1.1.39
 ==============
 

@@ -16,6 +16,13 @@ If Splunk search heads are running in Search Head Cluster (SHC), the Splunk appl
 
 The deployment and configuration requires the creation of a dedicated metric index (by default called **telegraf_kafka**), see the implementation section.
 
+Dependencies
+============
+
+**The appplication depends on:**
+
+- Horseshoe Meter - Custom Visualization, Splunk Base: https://splunkbase.splunk.com/app/3166
+
 Initial deployment
 ==================
 

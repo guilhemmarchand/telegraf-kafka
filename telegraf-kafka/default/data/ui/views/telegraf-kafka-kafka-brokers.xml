@@ -1158,7 +1158,9 @@
         <panel>
             <viz type="horseshoe_meter_app.horseshoe_meter">
                 <search depends="$chart11$">
-                    <query>| savedsearch telegraf-os-Context_Chart_CPU_Search_linux [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] | rename pct_used as "avg % cpu"</query>
+                    <query>| mstats avg(cpu.usage_iowait) as cpu.usage_iowait, avg(cpu.usage_system) as cpu.usage_system, avg(cpu.usage_user) as cpu.usage_user where `telegraf_kafka_index` [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] by host span=1s
+| eval cpu.usage=('cpu.usage_iowait'+'cpu.usage_system'+'cpu.usage_user')
+| stats avg(cpu.usage) AS pct_used | eval pct_used=round(pct_used, 2) | fields pct_used</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                 </search>
@@ -1184,7 +1186,8 @@
         <panel>
             <viz type="horseshoe_meter_app.horseshoe_meter">
                 <search depends="$chart11$">
-                    <query>| savedsearch telegraf-os-Context_Chart_Memory_Search_linux [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] | rename pct_used as "avg % mem"</query>
+                    <query>| mstats avg(mem.used_percent) as avg_usage where `telegraf_kafka_index` [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ]
+| eval pct_used=round(avg_usage, 2) | fields pct_used</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                 </search>
@@ -1210,7 +1213,9 @@
         <panel>
             <viz type="horseshoe_meter_app.horseshoe_meter">
                 <search depends="$chart11$">
-                    <query>| savedsearch telegraf-os-Context_Chart_Disk_Usage_Search_linux [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] | rename pct_used as "% disk used"</query>
+                    <query>| mstats latest(disk.used) as disk.used, latest(disk.total) as disk.total where `telegraf_kafka_index` [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] by host, device
+| stats sum(disk.used) as disk.used, sum(disk.total) as disk.total by host
+| eval pct_used=round('disk.used'/'disk.total'*100, 2) | stats avg(pct_used) as pct_used | fields pct_used | eval pct_used=round(pct_used, 2)</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                 </search>
@@ -1237,13 +1242,12 @@
     <row depends="$chart11$">
         <panel>
             <chart>
-                <title>CPU utilization summary</title>
+                <title>CPU average load (%)</title>
                 <search depends="$chart11$">
-                    <query>| mstats avg(_value) as value where `telegraf_kafka_index` metric_name=cpu.usage_iowait OR metric_name=cpu.usage_steel OR metric_name=cpu.usage_system OR metric_name=cpu.usage_user [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] by metric_name span=1s
-| eval {metric_name}=value
-| stats first(cpu.*) as "cpu.*" by _time
+                    <query>| mstats avg(cpu.usage_iowait) as cpu.usage_iowait, avg(cpu.usage_system) as cpu.usage_system, avg(cpu.usage_user) as cpu.usage_user where `telegraf_kafka_index` [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] by host span=1s
 | eval cpu.usage=('cpu.usage_iowait'+'cpu.usage_system'+'cpu.usage_user')
-| timechart `telegraf_kafka_span` max(cpu.usage) AS "max cpu load %", avg(cpu.usage) AS "avg cpu load %"
+| stats avg(cpu.usage) AS pct_used by _time, host | eval pct_used=round(pct_used, 2)
+| timechart `telegraf_kafka_span` limit=40 useother=f avg(pct_used) AS "avg cpu load %" by host
                     </query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -1263,10 +1267,8 @@
             <chart>
                 <title>Uptime load average</title>
                 <search depends="$chart11$">
-                    <query>
-| mstats avg(_value) as value where `telegraf_kafka_index` metric_name=system.load1 OR metric_name=system.load5 OR metric_name=system.load15 [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] groupby metric_name, host span=1s
-| eval {metric_name}=value
-| timechart `telegraf_kafka_span` avg(system.load1) as load_average_1min, avg(system.load5) as load_average_5min, avg(system.load15) as load_average_15min
+                    <query>| mstats avg(system.load1) as system.load1 where `telegraf_kafka_index` [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] groupby host span=1s
+| timechart `telegraf_kafka_span` limit=40 useother=f avg(system.load1) as load_average_1min by host
                     </query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -1286,10 +1288,8 @@
                 <title>Memory (%)</title>
                 <search depends="$chart11$">
                     <query>
-| mstats avg(_value) as value where `telegraf_kafka_index` metric_name=mem.used_percent OR metric_name=swap.used_percent [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] by metric_name span=1s
-| eval {metric_name}=value
-| stats first(*.used_percent) as "*.used_percent" by _time
-| timechart `telegraf_kafka_span` avg(mem.used_percent) AS "mem used (%)", avg(swap.used_percent) AS "swap used (%)"
+| mstats avg(mem.used_percent) as mem.used_percent where `telegraf_kafka_index` [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] by host span=1s
+| timechart `telegraf_kafka_span` limit=40 useother=f avg(mem.used_percent) AS "mem used (%)" by host
                     </query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -1311,13 +1311,12 @@
             <table id="tablebar">
                 <title>file-systems usage</title>
                 <search depends="$chart11$">
-                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name=disk.used OR metric_name=disk.total OR metric_name=disk.used_percent [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] by metric_name, path
-| eval {metric_name}=value
-| stats first(disk.*) as "disk.*" by path
-| eval "disk.total"=round(((('disk.total' / 1024) / 1024) / 1024),2), used_pct=round('disk.used_percent',2)
+                    <query>| mstats latest(disk.used) as disk.used, latest(disk.total) as disk.total where `telegraf_kafka_index` [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] by host, path
+| eval used_pct=round('disk.used'/'disk.total'*100, 2)
+| eval "disk.total"=round(((('disk.total' / 1024) / 1024) / 1024),2)
 | rename disk.total as "disk total (GB)"
-| fields path, "disk total (GB)", used_pct
-| sort 0 device</query>
+| fields host, path, "disk total (GB)", used_pct
+| sort 0 host, device</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                 </search>
@@ -1333,14 +1332,12 @@
                 <title>Network inbound/outbound traffic (KBps)</title>
                 <search depends="$chart11$">
                     <query>
-| mstats latest(_value) as value where `telegraf_kafka_index` metric_name=net.bytes_recv OR metric_name=net.bytes_sent [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] by metric_name, interface span=1s
-| eval {metric_name}=value
-| stats first(net.*) as "*_counter" by _time, interface
-| streamstats current=f last(*_counter) as "*_prev" by interface
+| mstats latest(net.bytes_recv) as bytes_recv_counter, latest(net.bytes_sent) as bytes_sent_counter where `telegraf_kafka_index` [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] by host, interface span=1s
+| streamstats current=f last(*_counter) as "*_prev" by host, interface
 | eval inbound=((bytes_recv_counter-bytes_recv_prev)/1024), outbound=((bytes_sent_counter-bytes_sent_prev)/1024)
-| fields _time, interface, inbound, outbound
+| fields _time, host, interface, inbound, outbound
 | where NOT (inbound&lt;0) AND NOT (outbound&lt;0)
-| timechart `telegraf_kafka_span` avg(inbound) as inbound, avg(outbound) as outbound | eval outbound = "-" . outbound
+| timechart `telegraf_kafka_span` limit=40 useother=f avg(inbound) as inbound, avg(outbound) as outbound by host
                     </query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -1355,7 +1352,7 @@
                 <option name="charting.axisY.scale">linear</option>
                 <option name="charting.axisY2.enabled">0</option>
                 <option name="charting.axisY2.scale">inherit</option>
-                <option name="charting.chart">area</option>
+                <option name="charting.chart">line</option>
                 <option name="charting.chart.bubbleMaximumSize">50</option>
                 <option name="charting.chart.bubbleMinimumSize">10</option>
                 <option name="charting.chart.bubbleSizeBy">area</option>
@@ -1365,7 +1362,6 @@
                 <option name="charting.chart.stackMode">default</option>
                 <option name="charting.chart.style">shiny</option>
                 <option name="charting.drilldown">all</option>
-                <option name="charting.fieldColors">{"inbound": 0xBDBD5E, "outbound": 0x5F7396}</option>
                 <option name="charting.layout.splitSeries">0</option>
                 <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
                 <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
@@ -1376,25 +1372,22 @@
             <chart>
                 <title>Disk MB/s</title>
                 <search depends="$chart11$">
-                    <query>| mstats latest(_value) as value where `telegraf_kafka_index` metric_name=diskio.write_bytes OR metric_name=diskio.read_bytes [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] name=* by metric_name, name span=1s
-| eval {metric_name}=value
-| stats first(diskio.*) as "*_counter" by _time, name
-| streamstats current=f last(*_counter) as "*_prev" by name
+                    <query>| mstats latest(diskio.write_bytes) as write_bytes_counter, latest(diskio.read_bytes) as read_bytes_counter where `telegraf_kafka_index` [ | `kafka_broker_logs_mapping($env$, $label$, $jolokia_agent_url$)` ] name=* by host, name span=1s
+| streamstats current=f last(*_counter) as "*_prev" by host, name
 | eval write_bytes=((write_bytes_counter-write_bytes_prev)/10000000), read_bytes=((read_bytes_counter-read_bytes_prev)/10000000)
-| fields _time, name, write_bytes, read_bytes
+| fields _time, host, name, write_bytes, read_bytes
 | where NOT (write_bytes&lt;0) AND NOT (read_bytes&lt;0)
-| timechart useother=f limit=45 `telegraf_kafka_span` avg(write_bytes) as write_bytes, avg(read_bytes) as read_bytes by name
+| timechart `telegraf_kafka_span` limit=40 useother=f avg(write_bytes) as write_bytes, avg(read_bytes) as read_bytes by host
                     </query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                 </search>
                 <option name="charting.chart">line</option>
-                <!--  <option name="charting.axisLabelsX.majorLabelVisibility">hide</option> -->
                 <option name="charting.axisTitleX.visibility">collapsed</option>
                 <option name="charting.axisTitleY.visibility">collapsed</option>
                 <option name="charting.chart.nullValueMode">gaps</option>
                 <option name="charting.chart.showDataLabels">none</option>
-                <option name="charting.legend.placement">none</option>
+                <option name="charting.legend.placement">top</option>
                 <option name="refresh.time.visible">false</option>
             </chart>
         </panel>
