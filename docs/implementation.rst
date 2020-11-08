@@ -306,6 +306,50 @@ Starting Jolokia with the JVM
 
 **When running on dedicated servers or virtual machines, update the relevant systemd configuration file to start Jolokia automatically:**
 
+For Zookeeper
+-------------
+
+**For bare-metals and dedicated VMs:**
+
+- Edit: ``/lib/systemd/system/confluent-zookeeper.service``
+
+- Add ``-javaagent`` argument:
+
+::
+
+  [Unit]
+  Description=Apache Kafka - ZooKeeper
+  Documentation=http://docs.confluent.io/
+  After=network.target
+
+  [Service]
+  Type=simple
+  User=cp-kafka
+  Group=confluent
+  ExecStart=/usr/bin/zookeeper-server-start /etc/kafka/zookeeper.properties
+  Environment="KAFKA_OPTS=-javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0"
+  Environment="LOG_DIR=/var/log/zookeeper"
+  TimeoutStopSec=180
+  Restart=no
+
+  [Install]
+  WantedBy=multi-user.target
+
+- Reload systemd and restart:
+
+::
+
+    sudo systemctl daemon-restart
+    sudo systemctl restart confluent-zookeeper
+
+**For container based environments:**
+
+*Define the following environment variable when starting the containers:*
+
+::
+
+    KAFKA_OPTS: "-javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0"
+
 For Kafka brokers
 -----------------
 
@@ -442,36 +486,35 @@ For Confluent ksql-server
 
 **For bare-metals and dedicated VMs:**
 
-- Edit: ``/lib/systemd/system/confluent-ksql.service``
+- Edit: ``/lib/systemd/system/confluent-ksqldb.service``
 
 - Add ``-javaagent`` argument:
 
 ::
 
-    [Unit]
-    Description=Streaming SQL engine for Apache Kafka
-    Documentation=http://docs.confluent.io/
-    After=network.target confluent-kafka.target confluent-schema-registry.target
+  Description=Streaming SQL engine for Apache Kafka
+  Documentation=http://docs.confluent.io/
+  After=network.target confluent-kafka.target confluent-schema-registry.target
 
-    [Service]
-    Type=simple
-    User=cp-ksql
-    Group=confluent
-    Environment="LOG_DIR=/var/log/confluent/ksql"
-    Environment="KSQL_OPTS=-javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0"
-    ExecStart=/usr/bin/ksql-server-start /etc/ksql/ksql-server.properties
-    TimeoutStopSec=180
-    Restart=no
+  [Service]
+  Type=simple
+  User=cp-ksql
+  Group=confluent
+  Environment="LOG_DIR=/var/log/confluent/ksql"
+  Environment="KSQL_OPTS=-javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0"
+  ExecStart=/usr/bin/ksql-server-start /etc/ksqldb/ksql-server.properties
+  TimeoutStopSec=180
+  Restart=no
 
-    [Install]
-    WantedBy=multi-user.target
+  [Install]
+  WantedBy=multi-user.target
 
 - Reload systemd and restart:
 
 ::
 
     sudo systemctl daemon-restart
-    sudo systemctl restart confluent-ksql
+    sudo systemctl restart confluent-ksqldb
 
 **For container based environments:**
 
@@ -1367,7 +1410,11 @@ Implement Confluent Interceptor integration to Splunk
 
 - In this directory, copy the command center properties file that you use for command center, at the minimal you need to define the kafka broker and zookeeper connection string:
 
-*Notes: we use the properties file to bootrap the command center console consumer, not an instance of the command center, so you can certainly be even more strict and remove any useless parameter here.*
+.. admonition:: properties
+
+    - We use the properties file to bootrap the command center console consumer, not an instance of the command center
+    - You can remove most of the configuration from the properties, what is required is providing the connectivity settings to your Kafka brokers
+    - Do not update the setting ``confluent.controlcenter.data.dir`` from your Command center configuration, if the directory cannot be used by the container, the console consumer will not start
 
 *control-center.properties*
 
@@ -1502,14 +1549,19 @@ Implement Confluent Interceptor integration to Splunk
 
 *Finally, create a new docker-compose.yml file as follows, edit the Splunk index, the HEC target and the HEC token to match your deployment:*
 
+.. admonition:: docker-compose version
+
+    - Make sure to download the very last version of docker-compose from https://docs.docker.com/compose/install
+    - If you cannot use a recent version of docker-compose and/or the Docker engine, lower the version on top of the yaml file
+
 ::
 
-  version: '2.4'
+  version: '3.8'
   services:
 
     confluent-interceptor:
       image: confluentinc/cp-enterprise-control-center
-      restart: "no"
+      restart: "always"
       hostname: confluent-interceptor
       logging:
         driver: splunk
