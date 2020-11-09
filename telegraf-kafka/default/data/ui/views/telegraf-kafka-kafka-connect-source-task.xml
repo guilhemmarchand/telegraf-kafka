@@ -599,7 +599,7 @@
             <title>Kafka Connect log events by log_level</title>
             <chart>
                 <search depends="$chart4$">
-                    <query>eventtype="kafka_connect_source" log_level=* [ | `kafka_connect_source_logs_mapping($env$, $label$, $connector$)` ]
+                    <query>eventtype="kafka_connect_source" log_level=* [ | inputlookup kafka_connect_tasks_monitoring | search role="kafka_source_task" $env$ $label$ $connector$ | table connector | rename connector as connector_source ]
 | timechart useother=f limit=0 minspan=1m count by log_level</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
@@ -625,7 +625,7 @@
             </input>
             <event>
                 <search depends="$chart4$">
-                    <query>eventtype="kafka_connect_source" $log_search_tk$ [ | `kafka_connect_source_logs_mapping($env$, $label$, $connector$)` ]</query>
+                    <query>eventtype="kafka_connect_source" $log_search_tk$ [ | inputlookup kafka_connect_tasks_monitoring | search role="kafka_source_task" $env$ $label$ $connector$ | table connector | rename connector as connector_source ]</query>
                     <earliest>$earliest$</earliest>
                     <latest>$latest$</latest>
                     <sampleRatio>1</sampleRatio>

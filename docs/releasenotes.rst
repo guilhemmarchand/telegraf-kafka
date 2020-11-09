@@ -2,6 +2,14 @@ Release notes
 #############
 
 ==============
+Version 1.1.39
+==============
+
+- Feature: Improvements on Confluent Interceptor UI and related Overview page subcomponents
+- Feature: OS Main KPIs views in each component dashboard
+- Change: navigation bar review
+
+==============
 Version 1.1.38
 ==============
 
