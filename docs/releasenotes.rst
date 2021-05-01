@@ -1,6 +1,11 @@
 Release notes
 #############
 
+Version 1.1.40
+==============
+
+- Fix: OS MAIN KPIs file-system usage bar style missing in some builtin views
+
 ==============
 Version 1.1.39
 ==============
