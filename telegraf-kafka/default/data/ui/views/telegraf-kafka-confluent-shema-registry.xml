@@ -1,4 +1,4 @@
-<form stylesheet="telegraf-kafka:common.css" hideEdit="True" isVisible="True" theme="dark">
+<form stylesheet="telegraf-kafka:common.css,telegraf-kafka:table.css,telegraf-kafka:table_bar.css" script="telegraf-kafka:table.js,telegraf-kafka:table_bar.js" theme="dark" hideEdit="true" isVisible="True">
     <label>Confluent schema-registry - Entity health view</label>
 
     <search id="activity_summary">

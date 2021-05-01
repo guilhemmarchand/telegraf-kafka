@@ -3,28 +3,19 @@
 # Check https://circleci.com/docs/2.0/language-python/ for more details
 #
 
-dependencies:
-  cache_directories:
-    - "~/.apt-cache"
-  pre:
-    - sudo rm -rf /var/cache/apt/archives && sudo ln -s ~/.apt-cache /var/cache/apt/archives && mkdir -p ~/.apt-cache/partial
-
-apt-run: &apt-install
-  name: install system packages
-  command: |
-    sudo apt update -qq
-    sudo apt install -y python-pip
-
 version: 2.1
 
 executors:
   content-executor:
     docker:
-      - image: circleci/python:latest
+      - image: cimg/base:stable
+        auth:
+          username: $DOCKERHUB_LOGIN  # can specify string literal values
+          password: $DOCKERHUB_TOKEN  # or project environment variable reference
     working_directory: ~/repo
 
 jobs:
-  validate-content:
+  splunk-appinspect:
     executor: content-executor
     steps:
       - run:
@@ -35,41 +26,24 @@ jobs:
             else
                 git clone --branch ${CIRCLE_BRANCH} https://${GITHUB_TOKEN}@github.com/guilhemmarchand/telegraf-kafka
             fi
+      - run:
+          name: checkout Splunk Appinspect shell executor
+          command: |
+            git clone https://github.com/guilhemmarchand/splunk-appinspect-pipeline.git
       - restore_cache:
           key: deps1-{{ .Branch }}-{{ checksum "telegraf-kafka/telegraf-kafka/default/app.conf" }}
-      - run: *apt-install
       - run:
-          name: grab appinspect
-          command: |
-            curl -Ls https://download.splunk.com/misc/appinspect/splunk-appinspect-latest.tar.gz -o appinspect-lastest.tar.gz
-            mkdir appinspect-latest
-            tar -zxvf appinspect-lastest.tar.gz -C appinspect-latest --strip-components=1
-      - run:
-          name: install appinspect
-          command: |
-            cd appinspect-latest
-            rm -rf venv
-            sudo pip install --upgrade pip setuptools
-            sudo pip install virtualenv
-            virtualenv --clear venv
-            source venv/bin/activate
-            pip install .
-      - run:
-          name: run appinspect
+          name: run appinspect API app vetting
           command: |
             cd telegraf-kafka
             rm -rf telegraf-kafka/.git
             rm -rf telegraf-kafka/.circleci
             rm -rf telegraf-kafka/.gitignore
-            tar -zcvf telegraf-kafka.tar.gz telegraf-kafka
+            tar -zcf telegraf-kafka.tar.gz telegraf-kafka
             mkdir dist
             cp telegraf-kafka.tar.gz dist/
             cd ../
-            cd appinspect-latest
-            pwd
-            ls -ltr
-            source venv/bin/activate
-            splunk-appinspect inspect ../telegraf-kafka/telegraf-kafka.tar.gz --included-tags=cloud
+            splunk-appinspect-pipeline/appinspect_vetting.sh --username=$SPLUNK_BASE_LOGIN --password=$SPLUNK_BASE_PASSWD --app=telegraf-kafka/dist/telegraf-kafka.tar.gz --included_tags=splunk_appinspect --excluded_tags=manual --excluded_checks=check_indexes_conf_does_not_exist --html_report_out=/tmp/appinspect_report.html
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "telegraf-kafka/telegraf-kafka/default/app.conf" }}
           paths:
@@ -78,9 +52,15 @@ jobs:
           root: telegraf-kafka/dist/
           paths:
               - telegraf-kafka.tar.gz
+      - store_artifacts:
+          path: /tmp/appinspect_report.html
+          destination: appinspect-report
   publish-github-release:
     docker:
-      - image: cibuilds/github:0.10
+      - image: cibuilds/github:latest
+        auth:
+          username: $DOCKERHUB_LOGIN  # can specify string literal values
+          password: $DOCKERHUB_TOKEN  # or project environment variable reference
     steps:
       - attach_workspace:
           at: ~/telegraf-kafka/dist/telegraf-kafka.tar.gz
@@ -92,16 +72,19 @@ workflows:
   version: 2.1
   validate-and-build:
     jobs:
-      - validate-content:
+      - splunk-appinspect:
+          context: 
+            - docker-hub-creds
+            - splunk-base-creds
           filters:
             tags:
               only: /.*/
       - publish-github-release:
+          context: docker-hub-creds
           requires:
-            - validate-content
+            - splunk-appinspect
           filters:
             tags:
               only: /^v.*/
             branches:
               ignore: /.*/
-
