@@ -39,3 +39,5 @@ build/appinspect_report_*
 
 # build
 build/*.tgz
+build/release-sha256.txt
+
