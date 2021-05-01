@@ -35,4 +35,7 @@ backups
 */.DS_Store
 
 # appinspect reports
-appinspect_report_*
+build/appinspect_report_*
+
+# build
+build/*.tgz
