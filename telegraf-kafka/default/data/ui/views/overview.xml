@@ -1,4 +1,4 @@
-<dashboard stylesheet="common.css,boottsrap-btn.css,table.css" script="load_spinner.js,load_components_v2.js,configcheck.js,token_buttons.js,table.js" theme="dark" hideEdit="True" isVisible="True">
+<dashboard stylesheet="common.css,boottsrap-btn.css,table.css" script="load_spinner.js,load_components_v2.js,configcheck.js,token_buttons.js,table.js" theme="dark" hideEdit="True" isVisible="True" version="1.1">
     <label>Overview</label>
 
     <search id="main_populate">

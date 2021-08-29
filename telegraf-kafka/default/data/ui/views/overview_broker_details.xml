@@ -1,4 +1,4 @@
-<dashboard stylesheet="telegraf-kafka:common.css" theme="dark" hideEdit="True" isVisible="False">
+<dashboard stylesheet="telegraf-kafka:common.css" theme="dark" hideEdit="True" isVisible="False" version="1.1">
     <label>Broker View</label>
     <row>
         <panel>

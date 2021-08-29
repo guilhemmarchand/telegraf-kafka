@@ -1,4 +1,4 @@
-<dashboard stylesheet="telegraf-kafka:common.css,telegraf-kafka:table.css" script="telegraf-kafka:table.js" theme="dark" hideEdit="True" isVisible="True">
+<dashboard stylesheet="telegraf-kafka:common.css,telegraf-kafka:table.css" script="telegraf-kafka:table.js" theme="dark" hideEdit="True" isVisible="True" version="1.1">
     <label>Topics</label>
     <search id="main_populate">
         <query>| savedsearch telegraf-kafka-kafka-topics</query>
